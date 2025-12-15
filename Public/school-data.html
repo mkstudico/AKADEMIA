@@ -22,7 +22,6 @@
             --primary-blue-dark: #0056CC;
             --accent-green: #34C759;
             --accent-red: #FF3B30;
-            --accent-purple: #AF52DE;
             --accent-orange: #FF9500;
             --dark: #1C1C1E;
             --light: #FFFFFF;
@@ -162,7 +161,7 @@
         .search-add-section {
             display: flex;
             gap: 1rem;
-            margin-bottom: 2.5rem;
+            margin-bottom: 2rem;
             align-items: center;
         }
 
@@ -244,75 +243,22 @@
             box-shadow: var(--shadow-subtle);
         }
 
-        /* Search Results Dropdown */
-        .search-results {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: var(--light);
-            border-radius: var(--radius-sm);
-            box-shadow: var(--shadow-medium);
-            margin-top: 0.5rem;
-            display: none;
-            z-index: 100;
-            max-height: 300px;
-            overflow-y: auto;
-            border: 1px solid var(--gray-light);
-        }
-
-        .search-results.active {
-            display: block;
-            animation: fadeInUp 0.2s ease;
-        }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .search-result-item {
-            padding: 0.8rem 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            cursor: pointer;
-            transition: var(--transition);
-            border-bottom: 1px solid var(--gray-light);
-        }
-
-        .search-result-item:last-child {
-            border-bottom: none;
-        }
-
-        .search-result-item:hover {
-            background: var(--gray-light);
-        }
-
-        .result-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: var(--radius-full);
-            object-fit: cover;
-            background: var(--gray-light);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
+        /* Predefined Staff Section */
+        .section-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
             color: var(--dark);
-            font-weight: 500;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--gray-light);
         }
 
-        .result-info h4 {
-            font-weight: 500;
-            font-size: 0.9rem;
-            color: var(--dark);
-            margin-bottom: 0.1rem;
-        }
-
-        .result-info p {
-            font-size: 0.75rem;
-            color: var(--gray);
+        .predefined-staff-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
         }
 
         /* Staff Grid */
@@ -335,6 +281,20 @@
             overflow: hidden;
         }
 
+        .staff-card.setup-required {
+            border-color: var(--accent-orange);
+            border-style: dashed;
+        }
+
+        .staff-card.setup-required:hover {
+            border-color: var(--accent-orange);
+            border-style: solid;
+        }
+
+        .staff-card.available {
+            border-color: var(--accent-green);
+        }
+
         .staff-card::before {
             content: '';
             position: absolute;
@@ -347,22 +307,39 @@
             transition: transform 0.3s ease;
         }
 
-        .staff-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-medium);
-            border-color: var(--primary-blue-light);
+        .staff-card.setup-required::before {
+            background: linear-gradient(90deg, var(--accent-orange) 0%, #FFCC80 100%);
+        }
+
+        .staff-card.available::before {
+            background: linear-gradient(90deg, var(--accent-green) 0%, #5AC8A5 100%);
         }
 
         .staff-card:hover::before {
             transform: scaleX(1);
         }
 
-        .staff-card.available {
-            border-color: var(--accent-green);
+        .staff-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-medium);
         }
 
-        .staff-card.available::before {
-            background: linear-gradient(90deg, var(--accent-green) 0%, #5AC8A5 100%);
+        .setup-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--accent-orange);
+            color: var(--light);
+            font-size: 0.7rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-weight: 500;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
 
         .staff-avatar {
@@ -391,6 +368,11 @@
 
         .staff-avatar.default {
             background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
+            color: var(--light);
+        }
+
+        .staff-avatar.setup {
+            background: linear-gradient(135deg, var(--accent-orange) 0%, #FFCC80 100%);
             color: var(--light);
         }
 
@@ -431,15 +413,13 @@
 
         .status-dot.active {
             background: var(--accent-green);
-            animation: pulse 2s infinite;
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+        .status-dot.setup {
+            background: var(--accent-orange);
         }
 
-        /* Add Member Modal */
+        /* Modals */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -528,8 +508,7 @@
             font-size: 0.85rem;
         }
 
-        .modal-form .form-input,
-        .modal-form .form-select {
+        .modal-form .form-input {
             width: 100%;
             padding: 0.7rem 0.8rem;
             border: 1.5px solid var(--gray-light);
@@ -541,21 +520,10 @@
             color: var(--dark);
         }
 
-        .modal-form .form-input:focus,
-        .modal-form .form-select:focus {
+        .modal-form .form-input:focus {
             outline: none;
             border-color: var(--primary-blue);
             box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.1);
-        }
-
-        .teacher-extra {
-            display: none;
-            margin-top: 0.8rem;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .teacher-extra.active {
-            display: block;
         }
 
         .modal-footer {
@@ -600,6 +568,39 @@
         .btn-secondary:hover {
             background: var(--gray);
             color: var(--light);
+        }
+
+        /* Setup Staff Modal */
+        .setup-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: var(--radius-full);
+            margin: 0 auto 1.5rem;
+            background: linear-gradient(135deg, var(--accent-orange) 0%, #FFCC80 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--light);
+            font-weight: 600;
+        }
+
+        .setup-title {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .setup-title h3 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .setup-title p {
+            color: var(--gray);
+            font-size: 0.9rem;
         }
 
         /* Password Modal */
@@ -671,6 +672,10 @@
             border-left-color: var(--accent-red);
         }
 
+        .notification.warning {
+            border-left-color: var(--accent-orange);
+        }
+
         .notification-icon {
             font-size: 1.2rem;
             margin-top: 2px;
@@ -682,6 +687,10 @@
 
         .notification.error .notification-icon {
             color: var(--accent-red);
+        }
+
+        .notification.warning .notification-icon {
+            color: var(--accent-orange);
         }
 
         .notification-content h4 {
@@ -700,6 +709,77 @@
         @keyframes slideIn {
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Search Results Dropdown */
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--light);
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-medium);
+            margin-top: 0.5rem;
+            display: none;
+            z-index: 100;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--gray-light);
+        }
+
+        .search-results.active {
+            display: block;
+            animation: fadeInUp 0.2s ease;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .search-result-item {
+            padding: 0.8rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-result-item:hover {
+            background: var(--gray-light);
+        }
+
+        .result-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-full);
+            object-fit: cover;
+            background: var(--gray-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: var(--dark);
+            font-weight: 500;
+        }
+
+        .result-info h4 {
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--dark);
+            margin-bottom: 0.1rem;
+        }
+
+        .result-info p {
+            font-size: 0.75rem;
+            color: var(--gray);
         }
 
         /* Responsive */
@@ -725,6 +805,11 @@
             
             .search-container {
                 width: 100%;
+            }
+            
+            .predefined-staff-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
             }
             
             .staff-grid {
@@ -787,9 +872,71 @@
             </button>
         </div>
 
-        <!-- Staff Grid -->
+        <!-- Predefined Staff Section -->
+        <h3 class="section-title">Key Leadership Positions</h3>
+        <div class="predefined-staff-grid" id="predefinedStaffGrid">
+            <!-- Predefined staff will be populated here -->
+        </div>
+
+        <!-- Additional Staff Section -->
+        <h3 class="section-title">Additional Staff Members</h3>
         <div class="staff-grid" id="staffGrid">
-            <!-- Staff cards will be populated here -->
+            <!-- Additional staff cards will be populated here -->
+        </div>
+    </div>
+
+    <!-- Setup Predefined Staff Modal -->
+    <div class="modal-overlay" id="setupStaffModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Setup Staff Account</h3>
+                <button class="close-btn" id="closeSetupModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="setup-title">
+                    <div class="setup-avatar" id="setupRoleIcon">
+                        H
+                    </div>
+                    <h3 id="setupRoleName">Headmaster</h3>
+                    <p>Setup account details for this key position</p>
+                </div>
+                
+                <form class="modal-form" id="setupStaffForm">
+                    <div class="form-group">
+                        <label class="form-label">Full Name *</label>
+                        <input type="text" class="form-input" id="setupName" placeholder="Enter full name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Email Address *</label>
+                        <input type="email" class="form-input" id="setupEmail" placeholder="staff@school.edu" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Password *</label>
+                        <input type="password" class="form-input" id="setupPassword" placeholder="Create password (min. 6 characters)" required>
+                        <div style="font-size: 0.75rem; color: var(--gray); margin-top: 0.4rem;">
+                            This will be their login password
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Confirm Password *</label>
+                        <input type="password" class="form-input" id="setupConfirmPassword" placeholder="Confirm password" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelSetupBtn">
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-primary" id="saveSetupBtn">
+                    <i class="fas fa-check-circle"></i>
+                    Complete Setup
+                </button>
+            </div>
         </div>
     </div>
 
@@ -798,7 +945,7 @@
         <div class="modal">
             <div class="modal-header">
                 <h3 class="modal-title">Add New Staff Member</h3>
-                <button class="close-btn" id="closeModal">
+                <button class="close-btn" id="closeAddModal">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -816,14 +963,14 @@
                     
                     <div class="form-group">
                         <label class="form-label">Role *</label>
-                        <select class="form-select" id="memberRole" required>
+                        <select class="form-input" id="memberRole" style="padding: 0.7rem 0.8rem;" required>
                             <option value="">Select a role</option>
                             <option value="dean_of_studies">Dean of Studies</option>
                             <option value="dean_of_discipline">Dean of Discipline</option>
                             <option value="patron">Patron</option>
                             <option value="matron">Matron</option>
                             <option value="teacher">Teacher</option>
-                            <option value="other">Other</option>
+                            <option value="other">Other Staff</option>
                         </select>
                     </div>
                     
@@ -839,12 +986,12 @@
                     
                     <div class="form-group">
                         <label class="form-label">Confirm Password *</label>
-                        <input type="password" class="form-input" id="confirmPassword" placeholder="Confirm password" required>
+                        <input type="password" class="form-input" id="confirmMemberPassword" placeholder="Confirm password" required>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="cancelBtn">
+                <button type="button" class="btn btn-secondary" id="cancelAddBtn">
                     Cancel
                 </button>
                 <button type="button" class="btn btn-primary" id="saveMemberBtn">
@@ -855,7 +1002,7 @@
         </div>
     </div>
 
-    <!-- Password Modal -->
+    <!-- Password Login Modal -->
     <div class="modal-overlay" id="passwordModal">
         <div class="password-modal">
             <div class="password-avatar" id="passwordAvatar">
@@ -911,6 +1058,7 @@
                 let icon = 'info-circle';
                 if (type === 'success') icon = 'check-circle';
                 if (type === 'error') icon = 'exclamation-circle';
+                if (type === 'warning') icon = 'exclamation-triangle';
                 
                 notification.innerHTML = `
                     <div class="notification-icon">
@@ -941,15 +1089,31 @@
         const searchInput = document.getElementById('searchInput');
         const searchResults = document.getElementById('searchResults');
         const addMemberBtn = document.getElementById('addMemberBtn');
+        const predefinedStaffGrid = document.getElementById('predefinedStaffGrid');
         const staffGrid = document.getElementById('staffGrid');
+        
+        // Modal elements
+        const setupStaffModal = document.getElementById('setupStaffModal');
         const addMemberModal = document.getElementById('addMemberModal');
-        const closeModal = document.getElementById('closeModal');
-        const cancelBtn = document.getElementById('cancelBtn');
+        const passwordModal = document.getElementById('passwordModal');
+        
+        // Setup modal elements
+        const closeSetupModal = document.getElementById('closeSetupModal');
+        const cancelSetupBtn = document.getElementById('cancelSetupBtn');
+        const setupStaffForm = document.getElementById('setupStaffForm');
+        const saveSetupBtn = document.getElementById('saveSetupBtn');
+        const setupRoleIcon = document.getElementById('setupRoleIcon');
+        const setupRoleName = document.getElementById('setupRoleName');
+        
+        // Add member modal elements
+        const closeAddModal = document.getElementById('closeAddModal');
+        const cancelAddBtn = document.getElementById('cancelAddBtn');
         const addMemberForm = document.getElementById('addMemberForm');
         const memberRole = document.getElementById('memberRole');
         const teacherLessonGroup = document.getElementById('teacherLessonGroup');
         const saveMemberBtn = document.getElementById('saveMemberBtn');
-        const passwordModal = document.getElementById('passwordModal');
+        
+        // Password modal elements
         const cancelPasswordBtn = document.getElementById('cancelPasswordBtn');
         const submitPasswordBtn = document.getElementById('submitPasswordBtn');
         const passwordAvatar = document.getElementById('passwordAvatar');
@@ -957,9 +1121,12 @@
         const staffPassword = document.getElementById('staffPassword');
 
         let currentSchool = null;
-        let staffMembers = [];
+        let allStaffMembers = [];
+        let predefinedStaff = [];
+        let additionalStaff = [];
         let searchTimeout = null;
         let selectedStaff = null;
+        let selectedPredefinedRole = null;
 
         // Get school info from session
         const sessionData = JSON.parse(sessionStorage.getItem('akademia_user') || '{}');
@@ -967,12 +1134,37 @@
             window.location.href = 'login.html';
         }
 
+        // Predefined staff roles configuration
+        const PREDEFINED_ROLES = [
+            {
+                id: 'headmaster',
+                name: 'Headmaster',
+                icon: 'H',
+                description: 'School Principal/Head'
+            },
+            {
+                id: 'dean_of_studies',
+                name: 'Dean of Studies',
+                icon: 'DS',
+                description: 'Academic Affairs Director'
+            },
+            {
+                id: 'it_staff',
+                name: 'IT Staff',
+                icon: 'IT',
+                description: 'Technical Support & Systems'
+            }
+        ];
+
         // Initialize
         document.addEventListener('DOMContentLoaded', async () => {
             try {
                 await loadSchoolData();
-                await loadStaffMembers();
+                await loadAllStaffMembers();
                 setupEventListeners();
+                renderPredefinedStaff();
+                renderAdditionalStaff();
+                updateStaffCount();
             } catch (error) {
                 notifications.show('Error loading data: ' + error.message, 'error');
             }
@@ -989,51 +1181,37 @@
             }
         }
 
-        // Load staff members
-        async function loadStaffMembers() {
+        // Load all staff members
+        async function loadAllStaffMembers() {
             try {
+                allStaffMembers = [];
+                predefinedStaff = [];
+                additionalStaff = [];
+                
                 const staffRef = collection(db, 'schools', sessionData.schoolId, 'staff');
+                
+                // First, get all staff members
                 const staffSnapshot = await getDocs(staffRef);
                 
-                staffMembers = [];
-                staffGrid.innerHTML = '';
-                
-                // Get predefined staff (Headmaster, DOS, IT)
-                const predefinedRoles = ['headmaster', 'dean', 'it_staff'];
-                
-                for (const role of predefinedRoles) {
-                    const staffDoc = doc(staffRef, role);
-                    const staffData = await getDoc(staffDoc);
+                staffSnapshot.forEach(docSnap => {
+                    const staff = {
+                        id: docSnap.id,
+                        ...docSnap.data()
+                    };
                     
-                    if (staffData.exists()) {
-                        const data = staffData.data();
-                        if (data.name !== 'Not specified') {
-                            staffMembers.push({
-                                id: role,
-                                ...data,
-                                role: role === 'dean' ? 'dean_of_studies' : role,
-                                isPredefined: true
-                            });
-                        }
+                    allStaffMembers.push(staff);
+                    
+                    // Check if it's a predefined role
+                    const isPredefined = PREDEFINED_ROLES.some(role => 
+                        role.id === staff.id || 
+                        (role.id === 'dean_of_studies' && staff.role === 'dean_of_studies')
+                    );
+                    
+                    if (isPredefined) {
+                        predefinedStaff.push(staff);
+                    } else {
+                        additionalStaff.push(staff);
                     }
-                }
-                
-                // Get additional staff members
-                const additionalStaffSnapshot = await getDocs(query(staffRef, where('role', 'not-in', predefinedRoles)));
-                additionalStaffSnapshot.forEach(doc => {
-                    staffMembers.push({
-                        id: doc.id,
-                        ...doc.data(),
-                        isPredefined: false
-                    });
-                });
-                
-                // Update count
-                staffCount.textContent = `${staffMembers.length} staff member${staffMembers.length !== 1 ? 's' : ''}`;
-                
-                // Render staff cards
-                staffMembers.forEach(staff => {
-                    renderStaffCard(staff);
                 });
                 
             } catch (error) {
@@ -1042,59 +1220,350 @@
             }
         }
 
-        // Render staff card
-        function renderStaffCard(staff) {
-            const card = document.createElement('div');
-            card.className = `staff-card ${staff.email ? 'available' : ''}`;
-            card.dataset.id = staff.id;
+        // Render predefined staff
+        function renderPredefinedStaff() {
+            predefinedStaffGrid.innerHTML = '';
             
-            // Get role display name
-            const roleNames = {
-                headmaster: 'Headmaster',
-                dean_of_studies: 'Dean of Studies',
-                it_staff: 'IT Staff',
-                dean_of_discipline: 'Dean of Discipline',
-                patron: 'Patron',
-                matron: 'Matron',
-                teacher: 'Teacher',
-                other: 'Other Staff'
-            };
-            
-            const roleDisplay = roleNames[staff.role] || staff.role;
-            
-            // Get initials for avatar
-            const initials = staff.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-            
-            card.innerHTML = `
-                <div class="staff-avatar default">
-                    ${initials}
-                </div>
-                <div class="staff-name">${staff.name}</div>
-                <div class="staff-role">${roleDisplay}</div>
-                <div class="staff-status">
-                    <span class="status-dot ${staff.email ? 'active' : ''}"></span>
-                    ${staff.email ? 'Account Active' : 'Setup Required'}
-                </div>
-            `;
-            
-            card.addEventListener('click', () => handleStaffClick(staff));
-            staffGrid.appendChild(card);
+            PREDEFINED_ROLES.forEach(role => {
+                // Find if this role is already set up
+                const existingStaff = predefinedStaff.find(staff => 
+                    staff.id === role.id || 
+                    (role.id === 'dean_of_studies' && staff.role === 'dean_of_studies')
+                );
+                
+                const card = document.createElement('div');
+                const hasEmail = existingStaff && existingStaff.email;
+                
+                card.className = `staff-card ${hasEmail ? 'available' : 'setup-required'}`;
+                card.dataset.role = role.id;
+                
+                const initials = role.icon;
+                const displayName = existingStaff?.name || role.name;
+                const statusText = hasEmail ? 'Account Active' : 'Setup Required';
+                const statusClass = hasEmail ? 'active' : 'setup';
+                
+                card.innerHTML = `
+                    ${!hasEmail ? '<div class="setup-badge">Setup Required</div>' : ''}
+                    <div class="staff-avatar ${hasEmail ? 'default' : 'setup'}">
+                        ${initials}
+                    </div>
+                    <div class="staff-name">${displayName}</div>
+                    <div class="staff-role">${role.name}</div>
+                    <div class="staff-status">
+                        <span class="status-dot ${statusClass}"></span>
+                        ${statusText}
+                    </div>
+                `;
+                
+                card.addEventListener('click', () => handlePredefinedStaffClick(role, existingStaff));
+                predefinedStaffGrid.appendChild(card);
+            });
         }
 
-        // Handle staff click
-        function handleStaffClick(staff) {
-            selectedStaff = staff;
+        // Render additional staff
+        function renderAdditionalStaff() {
+            staffGrid.innerHTML = '';
             
+            additionalStaff.forEach(staff => {
+                const card = document.createElement('div');
+                const hasEmail = staff.email;
+                
+                card.className = `staff-card ${hasEmail ? 'available' : 'setup-required'}`;
+                card.dataset.id = staff.id;
+                
+                // Get initials
+                const initials = staff.name ? 
+                    staff.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 
+                    '?';
+                
+                // Get role display name
+                const roleNames = {
+                    dean_of_studies: 'Dean of Studies',
+                    dean_of_discipline: 'Dean of Discipline',
+                    patron: 'Patron',
+                    matron: 'Matron',
+                    teacher: 'Teacher',
+                    other: 'Other Staff'
+                };
+                
+                const roleDisplay = roleNames[staff.role] || staff.role;
+                const statusText = hasEmail ? 'Account Active' : 'Setup Required';
+                const statusClass = hasEmail ? 'active' : 'setup';
+                
+                card.innerHTML = `
+                    ${!hasEmail ? '<div class="setup-badge">Setup Required</div>' : ''}
+                    <div class="staff-avatar ${hasEmail ? 'default' : 'setup'}">
+                        ${initials}
+                    </div>
+                    <div class="staff-name">${staff.name}</div>
+                    <div class="staff-role">${roleDisplay}</div>
+                    <div class="staff-status">
+                        <span class="status-dot ${statusClass}"></span>
+                        ${statusText}
+                    </div>
+                `;
+                
+                card.addEventListener('click', () => handleAdditionalStaffClick(staff));
+                staffGrid.appendChild(card);
+            });
+        }
+
+        // Update staff count
+        function updateStaffCount() {
+            const totalStaff = allStaffMembers.filter(staff => staff.email).length;
+            const totalPredefinedSetup = predefinedStaff.filter(staff => staff.email).length;
+            staffCount.textContent = `${totalStaff} active staff (${totalPredefinedSetup}/3 key positions setup)`;
+        }
+
+        // Handle predefined staff click
+        function handlePredefinedStaffClick(role, existingStaff) {
+            if (!existingStaff || !existingStaff.email) {
+                // Show setup modal
+                selectedPredefinedRole = role;
+                setupRoleIcon.textContent = role.icon;
+                setupRoleName.textContent = role.name;
+                setupStaffForm.reset();
+                setupStaffModal.classList.add('active');
+                notifications.show(`Setup required for ${role.name}`, 'warning');
+            } else {
+                // Show password modal for login
+                selectedStaff = existingStaff;
+                showPasswordModal(existingStaff);
+            }
+        }
+
+        // Handle additional staff click
+        function handleAdditionalStaffClick(staff) {
             if (!staff.email) {
-                notifications.show('This staff member needs to set up their account first', 'info');
+                notifications.show('This staff member needs to be setup first', 'warning');
                 return;
             }
             
-            // Show password modal
-            passwordAvatar.textContent = staff.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+            selectedStaff = staff;
+            showPasswordModal(staff);
+        }
+
+        // Show password modal
+        function showPasswordModal(staff) {
+            const initials = staff.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+            passwordAvatar.textContent = initials;
             passwordName.textContent = staff.name;
             staffPassword.value = '';
             passwordModal.classList.add('active');
+        }
+
+        // Setup predefined staff account
+        async function setupPredefinedStaff() {
+            try {
+                saveSetupBtn.disabled = true;
+                saveSetupBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Setting up...';
+                
+                const name = document.getElementById('setupName').value.trim();
+                const email = document.getElementById('setupEmail').value.trim().toLowerCase();
+                const password = document.getElementById('setupPassword').value;
+                const confirmPassword = document.getElementById('setupConfirmPassword').value;
+                
+                // Validation
+                if (!name || !email || !password) {
+                    notifications.show('Please fill all required fields', 'error');
+                    return;
+                }
+                
+                if (password.length < 6) {
+                    notifications.show('Password must be at least 6 characters', 'error');
+                    return;
+                }
+                
+                if (password !== confirmPassword) {
+                    notifications.show('Passwords do not match', 'error');
+                    return;
+                }
+                
+                if (!email.includes('@')) {
+                    notifications.show('Please enter a valid email address', 'error');
+                    return;
+                }
+                
+                // Create auth account
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                
+                // Save to Firestore
+                const staffData = {
+                    name: name,
+                    email: email,
+                    role: selectedPredefinedRole.id,
+                    status: 'active',
+                    setupCompleted: true,
+                    setupBy: sessionData.email,
+                    setupAt: new Date().toISOString()
+                };
+                
+                // Use role ID as document ID for predefined roles
+                const staffRef = doc(db, 'schools', sessionData.schoolId, 'staff', selectedPredefinedRole.id);
+                await setDoc(staffRef, staffData);
+                
+                notifications.show(`${selectedPredefinedRole.name} setup completed successfully!`, 'success');
+                
+                // Close modal and refresh
+                setupStaffModal.classList.remove('active');
+                await loadAllStaffMembers();
+                renderPredefinedStaff();
+                renderAdditionalStaff();
+                updateStaffCount();
+                
+                selectedPredefinedRole = null;
+                
+            } catch (error) {
+                let message = 'Error setting up staff account';
+                if (error.code === 'auth/email-already-in-use') {
+                    message = 'Email already in use';
+                }
+                notifications.show(message, 'error');
+                console.error('Setup error:', error);
+            } finally {
+                saveSetupBtn.disabled = false;
+                saveSetupBtn.innerHTML = '<i class="fas fa-check-circle"></i> Complete Setup';
+            }
+        }
+
+        // Add new staff member
+        async function addNewStaffMember() {
+            try {
+                saveMemberBtn.disabled = true;
+                saveMemberBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+                
+                const name = document.getElementById('memberName').value.trim();
+                const email = document.getElementById('memberEmail').value.trim().toLowerCase();
+                const role = memberRole.value;
+                const password = document.getElementById('memberPassword').value;
+                const confirmPassword = document.getElementById('confirmMemberPassword').value;
+                
+                // Validation
+                if (!name || !email || !role || !password) {
+                    notifications.show('Please fill all required fields', 'error');
+                    return;
+                }
+                
+                if (password.length < 6) {
+                    notifications.show('Password must be at least 6 characters', 'error');
+                    return;
+                }
+                
+                if (password !== confirmPassword) {
+                    notifications.show('Passwords do not match', 'error');
+                    return;
+                }
+                
+                if (!email.includes('@')) {
+                    notifications.show('Please enter a valid email address', 'error');
+                    return;
+                }
+                
+                // For teachers, require lesson
+                if (role === 'teacher') {
+                    const lesson = document.getElementById('teacherLesson').value.trim();
+                    if (!lesson) {
+                        notifications.show('Please specify teaching lesson for teacher', 'error');
+                        return;
+                    }
+                }
+                
+                // Check if email already exists in predefined staff
+                const isPredefinedEmail = allStaffMembers.some(staff => staff.email === email);
+                if (isPredefinedEmail) {
+                    notifications.show('Email already used by another staff member', 'error');
+                    return;
+                }
+                
+                // Create auth account
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                
+                // Save to Firestore
+                const staffData = {
+                    name: name,
+                    email: email,
+                    role: role,
+                    status: 'active',
+                    createdAt: new Date().toISOString(),
+                    createdBy: sessionData.email
+                };
+                
+                // Add extra data for teachers
+                if (role === 'teacher') {
+                    staffData.lesson = document.getElementById('teacherLesson').value.trim();
+                }
+                
+                const staffId = email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '_');
+                const staffRef = doc(db, 'schools', sessionData.schoolId, 'staff', staffId);
+                await setDoc(staffRef, staffData);
+                
+                notifications.show('Staff member added successfully!', 'success');
+                
+                // Close modal and refresh
+                addMemberModal.classList.remove('active');
+                await loadAllStaffMembers();
+                renderAdditionalStaff();
+                updateStaffCount();
+                
+            } catch (error) {
+                let message = 'Error adding staff member';
+                if (error.code === 'auth/email-already-in-use') {
+                    message = 'Email already in use';
+                }
+                notifications.show(message, 'error');
+                console.error('Error adding staff:', error);
+            } finally {
+                saveMemberBtn.disabled = false;
+                saveMemberBtn.innerHTML = '<i class="fas fa-save"></i> Save Member';
+            }
+        }
+
+        // Verify staff password and login
+        async function verifyStaffPassword() {
+            try {
+                submitPasswordBtn.disabled = true;
+                submitPasswordBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+                
+                const password = staffPassword.value.trim();
+                
+                if (!password) {
+                    notifications.show('Please enter your password', 'error');
+                    return;
+                }
+                
+                // Sign in with staff email and password
+                const userCredential = await signInWithEmailAndPassword(auth, selectedStaff.email, password);
+                
+                notifications.show('Login successful! Redirecting...', 'success');
+                
+                // Store staff session
+                sessionStorage.setItem('akademia_staff', JSON.stringify({
+                    staffId: selectedStaff.id,
+                    staffName: selectedStaff.name,
+                    staffRole: selectedStaff.role,
+                    staffEmail: selectedStaff.email,
+                    schoolId: sessionData.schoolId,
+                    schoolName: sessionData.schoolName,
+                    isPredefined: PREDEFINED_ROLES.some(role => role.id === selectedStaff.id)
+                }));
+                
+                // Redirect to home.html
+                setTimeout(() => {
+                    window.location.href = 'home.html';
+                }, 1500);
+                
+            } catch (error) {
+                let message = 'Login failed';
+                if (error.code === 'auth/wrong-password') {
+                    message = 'Incorrect password';
+                } else if (error.code === 'auth/user-not-found') {
+                    message = 'Staff account not found';
+                }
+                notifications.show(message, 'error');
+            } finally {
+                submitPasswordBtn.disabled = false;
+                submitPasswordBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+            }
         }
 
         // Search functionality
@@ -1114,9 +1583,8 @@
                 return;
             }
             
-            const results = staffMembers.filter(staff => 
-                staff.name.toLowerCase().includes(query) ||
-                staff.role.toLowerCase().includes(query)
+            const results = allStaffMembers.filter(staff => 
+                staff.name && staff.name.toLowerCase().includes(query)
             );
             
             if (results.length === 0) {
@@ -1156,7 +1624,13 @@
                     resultItem.addEventListener('click', () => {
                         searchInput.value = '';
                         searchResults.classList.remove('active');
-                        handleStaffClick(staff);
+                        
+                        if (staff.email) {
+                            selectedStaff = staff;
+                            showPasswordModal(staff);
+                        } else {
+                            notifications.show('This staff member needs setup first', 'warning');
+                        }
                     });
                     
                     searchResults.appendChild(resultItem);
@@ -1178,19 +1652,11 @@
             // Add member button
             addMemberBtn.addEventListener('click', () => {
                 addMemberForm.reset();
+                teacherLessonGroup.style.display = 'none';
                 addMemberModal.classList.add('active');
             });
             
-            // Close modal buttons
-            closeModal.addEventListener('click', () => {
-                addMemberModal.classList.remove('active');
-            });
-            
-            cancelBtn.addEventListener('click', () => {
-                addMemberModal.classList.remove('active');
-            });
-            
-            // Role change handler
+            // Role change in add member modal
             memberRole.addEventListener('change', () => {
                 if (memberRole.value === 'teacher') {
                     teacherLessonGroup.style.display = 'block';
@@ -1199,151 +1665,51 @@
                 }
             });
             
-            // Save member
-            saveMemberBtn.addEventListener('click', async () => {
-                await addNewMember();
+            // Setup modal buttons
+            closeSetupModal.addEventListener('click', () => {
+                setupStaffModal.classList.remove('active');
+                selectedPredefinedRole = null;
             });
             
-            // Password modal
+            cancelSetupBtn.addEventListener('click', () => {
+                setupStaffModal.classList.remove('active');
+                selectedPredefinedRole = null;
+            });
+            
+            saveSetupBtn.addEventListener('click', setupPredefinedStaff);
+            
+            // Add member modal buttons
+            closeAddModal.addEventListener('click', () => {
+                addMemberModal.classList.remove('active');
+            });
+            
+            cancelAddBtn.addEventListener('click', () => {
+                addMemberModal.classList.remove('active');
+            });
+            
+            saveMemberBtn.addEventListener('click', addNewStaffMember);
+            
+            // Password modal buttons
             cancelPasswordBtn.addEventListener('click', () => {
                 passwordModal.classList.remove('active');
                 selectedStaff = null;
             });
             
-            submitPasswordBtn.addEventListener('click', async () => {
-                await verifyStaffPassword();
-            });
+            submitPasswordBtn.addEventListener('click', verifyStaffPassword);
             
             staffPassword.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     verifyStaffPassword();
                 }
             });
-        }
-
-        // Add new staff member
-        async function addNewMember() {
-            try {
-                saveMemberBtn.disabled = true;
-                saveMemberBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-                
-                const name = document.getElementById('memberName').value.trim();
-                const email = document.getElementById('memberEmail').value.trim().toLowerCase();
-                const role = memberRole.value;
-                const password = document.getElementById('memberPassword').value;
-                const confirmPassword = document.getElementById('confirmPassword').value;
-                
-                // Validation
-                if (!name || !email || !role || !password) {
-                    notifications.show('Please fill all required fields', 'error');
-                    return;
+            
+            // Allow Enter key in setup form
+            document.getElementById('setupConfirmPassword').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    setupPredefinedStaff();
                 }
-                
-                if (password.length < 6) {
-                    notifications.show('Password must be at least 6 characters', 'error');
-                    return;
-                }
-                
-                if (password !== confirmPassword) {
-                    notifications.show('Passwords do not match', 'error');
-                    return;
-                }
-                
-                // For teachers, require lesson
-                if (role === 'teacher') {
-                    const lesson = document.getElementById('teacherLesson').value.trim();
-                    if (!lesson) {
-                        notifications.show('Please specify teaching lesson for teacher', 'error');
-                        return;
-                    }
-                }
-                
-                // Create auth account
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                
-                // Save to Firestore
-                const staffData = {
-                    name: name,
-                    email: email,
-                    role: role,
-                    status: 'active',
-                    createdAt: new Date().toISOString(),
-                    createdBy: sessionData.email
-                };
-                
-                // Add extra data for teachers
-                if (role === 'teacher') {
-                    staffData.lesson = document.getElementById('teacherLesson').value.trim();
-                }
-                
-                const staffId = email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '_');
-                const staffRef = doc(db, 'schools', sessionData.schoolId, 'staff', staffId);
-                await setDoc(staffRef, staffData);
-                
-                notifications.show('Staff member added successfully!', 'success');
-                
-                // Close modal and refresh list
-                addMemberModal.classList.remove('active');
-                await loadStaffMembers();
-                
-            } catch (error) {
-                let message = 'Error adding staff member';
-                if (error.code === 'auth/email-already-in-use') {
-                    message = 'Email already in use';
-                }
-                notifications.show(message, 'error');
-                console.error('Error adding staff:', error);
-            } finally {
-                saveMemberBtn.disabled = false;
-                saveMemberBtn.innerHTML = '<i class="fas fa-save"></i> Save Member';
-            }
-        }
-
-        // Verify staff password
-        async function verifyStaffPassword() {
-            try {
-                submitPasswordBtn.disabled = true;
-                submitPasswordBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
-                
-                const password = staffPassword.value.trim();
-                
-                if (!password) {
-                    notifications.show('Please enter your password', 'error');
-                    return;
-                }
-                
-                // Sign in with staff email and password
-                const userCredential = await signInWithEmailAndPassword(auth, selectedStaff.email, password);
-                
-                notifications.show('Login successful! Redirecting...', 'success');
-                
-                // Store staff session
-                sessionStorage.setItem('akademia_staff', JSON.stringify({
-                    staffId: selectedStaff.id,
-                    staffName: selectedStaff.name,
-                    staffRole: selectedStaff.role,
-                    staffEmail: selectedStaff.email,
-                    schoolId: sessionData.schoolId,
-                    schoolName: sessionData.schoolName
-                }));
-                
-                // Redirect to home.html
-                setTimeout(() => {
-                    window.location.href = 'home.html';
-                }, 1500);
-                
-            } catch (error) {
-                let message = 'Login failed';
-                if (error.code === 'auth/wrong-password') {
-                    message = 'Incorrect password';
-                } else if (error.code === 'auth/user-not-found') {
-                    message = 'Staff account not found';
-                }
-                notifications.show(message, 'error');
-            } finally {
-                submitPasswordBtn.disabled = false;
-                submitPasswordBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
-            }
+            });
         }
     </script>
 </body>
