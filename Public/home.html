@@ -1,1 +1,1741 @@
-hello
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akademia - Staff Dashboard</title>
+    <link rel="icon" type="image/x-icon" href="Assets/Images/favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-blue: #007AFF;
+            --primary-blue-light: #5AC8FA;
+            --primary-blue-dark: #0056CC;
+            --accent-green: #34C759;
+            --accent-red: #FF3B30;
+            --accent-orange: #FF9500;
+            --accent-purple: #AF52DE;
+            --accent-yellow: #FFCC00;
+            --dark: #1C1C1E;
+            --light: #FFFFFF;
+            --gray-light: #F2F2F7;
+            --gray: #8E8E93;
+            --gray-dark: #3A3A3C;
+            --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.05);
+            --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --shadow-large: 0 10px 30px rgba(0, 0, 0, 0.12);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-full: 50%;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --sidebar-width: 240px;
+            --header-height: 64px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--gray-light);
+            color: var(--dark);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Main Layout */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--light);
+            border-right: 1px solid var(--gray-light);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+            transition: var(--transition);
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-light);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar-logo {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
+            color: var(--light);
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .sidebar-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        /* Navigation */
+        .nav-section {
+            padding: 1.5rem 1rem;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .nav-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--gray);
+            margin-bottom: 0.8rem;
+            padding: 0 0.5rem;
+        }
+
+        .nav-list {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.4rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0.8rem 0.8rem;
+            text-decoration: none;
+            color: var(--gray-dark);
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .nav-link:hover {
+            background: var(--gray-light);
+            color: var(--dark);
+        }
+
+        .nav-link.active {
+            background: var(--primary-blue);
+            color: var(--light);
+            box-shadow: var(--shadow-subtle);
+        }
+
+        .nav-link.active .nav-icon {
+            color: var(--light);
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray);
+            transition: var(--transition);
+        }
+
+        /* Badge for notifications */
+        .nav-badge {
+            margin-left: auto;
+            background: var(--accent-red);
+            color: var(--light);
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.2rem 0.5rem;
+            border-radius: 10px;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        /* User Profile */
+        .user-profile {
+            margin-top: auto;
+            padding: 1.5rem;
+            border-top: 1px solid var(--gray-light);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--light);
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--dark);
+            margin-bottom: 0.1rem;
+        }
+
+        .user-role {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+
+        .user-menu {
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            padding: 0.3rem;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+
+        .user-menu:hover {
+            background: var(--gray-light);
+            color: var(--dark);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .main-header {
+            height: var(--header-height);
+            background: var(--light);
+            border-bottom: 1px solid var(--gray-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 99;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--gray);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: var(--transition);
+        }
+
+        .menu-toggle:hover {
+            background: var(--gray-light);
+            color: var(--dark);
+        }
+
+        .header-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .search-bar {
+            position: relative;
+        }
+
+        .search-input {
+            padding: 0.6rem 0.8rem 0.6rem 2.5rem;
+            border: 1.5px solid var(--gray-light);
+            border-radius: var(--radius-sm);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            width: 240px;
+            transition: var(--transition);
+            background: var(--gray-light);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            background: var(--light);
+            width: 280px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.8rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .notification-btn {
+            background: none;
+            border: none;
+            color: var(--gray);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 6px;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .notification-btn:hover {
+            background: var(--gray-light);
+            color: var(--dark);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--accent-red);
+            color: var(--light);
+            font-size: 0.65rem;
+            font-weight: 600;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Content Area */
+        .content-wrapper {
+            padding: 2rem;
+        }
+
+        /* Welcome Card */
+        .welcome-card {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
+            color: var(--light);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-medium);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .welcome-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .welcome-text h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .welcome-text p {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        .date-time {
+            text-align: right;
+        }
+
+        .current-date {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .current-time {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Quick Stats */
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--light);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: var(--shadow-subtle);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: var(--light);
+        }
+
+        .stat-icon.students { background: var(--accent-green); }
+        .stat-icon.staff { background: var(--primary-blue); }
+        .stat-icon.attendance { background: var(--accent-orange); }
+        .stat-icon.library { background: var(--accent-purple); }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--dark);
+            line-height: 1;
+            margin-bottom: 0.2rem;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        .stat-change {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            display: inline-block;
+            margin-top: 0.3rem;
+        }
+
+        .stat-change.positive {
+            background: rgba(52, 199, 89, 0.1);
+            color: var(--accent-green);
+        }
+
+        .stat-change.negative {
+            background: rgba(255, 59, 48, 0.1);
+            color: var(--accent-red);
+        }
+
+        /* Modules Grid */
+        .modules-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .module-card {
+            background: var(--light);
+            border-radius: var(--radius-md);
+            padding: 1.8rem;
+            box-shadow: var(--shadow-subtle);
+            transition: var(--transition);
+            cursor: pointer;
+            border: 1px solid var(--gray-light);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .module-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-medium);
+            border-color: var(--primary-blue-light);
+        }
+
+        .module-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary-blue);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .module-card:hover::before {
+            transform: scaleY(1);
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .module-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: var(--light);
+        }
+
+        .module-icon.library { background: var(--accent-purple); }
+        .module-icon.discipline { background: var(--accent-orange); }
+        .module-icon.reports { background: var(--accent-green); }
+        .module-icon.attendance { background: var(--primary-blue); }
+        .module-icon.communication { background: var(--accent-red); }
+        .module-icon.curriculum { background: var(--accent-yellow); color: var(--dark); }
+
+        .module-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--dark);
+            flex: 1;
+        }
+
+        .module-status {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            background: var(--gray-light);
+            color: var(--gray-dark);
+        }
+
+        .module-status.available {
+            background: rgba(52, 199, 89, 0.1);
+            color: var(--accent-green);
+        }
+
+        .module-description {
+            color: var(--gray-dark);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+        }
+
+        .module-actions {
+            display: flex;
+            gap: 0.8rem;
+        }
+
+        .module-btn {
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            flex: 1;
+            text-align: center;
+        }
+
+        .module-btn.primary {
+            background: var(--primary-blue);
+            color: var(--light);
+        }
+
+        .module-btn.primary:hover {
+            background: var(--primary-blue-dark);
+        }
+
+        .module-btn.secondary {
+            background: var(--gray-light);
+            color: var(--gray-dark);
+        }
+
+        .module-btn.secondary:hover {
+            background: var(--gray);
+            color: var(--light);
+        }
+
+        /* Recent Activity */
+        .activity-list {
+            background: var(--light);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-subtle);
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            color: var(--light);
+            flex-shrink: 0;
+        }
+
+        .activity-icon.info { background: var(--primary-blue); }
+        .activity-icon.success { background: var(--accent-green); }
+        .activity-icon.warning { background: var(--accent-orange); }
+        .activity-icon.error { background: var(--accent-red); }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 500;
+            color: var(--dark);
+            margin-bottom: 0.2rem;
+            font-size: 0.95rem;
+        }
+
+        .activity-description {
+            color: var(--gray);
+            font-size: 0.85rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .activity-time {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+
+        /* Notifications Panel */
+        .notifications-panel {
+            position: fixed;
+            top: var(--header-height);
+            right: -320px;
+            width: 320px;
+            height: calc(100vh - var(--header-height));
+            background: var(--light);
+            box-shadow: var(--shadow-large);
+            z-index: 1000;
+            transition: right 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .notifications-panel.active {
+            right: 0;
+        }
+
+        .notifications-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notifications-title {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .notifications-close {
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0.3rem;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+
+        .notifications-close:hover {
+            background: var(--gray-light);
+            color: var(--dark);
+        }
+
+        .notifications-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .notification-item {
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            background: var(--gray-light);
+            margin-bottom: 0.8rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .notification-item:hover {
+            background: #e5e5ea;
+        }
+
+        .notification-item.unread {
+            background: rgba(0, 122, 255, 0.08);
+        }
+
+        .notification-title {
+            font-weight: 500;
+            color: var(--dark);
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+        }
+
+        .notification-message {
+            color: var(--gray-dark);
+            font-size: 0.85rem;
+            line-height: 1.4;
+            margin-bottom: 0.5rem;
+        }
+
+        .notification-time {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+
+        /* User Menu Dropdown */
+        .user-dropdown {
+            position: fixed;
+            top: calc(var(--header-height) + 10px);
+            right: 20px;
+            background: var(--light);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-large);
+            min-width: 200px;
+            z-index: 1001;
+            display: none;
+        }
+
+        .user-dropdown.active {
+            display: block;
+            animation: fadeInUp 0.2s ease;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.8rem 1rem;
+            text-decoration: none;
+            color: var(--dark);
+            border-bottom: 1px solid var(--gray-light);
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+
+        .dropdown-item:hover {
+            background: var(--gray-light);
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item.logout {
+            color: var(--accent-red);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .quick-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .menu-toggle {
+                display: block;
+            }
+            
+            .search-input {
+                width: 200px;
+            }
+            
+            .search-input:focus {
+                width: 240px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content-wrapper {
+                padding: 1.5rem;
+            }
+            
+            .welcome-card {
+                padding: 1.8rem;
+            }
+            
+            .welcome-text h1 {
+                font-size: 1.5rem;
+            }
+            
+            .quick-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .modules-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-actions {
+                gap: 0.5rem;
+            }
+            
+            .search-input {
+                width: 160px;
+            }
+            
+            .search-input:focus {
+                width: 200px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-header {
+                padding: 0 1rem;
+            }
+            
+            .content-wrapper {
+                padding: 1rem;
+            }
+            
+            .welcome-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .date-time {
+                text-align: left;
+                width: 100%;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .search-input {
+                display: none;
+            }
+            
+            .notifications-panel {
+                width: 100%;
+                right: -100%;
+            }
+        }
+
+        /* Overlay for mobile */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(2px);
+            z-index: 99;
+            display: none;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Overlay (Mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">A</div>
+            <div class="sidebar-title">Akademia</div>
+        </div>
+        
+        <div class="nav-section">
+            <div class="nav-title">Main</div>
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active">
+                        <div class="nav-icon">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <div class="nav-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        Schedule
+                        <span class="nav-badge">3</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <div class="nav-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        Students
+                    </a>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="nav-section">
+            <div class="nav-title">Modules</div>
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <div class="nav-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        Library
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <div class="nav-icon">
+                            <i class="fas fa-clipboard-check"></i>
+                        </div>
+                        Discipline
+                        <span class="nav-badge">5</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <div class="nav-icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        Reports
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <div class="nav-icon">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                        Attendance
+                    </a>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="nav-section">
+            <div class="nav-title">Communication</div>
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <div class="nav-icon">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        Messages
+                        <span class="nav-badge">12</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <div class="nav-icon">
+                            <i class="fas fa-bullhorn"></i>
+                        </div>
+                        Announcements
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <div class="nav-icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        Notifications
+                    </a>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="user-profile">
+            <div class="user-avatar" id="userAvatar">JD</div>
+            <div class="user-info">
+                <div class="user-name" id="userName">John Doe</div>
+                <div class="user-role" id="userRole">Teacher</div>
+            </div>
+            <button class="user-menu" id="userMenuBtn">
+                <i class="fas fa-ellipsis-v"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <header class="main-header">
+            <div class="header-left">
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="header-title" id="pageTitle">Dashboard</h1>
+            </div>
+            
+            <div class="header-actions">
+                <div class="search-bar">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" placeholder="Search...">
+                </div>
+                
+                <button class="notification-btn" id="notificationBtn">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">7</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="content-wrapper">
+            <!-- Welcome Card -->
+            <div class="welcome-card">
+                <div class="welcome-header">
+                    <div class="welcome-text">
+                        <h1 id="welcomeMessage">Good Morning, John!</h1>
+                        <p>Welcome to your Akademia dashboard. Here's what's happening today.</p>
+                    </div>
+                    <div class="date-time">
+                        <div class="current-date" id="currentDate">Monday, Dec 15</div>
+                        <div class="current-time" id="currentTime">10:30 AM</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="quick-stats">
+                <div class="stat-card">
+                    <div class="stat-icon students">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="studentCount">1,240</div>
+                        <div class="stat-label">Total Students</div>
+                        <span class="stat-change positive">+5% this month</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon staff">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="staffCount">85</div>
+                        <div class="stat-label">Staff Members</div>
+                        <span class="stat-change positive">+2 new</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon attendance">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="attendanceRate">94%</div>
+                        <div class="stat-label">Today's Attendance</div>
+                        <span class="stat-change positive">+2% from yesterday</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon library">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="libraryBooks">5,280</div>
+                        <div class="stat-label">Library Books</div>
+                        <span class="stat-change positive">+120 new</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modules Section -->
+            <div class="modules-section">
+                <div class="section-header">
+                    <h2 class="section-title">Quick Access</h2>
+                </div>
+                
+                <div class="modules-grid">
+                    <!-- Library Module -->
+                    <div class="module-card">
+                        <div class="module-header">
+                            <div class="module-icon library">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <div class="module-title">Digital Library</div>
+                            <span class="module-status available">Available</span>
+                        </div>
+                        <p class="module-description">
+                            Manage books, track checkouts, and access digital resources.
+                            Current: 45 books checked out.
+                        </p>
+                        <div class="module-actions">
+                            <button class="module-btn secondary">
+                                <i class="fas fa-search"></i> Browse
+                            </button>
+                            <button class="module-btn primary">
+                                <i class="fas fa-plus"></i> Add Book
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Discipline Module -->
+                    <div class="module-card">
+                        <div class="module-header">
+                            <div class="module-icon discipline">
+                                <i class="fas fa-clipboard-check"></i>
+                            </div>
+                            <div class="module-title">Discipline Tracking</div>
+                            <span class="module-status">5 Pending</span>
+                        </div>
+                        <p class="module-description">
+                            Monitor student behavior and record disciplinary actions.
+                            5 cases need attention.
+                        </p>
+                        <div class="module-actions">
+                            <button class="module-btn secondary">
+                                <i class="fas fa-list"></i> View All
+                            </button>
+                            <button class="module-btn primary">
+                                <i class="fas fa-plus"></i> New Case
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Reports Module -->
+                    <div class="module-card">
+                        <div class="module-header">
+                            <div class="module-icon reports">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <div class="module-title">Student Reports</div>
+                            <span class="module-status available">Available</span>
+                        </div>
+                        <p class="module-description">
+                            Generate academic reports and track student progress.
+                            12 reports pending review.
+                        </p>
+                        <div class="module-actions">
+                            <button class="module-btn secondary">
+                                <i class="fas fa-download"></i> Export
+                            </button>
+                            <button class="module-btn primary">
+                                <i class="fas fa-chart-line"></i> Analytics
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Attendance Module -->
+                    <div class="module-card">
+                        <div class="module-header">
+                            <div class="module-icon attendance">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                            <div class="module-title">Attendance System</div>
+                            <span class="module-status available">Live</span>
+                        </div>
+                        <p class="module-description">
+                            Mark and track student attendance in real-time.
+                            Today: 94% attendance rate.
+                        </p>
+                        <div class="module-actions">
+                            <button class="module-btn secondary">
+                                <i class="fas fa-calendar"></i> View Calendar
+                            </button>
+                            <button class="module-btn primary">
+                                <i class="fas fa-edit"></i> Mark Attendance
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Communication Module -->
+                    <div class="module-card">
+                        <div class="module-header">
+                            <div class="module-icon communication">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                            <div class="module-title">Communication Hub</div>
+                            <span class="module-status">12 Unread</span>
+                        </div>
+                        <p class="module-description">
+                            Secure messaging system for staff, students, and parents.
+                            You have 12 unread messages.
+                        </p>
+                        <div class="module-actions">
+                            <button class="module-btn secondary">
+                                <i class="fas fa-inbox"></i> Inbox
+                            </button>
+                            <button class="module-btn primary">
+                                <i class="fas fa-paper-plane"></i> New Message
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Curriculum Module -->
+                    <div class="module-card">
+                        <div class="module-header">
+                            <div class="module-icon curriculum">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <div class="module-title">Curriculum Planning</div>
+                            <span class="module-status available">Available</span>
+                        </div>
+                        <p class="module-description">
+                            Plan lessons, create assignments, and collaborate with educators.
+                            Next class: Mathematics in 2 hours.
+                        </p>
+                        <div class="module-actions">
+                            <button class="module-btn secondary">
+                                <i class="fas fa-file-alt"></i> Lesson Plans
+                            </button>
+                            <button class="module-btn primary">
+                                <i class="fas fa-tasks"></i> Assignments
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="modules-section">
+                <div class="section-header">
+                    <h2 class="section-title">Recent Activity</h2>
+                </div>
+                
+                <div class="activity-list">
+                    <div class="activity-item">
+                        <div class="activity-icon success">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">Attendance Marked</div>
+                            <div class="activity-description">You marked attendance for Grade 10 Mathematics class</div>
+                            <div class="activity-time">10 minutes ago</div>
+                        </div>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon info">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">Library Book Checked In</div>
+                            <div class="activity-description">"Advanced Physics" returned by Sarah Johnson</div>
+                            <div class="activity-time">45 minutes ago</div>
+                        </div>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">Discipline Case Updated</div>
+                            <div class="activity-description">New comment added to case #DC-2024-012</div>
+                            <div class="activity-time">2 hours ago</div>
+                        </div>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon info">
+                            <i class="fas fa-comment"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">New Message Received</div>
+                            <div class="activity-description">From Headmaster: "Staff meeting tomorrow at 10 AM"</div>
+                            <div class="activity-time">3 hours ago</div>
+                        </div>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon success">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">Report Generated</div>
+                            <div class="activity-description">Monthly performance report for Grade 10 created</div>
+                            <div class="activity-time">Yesterday, 4:30 PM</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications Panel -->
+    <div class="notifications-panel" id="notificationsPanel">
+        <div class="notifications-header">
+            <h3 class="notifications-title">Notifications</h3>
+            <button class="notifications-close" id="notificationsClose">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="notifications-list" id="notificationsList">
+            <!-- Notifications will be populated here -->
+        </div>
+    </div>
+
+    <!-- User Dropdown Menu -->
+    <div class="user-dropdown" id="userDropdown">
+        <a href="#" class="dropdown-item">
+            <i class="fas fa-user"></i> My Profile
+        </a>
+        <a href="#" class="dropdown-item">
+            <i class="fas fa-cog"></i> Settings
+        </a>
+        <a href="#" class="dropdown-item">
+            <i class="fas fa-bell"></i> Notifications
+        </a>
+        <div class="dropdown-divider"></div>
+        <a href="#" class="dropdown-item logout" id="logoutBtn">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </div>
+
+    <script type="module">
+        // Import Firebase services
+        import { auth, signOut } from './firebase-config.js';
+
+        // Get session data
+        const sessionData = JSON.parse(sessionStorage.getItem('akademia_staff') || '{}');
+        
+        // Check if user is logged in
+        if (!sessionData.staffId) {
+            window.location.href = 'login.html';
+        }
+
+        // DOM Elements
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const notificationBtn = document.getElementById('notificationBtn');
+        const notificationsPanel = document.getElementById('notificationsPanel');
+        const notificationsClose = document.getElementById('notificationsClose');
+        const userMenuBtn = document.getElementById('userMenuBtn');
+        const userDropdown = document.getElementById('userDropdown');
+        const logoutBtn = document.getElementById('logoutBtn');
+        
+        // User info elements
+        const userAvatar = document.getElementById('userAvatar');
+        const userName = document.getElementById('userName');
+        const userRole = document.getElementById('userRole');
+        const welcomeMessage = document.getElementById('welcomeMessage');
+        
+        // Date and time elements
+        const currentDate = document.getElementById('currentDate');
+        const currentTime = document.getElementById('currentTime');
+        
+        // Stats elements
+        const studentCount = document.getElementById('studentCount');
+        const staffCount = document.getElementById('staffCount');
+        const attendanceRate = document.getElementById('attendanceRate');
+        const libraryBooks = document.getElementById('libraryBooks');
+
+        // Initialize user data
+        function initializeUserData() {
+            const name = sessionData.staffName || 'Staff Member';
+            const role = sessionData.staffRole || 'Staff';
+            const email = sessionData.staffEmail || '';
+            
+            // Set user info
+            userName.textContent = name;
+            userRole.textContent = formatRoleName(role);
+            
+            // Set avatar initials
+            const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+            userAvatar.textContent = initials;
+            
+            // Set welcome message with time-based greeting
+            welcomeMessage.textContent = getTimeBasedGreeting() + ', ' + name.split(' ')[0] + '!';
+            
+            // Update page title based on role
+            const roleTitle = formatRoleName(role);
+            document.getElementById('pageTitle').textContent = roleTitle + ' Dashboard';
+            
+            // Update stats based on role (in a real app, this would come from API)
+            updateDashboardStats(role);
+        }
+
+        // Format role name for display
+        function formatRoleName(role) {
+            const roleMap = {
+                'headmaster': 'Headmaster',
+                'dean_of_studies': 'Dean of Studies',
+                'it_staff': 'IT Staff',
+                'dean_of_discipline': 'Dean of Discipline',
+                'patron': 'Patron',
+                'matron': 'Matron',
+                'teacher': 'Teacher',
+                'other': 'Staff'
+            };
+            return roleMap[role] || 'Staff Member';
+        }
+
+        // Get time-based greeting
+        function getTimeBasedGreeting() {
+            const hour = new Date().getHours();
+            if (hour < 12) return 'Good Morning';
+            if (hour < 18) return 'Good Afternoon';
+            return 'Good Evening';
+        }
+
+        // Update dashboard stats based on role
+        function updateDashboardStats(role) {
+            // In a real app, these would be fetched from Firebase
+            const stats = {
+                studentCount: Math.floor(Math.random() * 2000) + 800,
+                staffCount: Math.floor(Math.random() * 100) + 50,
+                attendanceRate: Math.floor(Math.random() * 10) + 90,
+                libraryBooks: Math.floor(Math.random() * 3000) + 4000
+            };
+            
+            studentCount.textContent = stats.studentCount.toLocaleString();
+            staffCount.textContent = stats.staffCount;
+            attendanceRate.textContent = stats.attendanceRate + '%';
+            libraryBooks.textContent = stats.libraryBooks.toLocaleString();
+        }
+
+        // Update date and time
+        function updateDateTime() {
+            const now = new Date();
+            
+            // Format date
+            const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            currentDate.textContent = now.toLocaleDateString('en-US', dateOptions);
+            
+            // Format time
+            const timeOptions = { hour: '2-digit', minute: '2-digit' };
+            currentTime.textContent = now.toLocaleTimeString('en-US', timeOptions);
+        }
+
+        // Load notifications
+        function loadNotifications() {
+            const notifications = [
+                {
+                    id: 1,
+                    title: 'Staff Meeting',
+                    message: 'Quarterly staff meeting scheduled for tomorrow at 2 PM',
+                    time: '2 hours ago',
+                    unread: true
+                },
+                {
+                    id: 2,
+                    title: 'New Student Enrollment',
+                    message: '5 new students enrolled in Grade 10',
+                    time: '4 hours ago',
+                    unread: true
+                },
+                {
+                    id: 3,
+                    title: 'Library Book Due',
+                    message: '"Chemistry Fundamentals" due tomorrow',
+                    time: '1 day ago',
+                    unread: false
+                },
+                {
+                    id: 4,
+                    title: 'System Maintenance',
+                    message: 'Scheduled maintenance on Sunday, 2 AM - 4 AM',
+                    time: '2 days ago',
+                    unread: false
+                },
+                {
+                    id: 5,
+                    title: 'Attendance Report',
+                    message: 'Monthly attendance report is ready for review',
+                    time: '3 days ago',
+                    unread: false
+                }
+            ];
+            
+            const notificationsList = document.getElementById('notificationsList');
+            notificationsList.innerHTML = '';
+            
+            notifications.forEach(notification => {
+                const item = document.createElement('div');
+                item.className = `notification-item ${notification.unread ? 'unread' : ''}`;
+                item.innerHTML = `
+                    <div class="notification-title">${notification.title}</div>
+                    <div class="notification-message">${notification.message}</div>
+                    <div class="notification-time">${notification.time}</div>
+                `;
+                
+                notificationsList.appendChild(item);
+            });
+        }
+
+        // Handle logout
+        async function handleLogout() {
+            try {
+                await signOut(auth);
+                
+                // Clear session storage
+                sessionStorage.removeItem('akademia_staff');
+                sessionStorage.removeItem('akademia_user');
+                
+                // Redirect to login page
+                window.location.href = 'login.html';
+                
+            } catch (error) {
+                console.error('Logout error:', error);
+                alert('Error logging out. Please try again.');
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeUserData();
+            updateDateTime();
+            loadNotifications();
+            
+            // Update time every minute
+            setInterval(updateDateTime, 60000);
+            
+            // Setup event listeners
+            setupEventListeners();
+        });
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Mobile menu toggle
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+                sidebarOverlay.classList.toggle('active');
+            });
+            
+            // Close sidebar when clicking overlay
+            sidebarOverlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+            });
+            
+            // Notifications panel
+            notificationBtn.addEventListener('click', () => {
+                notificationsPanel.classList.toggle('active');
+            });
+            
+            notificationsClose.addEventListener('click', () => {
+                notificationsPanel.classList.remove('active');
+            });
+            
+            // User dropdown
+            userMenuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                userDropdown.classList.toggle('active');
+            });
+            
+            // Close dropdown when clicking elsewhere
+            document.addEventListener('click', (e) => {
+                if (!userMenuBtn.contains(e.target) && !userDropdown.contains(e.target)) {
+                    userDropdown.classList.remove('active');
+                }
+            });
+            
+            // Logout
+            logoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (confirm('Are you sure you want to logout?')) {
+                    handleLogout();
+                }
+            });
+            
+            // Module button actions
+            document.querySelectorAll('.module-btn.primary').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const moduleTitle = this.closest('.module-card').querySelector('.module-title').textContent;
+                    alert(`Opening ${moduleTitle} module...`);
+                    // In a real app, this would navigate to the specific module
+                });
+            });
+            
+            document.querySelectorAll('.module-btn.secondary').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const action = this.textContent.trim();
+                    alert(`Performing ${action} action...`);
+                    // In a real app, this would perform the specific action
+                });
+            });
+            
+            // Navigation links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                if (!link.classList.contains('active')) {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const navText = this.textContent.trim();
+                        
+                        // Remove active class from all links
+                        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                        
+                        // Add active class to clicked link
+                        this.classList.add('active');
+                        
+                        // Update page title
+                        document.getElementById('pageTitle').textContent = navText;
+                        
+                        // Close sidebar on mobile
+                        if (window.innerWidth <= 992) {
+                            sidebar.classList.remove('active');
+                            sidebarOverlay.classList.remove('active');
+                        }
+                        
+                        // In a real app, this would load the appropriate page content
+                        alert(`Loading ${navText} page...`);
+                    });
+                }
+            });
+            
+            // Search functionality
+            const searchInput = document.querySelector('.search-input');
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    const query = searchInput.value.trim();
+                    if (query) {
+                        alert(`Searching for: ${query}`);
+                        // In a real app, this would perform the search
+                    }
+                }
+            });
+            
+            // Activity items click
+            document.querySelectorAll('.activity-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const title = this.querySelector('.activity-title').textContent;
+                    alert(`Viewing details for: ${title}`);
+                });
+            });
+            
+            // Notification items click
+            document.querySelectorAll('.notification-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const title = this.querySelector('.notification-title').textContent;
+                    this.classList.remove('unread');
+                    alert(`Opening notification: ${title}`);
+                });
+            });
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 992) {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>
