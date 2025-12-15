@@ -1,1 +1,905 @@
-School Login Portal.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akademia - School Login</title>
+    <link rel="icon" type="image/x-icon" href="Assets/Images/favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #007AFF;
+            --primary-blue-light: #5AC8FA;
+            --primary-blue-dark: #0056CC;
+            --accent-green: #34C759;
+            --accent-red: #FF3B30;
+            --dark: #1C1C1E;
+            --light: #FFFFFF;
+            --gray-light: #F2F2F7;
+            --gray: #8E8E93;
+            --gray-dark: #3A3A3C;
+            --shadow-subtle: 0 2px 10px rgba(0, 0, 0, 0.08);
+            --shadow-medium: 0 4px 20px rgba(0, 0, 0, 0.12);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        /* Left Panel - Welcome */
+        .welcome-panel {
+            padding: 2rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 2rem;
+        }
+
+        .logo-icon {
+            background: var(--primary-blue);
+            color: var(--light);
+            width: 60px;
+            height: 60px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .logo-text {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .welcome-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--dark);
+            margin-bottom: 1.5rem;
+        }
+
+        .welcome-title span {
+            color: var(--primary-blue);
+        }
+
+        .welcome-description {
+            color: var(--gray-dark);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .features {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            margin-top: 2rem;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .feature-icon {
+            background: rgba(0, 122, 255, 0.1);
+            color: var(--primary-blue);
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .feature-text {
+            color: var(--gray-dark);
+            font-weight: 500;
+        }
+
+        /* Login Card */
+        .login-card {
+            background: var(--light);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem;
+            box-shadow: var(--shadow-medium);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .login-subtitle {
+            color: var(--gray);
+            font-size: 1rem;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--gray-dark);
+            font-size: 0.95rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid var(--gray-light);
+            border-radius: var(--radius-sm);
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            background: var(--light);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+            font-size: 1.1rem;
+        }
+
+        .input-with-icon .form-input {
+            padding-left: 3rem;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+
+        /* School Info Display */
+        .school-info {
+            background: var(--gray-light);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+
+        .school-info.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .school-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .school-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .school-name {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 1.1rem;
+        }
+
+        .school-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        .detail-item {
+            color: var(--gray-dark);
+        }
+
+        .detail-item strong {
+            color: var(--dark);
+            font-weight: 600;
+        }
+
+        /* Staff Display */
+        .staff-display {
+            background: var(--gray-light);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+
+        .staff-display.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .staff-title {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .staff-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .staff-item {
+            background: var(--light);
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            text-align: center;
+        }
+
+        .staff-role {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-bottom: 0.25rem;
+        }
+
+        .staff-name {
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 0.875rem;
+            border-radius: var(--radius-sm);
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: var(--primary-blue);
+            color: var(--light);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-blue-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn-primary:disabled {
+            background: var(--gray);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: var(--gray-light);
+            color: var(--gray-dark);
+            margin-top: 1rem;
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray);
+            color: var(--light);
+        }
+
+        /* Links */
+        .links {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--gray-light);
+        }
+
+        .link {
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.2s ease;
+        }
+
+        .link:hover {
+            color: var(--primary-blue-dark);
+            text-decoration: underline;
+        }
+
+        /* Notification System */
+        .notification-center {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .notification {
+            background: var(--light);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-medium);
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            animation: slideDown 0.3s ease;
+            border-top: 4px solid var(--primary-blue);
+            text-align: center;
+        }
+
+        .notification.success {
+            border-top-color: var(--accent-green);
+        }
+
+        .notification.error {
+            border-top-color: var(--accent-red);
+        }
+
+        .notification-icon {
+            font-size: 1.5rem;
+            margin-top: 2px;
+        }
+
+        .notification.success .notification-icon {
+            color: var(--accent-green);
+        }
+
+        .notification.error .notification-icon {
+            color: var(--accent-red);
+        }
+
+        .notification-content h4 {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: var(--dark);
+        }
+
+        .notification-content p {
+            color: var(--gray-dark);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-100%); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .welcome-panel {
+                text-align: center;
+            }
+            
+            .logo {
+                justify-content: center;
+            }
+            
+            .staff-list {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 1.5rem;
+            }
+            
+            .staff-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .school-details {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Welcome Panel -->
+        <div class="welcome-panel">
+            <div class="logo">
+                <div class="logo-icon">A</div>
+                <div class="logo-text">Akademia</div>
+            </div>
+            
+            <h1 class="welcome-title">
+                Welcome to <span>Akademia</span><br>
+                School Management System
+            </h1>
+            
+            <p class="welcome-description">
+                A comprehensive platform designed to streamline school operations, 
+                manage staff, and enhance communication across your educational institution.
+            </p>
+            
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">
+                        <i class="fas fa-users-cog"></i>
+                    </div>
+                    <div class="feature-text">Staff Management & Organization</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="feature-text">Real-time Analytics & Reporting</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <div class="feature-text">Integrated Communication Tools</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="feature-text">Secure & Encrypted Data Storage</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login Card -->
+        <div class="login-card">
+            <div class="login-header">
+                <h2 class="login-title">School Portal Login</h2>
+                <p class="login-subtitle">Enter your school email to access the system</p>
+            </div>
+
+            <!-- School Info Display -->
+            <div class="school-info" id="schoolInfo">
+                <div class="school-header">
+                    <img class="school-logo" id="schoolLogo" src="" alt="School Logo">
+                    <div>
+                        <div class="school-name" id="schoolName"></div>
+                        <div class="school-details">
+                            <div class="detail-item"><strong>Location:</strong> <span id="schoolLocation"></span></div>
+                            <div class="detail-item"><strong>Students:</strong> <span id="schoolStudents"></span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Staff Display -->
+            <div class="staff-display" id="staffDisplay">
+                <div class="staff-title">Key Staff Members</div>
+                <div class="staff-list" id="staffList">
+                    <!-- Staff will be populated here -->
+                </div>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">School Email</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email" class="form-input" id="schoolEmail" placeholder="school@example.com" required>
+                    </div>
+                </div>
+
+                <div class="form-group" id="passwordGroup" style="display: none;">
+                    <label class="form-label">Password</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" class="form-input" id="password" placeholder="Enter your password" required>
+                        <button type="button" class="password-toggle" id="togglePassword">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div style="font-size: 0.85rem; color: var(--gray); margin-top: 0.5rem;">
+                        First time? Enter the temporary password sent to your email.
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Continue
+                </button>
+
+                <button type="button" class="btn btn-secondary" id="setupPasswordBtn" style="display: none;">
+                    <i class="fas fa-key"></i>
+                    Setup Password
+                </button>
+            </form>
+
+            <div class="links">
+                <a href="#" class="link">Forgot Password?</a>
+                <span style="color: var(--gray); margin: 0 10px;">•</span>
+                <a href="admin.html" class="link">Register New School</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div class="notification-center" id="notificationContainer"></div>
+
+    <!-- Firebase Script -->
+    <script type="module">
+        import { 
+            auth, 
+            db, 
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            signOut,
+            collection,
+            doc,
+            getDoc,
+            getDocs,
+            query,
+            where,
+            updateDoc
+        } from './firebase-config.js';
+
+        // Notification System
+        class NotificationSystem {
+            constructor() {
+                this.container = document.getElementById('notificationContainer');
+            }
+            
+            show(message, type = 'info', duration = 5000) {
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                
+                let icon = 'info-circle';
+                if (type === 'success') icon = 'check-circle';
+                if (type === 'error') icon = 'exclamation-circle';
+                
+                notification.innerHTML = `
+                    <div class="notification-icon">
+                        <i class="fas fa-${icon}"></i>
+                    </div>
+                    <div class="notification-content">
+                        <h4>${type.charAt(0).toUpperCase() + type.slice(1)}</h4>
+                        <p>${message}</p>
+                    </div>
+                `;
+                
+                this.container.appendChild(notification);
+                
+                // Auto remove after duration
+                setTimeout(() => {
+                    notification.style.animation = 'slideDown 0.3s ease reverse';
+                    setTimeout(() => notification.remove(), 300);
+                }, duration);
+                
+                return notification;
+            }
+        }
+
+        const notifications = new NotificationSystem();
+
+        // DOM Elements
+        const form = document.getElementById('loginForm');
+        const schoolEmailInput = document.getElementById('schoolEmail');
+        const passwordGroup = document.getElementById('passwordGroup');
+        const passwordInput = document.getElementById('password');
+        const togglePasswordBtn = document.getElementById('togglePassword');
+        const submitBtn = document.getElementById('submitBtn');
+        const setupPasswordBtn = document.getElementById('setupPasswordBtn');
+        const schoolInfo = document.getElementById('schoolInfo');
+        const staffDisplay = document.getElementById('staffDisplay');
+        const staffList = document.getElementById('staffList');
+        
+        const schoolLogo = document.getElementById('schoolLogo');
+        const schoolName = document.getElementById('schoolName');
+        const schoolLocation = document.getElementById('schoolLocation');
+        const schoolStudents = document.getElementById('schoolStudents');
+
+        let currentSchool = null;
+        let isFirstLogin = false;
+
+        // Toggle Password Visibility
+        togglePasswordBtn.addEventListener('click', () => {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            togglePasswordBtn.innerHTML = type === 'password' ? 
+                '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+        });
+
+        // Check School Email
+        schoolEmailInput.addEventListener('blur', async () => {
+            const email = schoolEmailInput.value.trim().toLowerCase();
+            if (!email) return;
+            
+            try {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
+                
+                // Find school in Firestore
+                const schoolId = email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '_');
+                const schoolRef = doc(db, 'schools', schoolId);
+                const schoolDoc = await getDoc(schoolRef);
+                
+                if (schoolDoc.exists()) {
+                    currentSchool = {
+                        id: schoolId,
+                        ...schoolDoc.data()
+                    };
+                    
+                    // Display school info
+                    displaySchoolInfo(currentSchool);
+                    
+                    // Check if school has password set up
+                    if (currentSchool.status === 'pending') {
+                        isFirstLogin = true;
+                        passwordGroup.style.display = 'block';
+                        setupPasswordBtn.style.display = 'block';
+                        submitBtn.style.display = 'none';
+                        notifications.show('Welcome! Please set up your password to continue.', 'info');
+                    } else {
+                        isFirstLogin = false;
+                        passwordGroup.style.display = 'block';
+                        setupPasswordBtn.style.display = 'none';
+                        submitBtn.style.display = 'block';
+                        notifications.show('School found! Enter your password to login.', 'success');
+                    }
+                    
+                    // Load staff members
+                    await loadStaffMembers(schoolId);
+                    
+                } else {
+                    currentSchool = null;
+                    hideSchoolInfo();
+                    notifications.show('No school found with this email. Please check your email or register your school.', 'error');
+                }
+                
+            } catch (error) {
+                notifications.show(`Error: ${error.message}`, 'error');
+                console.error('Error checking school:', error);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Continue';
+            }
+        });
+
+        // Display School Information
+        function displaySchoolInfo(school) {
+            schoolInfo.classList.add('active');
+            
+            if (school.logo) {
+                schoolLogo.src = school.logo;
+            } else {
+                schoolLogo.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23007AFF"/><text x="50" y="60" font-size="40" text-anchor="middle" fill="white" font-family="Arial">S</text></svg>';
+            }
+            
+            schoolName.textContent = school.name;
+            schoolLocation.textContent = school.location;
+            schoolStudents.textContent = school.students || 'Not specified';
+        }
+
+        function hideSchoolInfo() {
+            schoolInfo.classList.remove('active');
+            staffDisplay.classList.remove('active');
+        }
+
+        // Load Staff Members
+        async function loadStaffMembers(schoolId) {
+            try {
+                const staffRef = collection(db, 'schools', schoolId, 'staff');
+                const staffSnapshot = await getDocs(staffRef);
+                
+                staffList.innerHTML = '';
+                
+                if (staffSnapshot.empty) {
+                    staffDisplay.classList.remove('active');
+                    return;
+                }
+                
+                staffDisplay.classList.add('active');
+                
+                staffSnapshot.forEach(doc => {
+                    const staff = doc.data();
+                    const staffItem = document.createElement('div');
+                    staffItem.className = 'staff-item';
+                    
+                    let roleDisplay = staff.role;
+                    if (roleDisplay === 'headmaster') roleDisplay = 'Headmaster';
+                    if (roleDisplay === 'dean') roleDisplay = 'Dean of Studies';
+                    if (roleDisplay === 'it_staff') roleDisplay = 'School IT';
+                    
+                    staffItem.innerHTML = `
+                        <div class="staff-role">${roleDisplay}</div>
+                        <div class="staff-name">${staff.name || 'Not specified'}</div>
+                    `;
+                    
+                    staffList.appendChild(staffItem);
+                });
+                
+            } catch (error) {
+                console.error('Error loading staff:', error);
+                staffDisplay.classList.remove('active');
+            }
+        }
+
+        // Setup Password
+        setupPasswordBtn.addEventListener('click', async () => {
+            const password = passwordInput.value.trim();
+            
+            if (!password || password.length < 6) {
+                notifications.show('Password must be at least 6 characters', 'error');
+                return;
+            }
+            
+            try {
+                setupPasswordBtn.disabled = true;
+                setupPasswordBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Setting up...';
+                
+                // Create auth user with email and password
+                await createUserWithEmailAndPassword(auth, currentSchool.email, password);
+                
+                // Update school status in Firestore
+                const schoolRef = doc(db, 'schools', currentSchool.id);
+                await updateDoc(schoolRef, {
+                    status: 'active',
+                    passwordSet: true,
+                    updatedAt: new Date().toISOString()
+                });
+                
+                notifications.show('Password set successfully! You can now login with your credentials.', 'success');
+                
+                // Switch to login mode
+                isFirstLogin = false;
+                setupPasswordBtn.style.display = 'none';
+                submitBtn.style.display = 'block';
+                passwordInput.value = '';
+                
+            } catch (error) {
+                notifications.show(`Error setting up password: ${error.message}`, 'error');
+                console.error('Error setting up password:', error);
+            } finally {
+                setupPasswordBtn.disabled = false;
+                setupPasswordBtn.innerHTML = '<i class="fas fa-key"></i> Setup Password';
+            }
+        });
+
+        // Login Form Submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = schoolEmailInput.value.trim().toLowerCase();
+            const password = passwordInput.value.trim();
+            
+            if (!email || !password) {
+                notifications.show('Please enter both email and password', 'error');
+                return;
+            }
+            
+            try {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+                
+                // Sign in with email and password
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                
+                notifications.show('Login successful! Redirecting to dashboard...', 'success');
+                
+                // Store user session
+                sessionStorage.setItem('akademia_user', JSON.stringify({
+                    email: userCredential.user.email,
+                    schoolId: currentSchool.id,
+                    schoolName: currentSchool.name
+                }));
+                
+                // Redirect to dashboard (to be implemented)
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+                
+            } catch (error) {
+                let message = 'Login failed';
+                if (error.code === 'auth/wrong-password') {
+                    message = 'Incorrect password';
+                } else if (error.code === 'auth/user-not-found') {
+                    message = 'No account found with this email';
+                } else if (error.code === 'auth/too-many-requests') {
+                    message = 'Too many attempts. Please try again later';
+                }
+                
+                notifications.show(`Error: ${message}`, 'error');
+                console.error('Login error:', error);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Continue';
+            }
+        });
+    </script>
+</body>
+</html>
