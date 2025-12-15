@@ -1,1 +1,1350 @@
-Hello the staff.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akademia - School Staff</title>
+    <link rel="icon" type="image/x-icon" href="Assets/Images/favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-blue: #007AFF;
+            --primary-blue-light: #5AC8FA;
+            --primary-blue-dark: #0056CC;
+            --accent-green: #34C759;
+            --accent-red: #FF3B30;
+            --accent-purple: #AF52DE;
+            --accent-orange: #FF9500;
+            --dark: #1C1C1E;
+            --light: #FFFFFF;
+            --gray-light: #F2F2F7;
+            --gray: #8E8E93;
+            --gray-dark: #3A3A3C;
+            --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.05);
+            --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-full: 50%;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background elements */
+        .animated-bg {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(0, 122, 255, 0.05) 0%, rgba(90, 200, 250, 0.02) 100%);
+            animation: float 25s infinite ease-in-out;
+        }
+
+        .bg-circle:nth-child(1) {
+            width: 250px;
+            height: 250px;
+            top: -100px;
+            right: -80px;
+            animation-delay: 0s;
+        }
+
+        .bg-circle:nth-child(2) {
+            width: 180px;
+            height: 180px;
+            bottom: 80px;
+            left: -40px;
+            animation-delay: -8s;
+        }
+
+        .bg-circle:nth-child(3) {
+            width: 120px;
+            height: 120px;
+            top: 30%;
+            right: 15%;
+            animation-delay: -15s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(20px, -30px) rotate(120deg); }
+            66% { transform: translate(-15px, 20px) rotate(240deg); }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .header {
+            padding: 1.5rem 0;
+            border-bottom: 1px solid var(--gray-light);
+            margin-bottom: 2rem;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
+            color: var(--light);
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+            box-shadow: var(--shadow-subtle);
+        }
+
+        .logo-text {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--dark);
+            letter-spacing: -0.5px;
+        }
+
+        .school-info {
+            text-align: right;
+        }
+
+        .school-name {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.95rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .staff-count {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        /* Search and Add Section */
+        .search-add-section {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+            align-items: center;
+        }
+
+        .search-container {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.7rem 0.8rem 0.7rem 2.5rem;
+            border: 1.5px solid var(--gray-light);
+            border-radius: var(--radius-sm);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            background: var(--light);
+            color: var(--dark);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.8rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Apple-style small button */
+        .btn-small {
+            padding: 0.65rem 1.2rem;
+            border-radius: var(--radius-sm);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: -0.2px;
+            background: var(--primary-blue);
+            color: var(--light);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-small::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-small:hover {
+            background: var(--primary-blue-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn-small:hover::before {
+            left: 100%;
+        }
+
+        .btn-small:active {
+            transform: translateY(0);
+            box-shadow: var(--shadow-subtle);
+        }
+
+        /* Search Results Dropdown */
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--light);
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-medium);
+            margin-top: 0.5rem;
+            display: none;
+            z-index: 100;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--gray-light);
+        }
+
+        .search-results.active {
+            display: block;
+            animation: fadeInUp 0.2s ease;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .search-result-item {
+            padding: 0.8rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-result-item:hover {
+            background: var(--gray-light);
+        }
+
+        .result-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-full);
+            object-fit: cover;
+            background: var(--gray-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: var(--dark);
+            font-weight: 500;
+        }
+
+        .result-info h4 {
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--dark);
+            margin-bottom: 0.1rem;
+        }
+
+        .result-info p {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+
+        /* Staff Grid */
+        .staff-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .staff-card {
+            background: var(--light);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            border: 1px solid var(--gray-light);
+            transition: var(--transition);
+            cursor: pointer;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .staff-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .staff-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-medium);
+            border-color: var(--primary-blue-light);
+        }
+
+        .staff-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .staff-card.available {
+            border-color: var(--accent-green);
+        }
+
+        .staff-card.available::before {
+            background: linear-gradient(90deg, var(--accent-green) 0%, #5AC8A5 100%);
+        }
+
+        .staff-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: var(--radius-full);
+            margin: 0 auto 1rem;
+            background: var(--gray-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: var(--dark);
+            font-weight: 600;
+            border: 3px solid var(--light);
+            box-shadow: var(--shadow-subtle);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .staff-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .staff-avatar.default {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
+            color: var(--light);
+        }
+
+        .staff-name {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 1rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.2;
+        }
+
+        .staff-role {
+            font-size: 0.85rem;
+            color: var(--gray-dark);
+            font-weight: 500;
+            padding: 0.2rem 0.6rem;
+            background: var(--gray-light);
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 0.8rem;
+        }
+
+        .staff-status {
+            font-size: 0.75rem;
+            color: var(--gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: var(--radius-full);
+            background: var(--gray);
+        }
+
+        .status-dot.active {
+            background: var(--accent-green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Add Member Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 1rem;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal {
+            background: var(--light);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 480px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-medium);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--gray);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0.2rem;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+
+        .close-btn:hover {
+            color: var(--dark);
+            background: var(--gray-light);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-form .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .modal-form .form-label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-weight: 500;
+            color: var(--gray-dark);
+            font-size: 0.85rem;
+        }
+
+        .modal-form .form-input,
+        .modal-form .form-select {
+            width: 100%;
+            padding: 0.7rem 0.8rem;
+            border: 1.5px solid var(--gray-light);
+            border-radius: var(--radius-sm);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            background: var(--light);
+            color: var(--dark);
+        }
+
+        .modal-form .form-input:focus,
+        .modal-form .form-select:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.1);
+        }
+
+        .teacher-extra {
+            display: none;
+            margin-top: 0.8rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .teacher-extra.active {
+            display: block;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--gray-light);
+            display: flex;
+            gap: 0.8rem;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 0.65rem 1.5rem;
+            border-radius: var(--radius-sm);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: -0.2px;
+        }
+
+        .btn-primary {
+            background: var(--primary-blue);
+            color: var(--light);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-blue-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn-secondary {
+            background: var(--gray-light);
+            color: var(--gray-dark);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray);
+            color: var(--light);
+        }
+
+        /* Password Modal */
+        .password-modal {
+            background: var(--light);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: var(--shadow-medium);
+        }
+
+        .password-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: var(--radius-full);
+            margin: 0 auto 1rem;
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--light);
+            font-weight: 600;
+        }
+
+        .password-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .password-subtitle {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Notification System */
+        .notification-center {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 320px;
+        }
+
+        .notification {
+            background: var(--light);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+            box-shadow: var(--shadow-medium);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            animation: slideIn 0.3s ease;
+            border-left: 3px solid var(--primary-blue);
+        }
+
+        .notification.success {
+            border-left-color: var(--accent-green);
+        }
+
+        .notification.error {
+            border-left-color: var(--accent-red);
+        }
+
+        .notification-icon {
+            font-size: 1.2rem;
+            margin-top: 2px;
+        }
+
+        .notification.success .notification-icon {
+            color: var(--accent-green);
+        }
+
+        .notification.error .notification-icon {
+            color: var(--accent-red);
+        }
+
+        .notification-content h4 {
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+            color: var(--dark);
+            font-size: 0.9rem;
+        }
+
+        .notification-content p {
+            color: var(--gray-dark);
+            font-size: 0.8rem;
+            line-height: 1.4;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .school-info {
+                text-align: left;
+            }
+            
+            .search-add-section {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .search-container {
+                width: 100%;
+            }
+            
+            .staff-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 1rem;
+            }
+            
+            .staff-card {
+                padding: 1.2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .staff-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .modal {
+                max-height: 80vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-bg">
+        <div class="bg-circle"></div>
+        <div class="bg-circle"></div>
+        <div class="bg-circle"></div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">A</div>
+                    <div class="logo-text">Akademia</div>
+                </div>
+                <div class="school-info">
+                    <div class="school-name" id="schoolNameDisplay">Loading School...</div>
+                    <div class="staff-count" id="staffCount">0 staff members</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Add Section -->
+        <div class="search-add-section">
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" id="searchInput" placeholder="Search staff members...">
+                <div class="search-results" id="searchResults">
+                    <!-- Search results will appear here -->
+                </div>
+            </div>
+            <button class="btn-small" id="addMemberBtn">
+                <i class="fas fa-user-plus"></i>
+                Add Member
+            </button>
+        </div>
+
+        <!-- Staff Grid -->
+        <div class="staff-grid" id="staffGrid">
+            <!-- Staff cards will be populated here -->
+        </div>
+    </div>
+
+    <!-- Add Member Modal -->
+    <div class="modal-overlay" id="addMemberModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Add New Staff Member</h3>
+                <button class="close-btn" id="closeModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form class="modal-form" id="addMemberForm">
+                    <div class="form-group">
+                        <label class="form-label">Full Name *</label>
+                        <input type="text" class="form-input" id="memberName" placeholder="John Doe" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Email Address *</label>
+                        <input type="email" class="form-input" id="memberEmail" placeholder="john@school.edu" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Role *</label>
+                        <select class="form-select" id="memberRole" required>
+                            <option value="">Select a role</option>
+                            <option value="dean_of_studies">Dean of Studies</option>
+                            <option value="dean_of_discipline">Dean of Discipline</option>
+                            <option value="patron">Patron</option>
+                            <option value="matron">Matron</option>
+                            <option value="teacher">Teacher</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" id="teacherLessonGroup" style="display: none;">
+                        <label class="form-label">Teaching Lesson *</label>
+                        <input type="text" class="form-input" id="teacherLesson" placeholder="Mathematics, Science, etc.">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Password *</label>
+                        <input type="password" class="form-input" id="memberPassword" placeholder="Min. 6 characters" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Confirm Password *</label>
+                        <input type="password" class="form-input" id="confirmPassword" placeholder="Confirm password" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelBtn">
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-primary" id="saveMemberBtn">
+                    <i class="fas fa-save"></i>
+                    Save Member
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Password Modal -->
+    <div class="modal-overlay" id="passwordModal">
+        <div class="password-modal">
+            <div class="password-avatar" id="passwordAvatar">
+                JD
+            </div>
+            <h3 class="password-title" id="passwordName">John Doe</h3>
+            <p class="password-subtitle">Enter your password to access your account</p>
+            <div class="form-group">
+                <input type="password" class="form-input" id="staffPassword" placeholder="Enter your password">
+            </div>
+            <div style="display: flex; gap: 0.8rem; margin-top: 1.5rem;">
+                <button type="button" class="btn btn-secondary" id="cancelPasswordBtn">
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-primary" id="submitPasswordBtn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Login
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div class="notification-center" id="notificationContainer"></div>
+
+    <!-- Firebase Script -->
+    <script type="module">
+        import { 
+            db, 
+            auth,
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            collection,
+            doc,
+            getDoc,
+            setDoc,
+            getDocs,
+            updateDoc,
+            query,
+            where
+        } from './firebase-config.js';
+
+        // Notification System
+        class NotificationSystem {
+            constructor() {
+                this.container = document.getElementById('notificationContainer');
+            }
+            
+            show(message, type = 'info', duration = 5000) {
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                
+                let icon = 'info-circle';
+                if (type === 'success') icon = 'check-circle';
+                if (type === 'error') icon = 'exclamation-circle';
+                
+                notification.innerHTML = `
+                    <div class="notification-icon">
+                        <i class="fas fa-${icon}"></i>
+                    </div>
+                    <div class="notification-content">
+                        <h4>${type.charAt(0).toUpperCase() + type.slice(1)}</h4>
+                        <p>${message}</p>
+                    </div>
+                `;
+                
+                this.container.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.style.animation = 'slideIn 0.3s ease reverse';
+                    setTimeout(() => notification.remove(), 300);
+                }, duration);
+                
+                return notification;
+            }
+        }
+
+        const notifications = new NotificationSystem();
+
+        // DOM Elements
+        const schoolNameDisplay = document.getElementById('schoolNameDisplay');
+        const staffCount = document.getElementById('staffCount');
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+        const addMemberBtn = document.getElementById('addMemberBtn');
+        const staffGrid = document.getElementById('staffGrid');
+        const addMemberModal = document.getElementById('addMemberModal');
+        const closeModal = document.getElementById('closeModal');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const addMemberForm = document.getElementById('addMemberForm');
+        const memberRole = document.getElementById('memberRole');
+        const teacherLessonGroup = document.getElementById('teacherLessonGroup');
+        const saveMemberBtn = document.getElementById('saveMemberBtn');
+        const passwordModal = document.getElementById('passwordModal');
+        const cancelPasswordBtn = document.getElementById('cancelPasswordBtn');
+        const submitPasswordBtn = document.getElementById('submitPasswordBtn');
+        const passwordAvatar = document.getElementById('passwordAvatar');
+        const passwordName = document.getElementById('passwordName');
+        const staffPassword = document.getElementById('staffPassword');
+
+        let currentSchool = null;
+        let staffMembers = [];
+        let searchTimeout = null;
+        let selectedStaff = null;
+
+        // Get school info from session
+        const sessionData = JSON.parse(sessionStorage.getItem('akademia_user') || '{}');
+        if (!sessionData.email) {
+            window.location.href = 'login.html';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await loadSchoolData();
+                await loadStaffMembers();
+                setupEventListeners();
+            } catch (error) {
+                notifications.show('Error loading data: ' + error.message, 'error');
+            }
+        });
+
+        // Load school data
+        async function loadSchoolData() {
+            const schoolRef = doc(db, 'schools', sessionData.schoolId);
+            const schoolDoc = await getDoc(schoolRef);
+            
+            if (schoolDoc.exists()) {
+                currentSchool = schoolDoc.data();
+                schoolNameDisplay.textContent = currentSchool.name;
+            }
+        }
+
+        // Load staff members
+        async function loadStaffMembers() {
+            try {
+                const staffRef = collection(db, 'schools', sessionData.schoolId, 'staff');
+                const staffSnapshot = await getDocs(staffRef);
+                
+                staffMembers = [];
+                staffGrid.innerHTML = '';
+                
+                // Get predefined staff (Headmaster, DOS, IT)
+                const predefinedRoles = ['headmaster', 'dean', 'it_staff'];
+                
+                for (const role of predefinedRoles) {
+                    const staffDoc = doc(staffRef, role);
+                    const staffData = await getDoc(staffDoc);
+                    
+                    if (staffData.exists()) {
+                        const data = staffData.data();
+                        if (data.name !== 'Not specified') {
+                            staffMembers.push({
+                                id: role,
+                                ...data,
+                                role: role === 'dean' ? 'dean_of_studies' : role,
+                                isPredefined: true
+                            });
+                        }
+                    }
+                }
+                
+                // Get additional staff members
+                const additionalStaffSnapshot = await getDocs(query(staffRef, where('role', 'not-in', predefinedRoles)));
+                additionalStaffSnapshot.forEach(doc => {
+                    staffMembers.push({
+                        id: doc.id,
+                        ...doc.data(),
+                        isPredefined: false
+                    });
+                });
+                
+                // Update count
+                staffCount.textContent = `${staffMembers.length} staff member${staffMembers.length !== 1 ? 's' : ''}`;
+                
+                // Render staff cards
+                staffMembers.forEach(staff => {
+                    renderStaffCard(staff);
+                });
+                
+            } catch (error) {
+                console.error('Error loading staff:', error);
+                notifications.show('Error loading staff members', 'error');
+            }
+        }
+
+        // Render staff card
+        function renderStaffCard(staff) {
+            const card = document.createElement('div');
+            card.className = `staff-card ${staff.email ? 'available' : ''}`;
+            card.dataset.id = staff.id;
+            
+            // Get role display name
+            const roleNames = {
+                headmaster: 'Headmaster',
+                dean_of_studies: 'Dean of Studies',
+                it_staff: 'IT Staff',
+                dean_of_discipline: 'Dean of Discipline',
+                patron: 'Patron',
+                matron: 'Matron',
+                teacher: 'Teacher',
+                other: 'Other Staff'
+            };
+            
+            const roleDisplay = roleNames[staff.role] || staff.role;
+            
+            // Get initials for avatar
+            const initials = staff.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+            
+            card.innerHTML = `
+                <div class="staff-avatar default">
+                    ${initials}
+                </div>
+                <div class="staff-name">${staff.name}</div>
+                <div class="staff-role">${roleDisplay}</div>
+                <div class="staff-status">
+                    <span class="status-dot ${staff.email ? 'active' : ''}"></span>
+                    ${staff.email ? 'Account Active' : 'Setup Required'}
+                </div>
+            `;
+            
+            card.addEventListener('click', () => handleStaffClick(staff));
+            staffGrid.appendChild(card);
+        }
+
+        // Handle staff click
+        function handleStaffClick(staff) {
+            selectedStaff = staff;
+            
+            if (!staff.email) {
+                notifications.show('This staff member needs to set up their account first', 'info');
+                return;
+            }
+            
+            // Show password modal
+            passwordAvatar.textContent = staff.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+            passwordName.textContent = staff.name;
+            staffPassword.value = '';
+            passwordModal.classList.add('active');
+        }
+
+        // Search functionality
+        searchInput.addEventListener('input', () => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                performSearch();
+            }, 300);
+        });
+
+        function performSearch() {
+            const query = searchInput.value.toLowerCase().trim();
+            searchResults.innerHTML = '';
+            
+            if (!query) {
+                searchResults.classList.remove('active');
+                return;
+            }
+            
+            const results = staffMembers.filter(staff => 
+                staff.name.toLowerCase().includes(query) ||
+                staff.role.toLowerCase().includes(query)
+            );
+            
+            if (results.length === 0) {
+                const noResults = document.createElement('div');
+                noResults.className = 'search-result-item';
+                noResults.innerHTML = '<div style="color: var(--gray); text-align: center; width: 100%;">No staff members found</div>';
+                searchResults.appendChild(noResults);
+            } else {
+                results.forEach(staff => {
+                    const resultItem = document.createElement('div');
+                    resultItem.className = 'search-result-item';
+                    
+                    const roleNames = {
+                        headmaster: 'Headmaster',
+                        dean_of_studies: 'Dean of Studies',
+                        it_staff: 'IT Staff',
+                        dean_of_discipline: 'Dean of Discipline',
+                        patron: 'Patron',
+                        matron: 'Matron',
+                        teacher: 'Teacher',
+                        other: 'Other Staff'
+                    };
+                    
+                    const roleDisplay = roleNames[staff.role] || staff.role;
+                    const initials = staff.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+                    
+                    resultItem.innerHTML = `
+                        <div class="result-avatar default">
+                            ${initials}
+                        </div>
+                        <div class="result-info">
+                            <h4>${staff.name}</h4>
+                            <p>${roleDisplay}</p>
+                        </div>
+                    `;
+                    
+                    resultItem.addEventListener('click', () => {
+                        searchInput.value = '';
+                        searchResults.classList.remove('active');
+                        handleStaffClick(staff);
+                    });
+                    
+                    searchResults.appendChild(resultItem);
+                });
+            }
+            
+            searchResults.classList.add('active');
+        }
+
+        // Close search results when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                searchResults.classList.remove('active');
+            }
+        });
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Add member button
+            addMemberBtn.addEventListener('click', () => {
+                addMemberForm.reset();
+                addMemberModal.classList.add('active');
+            });
+            
+            // Close modal buttons
+            closeModal.addEventListener('click', () => {
+                addMemberModal.classList.remove('active');
+            });
+            
+            cancelBtn.addEventListener('click', () => {
+                addMemberModal.classList.remove('active');
+            });
+            
+            // Role change handler
+            memberRole.addEventListener('change', () => {
+                if (memberRole.value === 'teacher') {
+                    teacherLessonGroup.style.display = 'block';
+                } else {
+                    teacherLessonGroup.style.display = 'none';
+                }
+            });
+            
+            // Save member
+            saveMemberBtn.addEventListener('click', async () => {
+                await addNewMember();
+            });
+            
+            // Password modal
+            cancelPasswordBtn.addEventListener('click', () => {
+                passwordModal.classList.remove('active');
+                selectedStaff = null;
+            });
+            
+            submitPasswordBtn.addEventListener('click', async () => {
+                await verifyStaffPassword();
+            });
+            
+            staffPassword.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    verifyStaffPassword();
+                }
+            });
+        }
+
+        // Add new staff member
+        async function addNewMember() {
+            try {
+                saveMemberBtn.disabled = true;
+                saveMemberBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+                
+                const name = document.getElementById('memberName').value.trim();
+                const email = document.getElementById('memberEmail').value.trim().toLowerCase();
+                const role = memberRole.value;
+                const password = document.getElementById('memberPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                
+                // Validation
+                if (!name || !email || !role || !password) {
+                    notifications.show('Please fill all required fields', 'error');
+                    return;
+                }
+                
+                if (password.length < 6) {
+                    notifications.show('Password must be at least 6 characters', 'error');
+                    return;
+                }
+                
+                if (password !== confirmPassword) {
+                    notifications.show('Passwords do not match', 'error');
+                    return;
+                }
+                
+                // For teachers, require lesson
+                if (role === 'teacher') {
+                    const lesson = document.getElementById('teacherLesson').value.trim();
+                    if (!lesson) {
+                        notifications.show('Please specify teaching lesson for teacher', 'error');
+                        return;
+                    }
+                }
+                
+                // Create auth account
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                
+                // Save to Firestore
+                const staffData = {
+                    name: name,
+                    email: email,
+                    role: role,
+                    status: 'active',
+                    createdAt: new Date().toISOString(),
+                    createdBy: sessionData.email
+                };
+                
+                // Add extra data for teachers
+                if (role === 'teacher') {
+                    staffData.lesson = document.getElementById('teacherLesson').value.trim();
+                }
+                
+                const staffId = email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '_');
+                const staffRef = doc(db, 'schools', sessionData.schoolId, 'staff', staffId);
+                await setDoc(staffRef, staffData);
+                
+                notifications.show('Staff member added successfully!', 'success');
+                
+                // Close modal and refresh list
+                addMemberModal.classList.remove('active');
+                await loadStaffMembers();
+                
+            } catch (error) {
+                let message = 'Error adding staff member';
+                if (error.code === 'auth/email-already-in-use') {
+                    message = 'Email already in use';
+                }
+                notifications.show(message, 'error');
+                console.error('Error adding staff:', error);
+            } finally {
+                saveMemberBtn.disabled = false;
+                saveMemberBtn.innerHTML = '<i class="fas fa-save"></i> Save Member';
+            }
+        }
+
+        // Verify staff password
+        async function verifyStaffPassword() {
+            try {
+                submitPasswordBtn.disabled = true;
+                submitPasswordBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+                
+                const password = staffPassword.value.trim();
+                
+                if (!password) {
+                    notifications.show('Please enter your password', 'error');
+                    return;
+                }
+                
+                // Sign in with staff email and password
+                const userCredential = await signInWithEmailAndPassword(auth, selectedStaff.email, password);
+                
+                notifications.show('Login successful! Redirecting...', 'success');
+                
+                // Store staff session
+                sessionStorage.setItem('akademia_staff', JSON.stringify({
+                    staffId: selectedStaff.id,
+                    staffName: selectedStaff.name,
+                    staffRole: selectedStaff.role,
+                    staffEmail: selectedStaff.email,
+                    schoolId: sessionData.schoolId,
+                    schoolName: sessionData.schoolName
+                }));
+                
+                // Redirect to home.html
+                setTimeout(() => {
+                    window.location.href = 'home.html';
+                }, 1500);
+                
+            } catch (error) {
+                let message = 'Login failed';
+                if (error.code === 'auth/wrong-password') {
+                    message = 'Incorrect password';
+                } else if (error.code === 'auth/user-not-found') {
+                    message = 'Staff account not found';
+                }
+                notifications.show(message, 'error');
+            } finally {
+                submitPasswordBtn.disabled = false;
+                submitPasswordBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+            }
+        }
+    </script>
+</body>
+</html>
