@@ -57,7 +57,7 @@
             padding: 0 2rem;
         }
 
-        /* Background with cinematic fade effect */
+        /* Background with increased dimming */
         .parallax-bg {
             position: absolute;
             top: -10%;
@@ -68,13 +68,41 @@
             background-position: center;
             background-repeat: no-repeat;
             will-change: transform;
-            z-index: -2;
+            z-index: -3;
             transform: translateY(0);
+            filter: brightness(0.35) contrast(1.1);
             transition: transform 0.1s linear;
         }
 
-        /* Cinematic fade overlay for text readability */
-        .cinematic-overlay {
+        /* WebGL Canvas for Fog Effect */
+        .webgl-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Centered cinematic overlay for section 3 */
+        .cinematic-overlay-center {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(
+                circle at center,
+                transparent 30%,
+                rgba(0, 0, 0, 0.8) 70%,
+                rgba(0, 0, 0, 0.95) 100%
+            );
+            z-index: -1;
+        }
+
+        /* Left cinematic overlay for other sections */
+        .cinematic-overlay-left {
             position: absolute;
             top: 0;
             left: 0;
@@ -82,10 +110,9 @@
             height: 100%;
             background: linear-gradient(
                 90deg,
-                rgba(0, 0, 0, 0.9) 0%,
-                rgba(0, 0, 0, 0.7) 30%,
-                rgba(0, 0, 0, 0.4) 50%,
-                rgba(0, 0, 0, 0.1) 70%,
+                rgba(0, 0, 0, 0.95) 0%,
+                rgba(0, 0, 0, 0.8) 40%,
+                rgba(0, 0, 0, 0.4) 70%,
                 transparent 100%
             );
             z-index: -1;
@@ -188,7 +215,7 @@
         .section-description {
             font-size: 1rem;
             line-height: 1.6;
-            color: rgba(255, 255, 255, 0.85);
+            color: rgba(255, 255, 255, 0.9);
             margin-bottom: 2rem;
             font-weight: 300;
         }
@@ -212,6 +239,7 @@
         .app-button:hover {
             background: var(--primary-blue-dark);
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
         }
 
         /* Navigation Dots */
@@ -252,13 +280,13 @@
             text-align: center;
             z-index: 2;
             opacity: 0;
-            transform: translateX(40px);
+            transform: translateY(40px);
             transition: var(--transition);
         }
 
         .services-content.active {
             opacity: 1;
-            transform: translateX(0);
+            transform: translateY(0);
         }
 
         .services-grid {
@@ -299,7 +327,7 @@
         }
 
         .service-card p {
-            color: rgba(255, 255, 255, 0.75);
+            color: rgba(255, 255, 255, 0.85);
             line-height: 1.5;
             font-size: 0.85rem;
             font-weight: 300;
@@ -346,7 +374,7 @@
 
         .waitlist-card p {
             font-size: 0.95rem;
-            color: rgba(255, 255, 255, 0.85);
+            color: rgba(255, 255, 255, 0.9);
             line-height: 1.6;
             margin-bottom: 1.5rem;
         }
@@ -378,32 +406,6 @@
             font-size: 0.8rem;
         }
 
-        /* Scroll hint */
-        .scroll-hint {
-            position: fixed;
-            bottom: 1.5rem;
-            left: 50%;
-            transform: translateX(-50%);
-            color: rgba(255, 255, 255, 0.7);
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.4rem;
-            font-size: 0.8rem;
-        }
-
-        .scroll-hint i {
-            font-size: 1rem;
-            color: var(--primary-blue);
-            animation: float 3s infinite ease-in-out;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
-        }
-
         /* Mobile Optimization */
         @media (max-width: 1200px) {
             h1 {
@@ -415,12 +417,12 @@
                 max-width: 700px;
             }
             
-            .cinematic-overlay {
+            .cinematic-overlay-left {
                 background: linear-gradient(
                     90deg,
-                    rgba(0, 0, 0, 0.9) 0%,
-                    rgba(0, 0, 0, 0.7) 40%,
-                    rgba(0, 0, 0, 0.3) 70%,
+                    rgba(0, 0, 0, 0.95) 0%,
+                    rgba(0, 0, 0, 0.8) 50%,
+                    rgba(0, 0, 0, 0.4) 80%,
                     transparent 100%
                 );
             }
@@ -469,13 +471,13 @@
                 font-size: 1.5rem;
             }
             
-            .cinematic-overlay {
+            .cinematic-overlay-left {
                 background: linear-gradient(
                     180deg,
                     rgba(0, 0, 0, 0.1) 0%,
                     rgba(0, 0, 0, 0.4) 30%,
                     rgba(0, 0, 0, 0.7) 60%,
-                    rgba(0, 0, 0, 0.9) 100%
+                    rgba(0, 0, 0, 0.95) 100%
                 );
             }
             
@@ -554,12 +556,15 @@
         </a>
     </div>
 
+    <!-- WebGL Canvas for Fog Effect -->
+    <canvas id="fogCanvas" class="webgl-canvas"></canvas>
+
     <!-- Main Scroll Container -->
     <div class="scroll-container" id="scrollContainer">
         <!-- Welcome Section -->
         <section id="welcome">
             <div class="parallax-bg" style="background-image: url('/Assets/Images/1.png');"></div>
-            <div class="cinematic-overlay"></div>
+            <div class="cinematic-overlay-left"></div>
             <div class="text-content active">
                 <div class="section-tag">Modern Education Platform</div>
                 <h1>School Management <br><span style="color: var(--primary-blue-light);">Simplified</span></h1>
@@ -574,7 +579,7 @@
         <!-- About Section -->
         <section id="about">
             <div class="parallax-bg" style="background-image: url('/Assets/Images/2.png');"></div>
-            <div class="cinematic-overlay"></div>
+            <div class="cinematic-overlay-left"></div>
             <div class="text-content">
                 <div class="section-tag">Built for Educators</div>
                 <h1>Designed for <span style="color: var(--primary-blue-light);">Excellence</span></h1>
@@ -585,35 +590,35 @@
                             <div style="background: var(--primary-blue); width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem;">
                                 <i class="fas fa-chart-line"></i>
                             </div>
-                            <span style="font-size: 0.9rem; color: rgba(255,255,255,0.9);">Real-time Analytics</span>
+                            <span style="font-size: 0.9rem; color: rgba(255,255,255,0.95);">Real-time Analytics</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.8rem;">
                             <div style="background: var(--primary-blue); width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem;">
                                 <i class="fas fa-shield-alt"></i>
                             </div>
-                            <span style="font-size: 0.9rem; color: rgba(255,255,255,0.9);">Enterprise Security</span>
+                            <span style="font-size: 0.9rem; color: rgba(255,255,255,0.95);">Enterprise Security</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.8rem;">
                             <div style="background: var(--primary-blue); width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem;">
                                 <i class="fas fa-sync-alt"></i>
                             </div>
-                            <span style="font-size: 0.9rem; color: rgba(255,255,255,0.9);">Seamless Integration</span>
+                            <span style="font-size: 0.9rem; color: rgba(255,255,255,0.95);">Seamless Integration</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.8rem;">
                             <div style="background: var(--primary-blue); width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem;">
                                 <i class="fas fa-mobile-alt"></i>
                             </div>
-                            <span style="font-size: 0.9rem; color: rgba(255,255,255,0.9);">Mobile Optimized</span>
+                            <span style="font-size: 0.9rem; color: rgba(255,255,255,0.95);">Mobile Optimized</span>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Services Section - Centered -->
+        <!-- Services Section - Centered with radial overlay -->
         <section id="services" style="justify-content: center;">
             <div class="parallax-bg" style="background-image: url('/Assets/Images/3.png');"></div>
-            <div class="cinematic-overlay"></div>
+            <div class="cinematic-overlay-center"></div>
             <div class="services-content">
                 <div class="section-tag">Complete Solution</div>
                 <h1 style="margin-bottom: 2rem;">School Management <span style="color: var(--primary-blue-light);">Tools</span></h1>
@@ -667,7 +672,7 @@
         <!-- Waitlist Section -->
         <section id="contact">
             <div class="parallax-bg" style="background-image: url('/Assets/Images/4.png');"></div>
-            <div class="cinematic-overlay"></div>
+            <div class="cinematic-overlay-left"></div>
             <div class="waitlist-content">
                 <div class="section-tag">Join Now</div>
                 <h1>Transform Your <span style="color: var(--primary-blue-light);">School</span></h1>
@@ -712,13 +717,119 @@
         <div class="nav-dot" data-section="Contact" onclick="scrollToSection(3)"></div>
     </div>
 
-    <!-- Scroll Hint -->
-    <div class="scroll-hint">
-        <span>Swipe to explore</span>
-        <i class="fas fa-arrow-right"></i>
-    </div>
-
     <script>
+        // WebGL Fog Animation
+        class FogAnimation {
+            constructor() {
+                this.canvas = document.getElementById('fogCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.particles = [];
+                this.frameCount = 0;
+                this.mouseX = 0;
+                this.mouseY = 0;
+                
+                this.init();
+                this.animate();
+                
+                window.addEventListener('resize', () => this.resize());
+                window.addEventListener('mousemove', (e) => {
+                    this.mouseX = e.clientX;
+                    this.mouseY = e.clientY;
+                });
+            }
+            
+            init() {
+                this.resize();
+                this.createParticles();
+            }
+            
+            resize() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            }
+            
+            createParticles() {
+                this.particles = [];
+                const particleCount = Math.min(80, Math.floor((window.innerWidth * window.innerHeight) / 20000));
+                
+                for (let i = 0; i < particleCount; i++) {
+                    this.particles.push({
+                        x: Math.random() * this.canvas.width,
+                        y: Math.random() * this.canvas.height,
+                        size: Math.random() * 30 + 10,
+                        speedX: Math.random() * 0.5 - 0.25,
+                        speedY: Math.random() * 0.5 - 0.25,
+                        opacity: Math.random() * 0.1 + 0.05,
+                        drift: Math.random() * 0.02 - 0.01
+                    });
+                }
+            }
+            
+            animate() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.frameCount++;
+                
+                // Draw fog particles
+                this.particles.forEach(particle => {
+                    // Calculate mouse influence
+                    const dx = this.mouseX - particle.x;
+                    const dy = this.mouseY - particle.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    // Apply subtle mouse influence
+                    if (distance < 150) {
+                        const force = (150 - distance) / 150;
+                        particle.x -= dx * force * 0.02;
+                        particle.y -= dy * force * 0.02;
+                    }
+                    
+                    // Update position with natural movement
+                    particle.x += particle.speedX + Math.sin(this.frameCount * 0.02 + particle.y * 0.01) * 0.2;
+                    particle.y += particle.speedY + Math.cos(this.frameCount * 0.015 + particle.x * 0.01) * 0.2;
+                    
+                    // Wrap around screen edges
+                    if (particle.x < -particle.size) particle.x = this.canvas.width + particle.size;
+                    if (particle.x > this.canvas.width + particle.size) particle.x = -particle.size;
+                    if (particle.y < -particle.size) particle.y = this.canvas.height + particle.size;
+                    if (particle.y > this.canvas.height + particle.size) particle.y = -particle.size;
+                    
+                    // Draw particle with radial gradient
+                    const gradient = this.ctx.createRadialGradient(
+                        particle.x, particle.y, 0,
+                        particle.x, particle.y, particle.size
+                    );
+                    
+                    gradient.addColorStop(0, `rgba(255, 255, 255, ${particle.opacity})`);
+                    gradient.addColorStop(0.5, `rgba(200, 220, 255, ${particle.opacity * 0.5})`);
+                    gradient.addColorStop(1, `rgba(150, 180, 220, 0)`);
+                    
+                    this.ctx.beginPath();
+                    this.ctx.fillStyle = gradient;
+                    this.ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                    this.ctx.fill();
+                });
+                
+                // Draw overall fog overlay
+                const overlayGradient = this.ctx.createRadialGradient(
+                    this.canvas.width / 2, this.canvas.height / 2, 0,
+                    this.canvas.width / 2, this.canvas.height / 2, Math.max(this.canvas.width, this.canvas.height) * 0.7
+                );
+                
+                overlayGradient.addColorStop(0, 'rgba(0, 0, 20, 0)');
+                overlayGradient.addColorStop(0.5, 'rgba(0, 0, 30, 0.1)');
+                overlayGradient.addColorStop(1, 'rgba(0, 0, 40, 0.2)');
+                
+                this.ctx.fillStyle = overlayGradient;
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+
+        // Initialize WebGL fog animation
+        const fogAnimation = new FogAnimation();
+
+        // Section Navigation
         const container = document.getElementById('scrollContainer');
         const navDots = document.querySelectorAll('.nav-dot');
         const textContents = document.querySelectorAll('.text-content, .services-content, .waitlist-content');
@@ -803,12 +914,18 @@
         document.addEventListener('mousemove', (e) => {
             if (isScrolling) return;
             
-            const x = (e.clientX / window.innerWidth - 0.5) * 20;
-            const y = (e.clientY / window.innerHeight - 0.5) * 20;
+            const x = (e.clientX / window.innerWidth - 0.5) * 15;
+            const y = (e.clientY / window.innerHeight - 0.5) * 15;
             
             document.querySelectorAll('.parallax-bg').forEach(bg => {
                 bg.style.transform = `translate(${x}px, ${y}px)`;
             });
+        });
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            fogAnimation.resize();
+            fogAnimation.createParticles();
         });
     </script>
 </body>
