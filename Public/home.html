@@ -3,1476 +3,1692 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Akademia - Staff Dashboard</title>
-    <link rel="icon" type="image/x-icon" href="Assets/Images/favicon.ico">
+    <title>AKADEMIA</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
+        /* ===== THEME VARIABLES ===== */
+        :root {
+            /* Light Theme (Default) */
+            --win11-accent: #0078D4;
+            --win11-accent-light: #50B6FF;
+            --win11-bg: #F3F3F3;
+            --win11-surface: #FFFFFF;
+            --win11-surface-light: #F5F5F5;
+            --win11-surface-lighter: #FAFAFA;
+            --win11-text: #323130;
+            --win11-text-secondary: #605E5C;
+            --win11-border: #E1DFDD;
+            --win11-shadow: rgba(0, 0, 0, 0.1);
+            --win11-mica: rgba(255, 255, 255, 0.7);
+            --win11-acrylic: rgba(255, 255, 255, 0.05);
+            --win11-error: #D13438;
+            --win11-success: #107C10;
+            --win11-warning: #FFB900;
+            --win11-info: #50B6FF;
+            --win11-overlay: rgba(0, 0, 0, 0.3);
+            
+            --taskbar-height: 48px;
+            --taskbar-z: 10000;
+            --window-z: 1000;
+            --overlay-z: 9999;
+        }
+
+        .dark-theme {
+            /* Dark Theme */
+            --win11-accent: #50B6FF;
+            --win11-accent-light: #0078D4;
+            --win11-bg: #0C0C0C;
+            --win11-surface: #1F1F1F;
+            --win11-surface-light: #2D2D2D;
+            --win11-surface-lighter: #3E3E3E;
+            --win11-text: #FFFFFF;
+            --win11-text-secondary: #A0A0A0;
+            --win11-border: #3E3E3E;
+            --win11-shadow: rgba(0, 0, 0, 0.4);
+            --win11-mica: rgba(32, 32, 32, 0.7);
+            --win11-acrylic: rgba(255, 255, 255, 0.05);
+            --win11-overlay: rgba(0, 0, 0, 0.7);
+        }
+
+        /* ===== RESET & BASE ===== */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        }
-
-        :root {
-            --primary-blue: #007AFF;
-            --primary-blue-light: #5AC8FA;
-            --primary-blue-dark: #0056CC;
-            --accent-green: #34C759;
-            --accent-red: #FF3B30;
-            --accent-orange: #FF9500;
-            --accent-purple: #AF52DE;
-            --accent-yellow: #FFCC00;
-            --dark: #1C1C1E;
-            --light: #FFFFFF;
-            --gray-light: #F2F2F7;
-            --gray: #8E8E93;
-            --gray-dark: #3A3A3C;
-            --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.05);
-            --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.08);
-            --shadow-large: 0 10px 30px rgba(0, 0, 0, 0.12);
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 16px;
-            --radius-full: 50%;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --sidebar-width: 240px;
-            --header-height: 64px;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--gray-light);
-            color: var(--dark);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* Main Layout */
-        .app-container {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: var(--sidebar-width);
-            background: var(--light);
-            border-right: 1px solid var(--gray-light);
-            display: flex;
-            flex-direction: column;
-            position: fixed;
+            background: var(--win11-bg);
             height: 100vh;
-            z-index: 100;
-            transition: var(--transition);
+            overflow: hidden;
+            color: var(--win11-text);
+            user-select: none;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            transition: background-color 0.3s ease;
         }
 
-        .sidebar-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--gray-light);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .sidebar-logo {
-            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
-            color: var(--light);
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            font-weight: 700;
-        }
-
-        .sidebar-title {
-            font-family: 'Poppins', sans-serif;
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        /* Navigation */
-        .nav-section {
-            padding: 1.5rem 1rem;
-            border-bottom: 1px solid var(--gray-light);
-        }
-
-        .nav-title {
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--gray);
-            margin-bottom: 0.8rem;
-            padding: 0 0.5rem;
-        }
-
-        .nav-list {
-            list-style: none;
-        }
-
-        .nav-item {
-            margin-bottom: 0.4rem;
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 0.8rem 0.8rem;
-            text-decoration: none;
-            color: var(--gray-dark);
-            border-radius: var(--radius-sm);
-            transition: var(--transition);
-            font-weight: 500;
-            font-size: 0.9rem;
-        }
-
-        .nav-link:hover {
-            background: var(--gray-light);
-            color: var(--dark);
-        }
-
-        .nav-link.active {
-            background: var(--primary-blue);
-            color: var(--light);
-            box-shadow: var(--shadow-subtle);
-        }
-
-        .nav-link.active .nav-icon {
-            color: var(--light);
-        }
-
-        .nav-icon {
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--gray);
-            transition: var(--transition);
-        }
-
-        /* Badge for notifications */
-        .nav-badge {
-            margin-left: auto;
-            background: var(--accent-red);
-            color: var(--light);
-            font-size: 0.7rem;
-            font-weight: 600;
-            padding: 0.2rem 0.5rem;
-            border-radius: 10px;
-            min-width: 20px;
-            text-align: center;
-        }
-
-        /* User Profile */
-        .user-profile {
-            margin-top: auto;
-            padding: 1.5rem;
-            border-top: 1px solid var(--gray-light);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: var(--radius-full);
-            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--light);
-            font-weight: 600;
-            font-size: 1rem;
-        }
-
-        .user-info {
-            flex: 1;
-        }
-
-        .user-name {
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: var(--dark);
-            margin-bottom: 0.1rem;
-        }
-
-        .user-role {
-            font-size: 0.75rem;
-            color: var(--gray);
-        }
-
-        .user-menu {
-            background: none;
-            border: none;
-            color: var(--gray);
-            cursor: pointer;
-            padding: 0.3rem;
-            border-radius: 4px;
-            transition: var(--transition);
-        }
-
-        .user-menu:hover {
-            background: var(--gray-light);
-            color: var(--dark);
-        }
-
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            margin-left: var(--sidebar-width);
-            min-height: 100vh;
-        }
-
-        /* Header */
-        .main-header {
-            height: var(--header-height);
-            background: var(--light);
-            border-bottom: 1px solid var(--gray-light);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 2rem;
-            position: sticky;
-            top: 0;
-            z-index: 99;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .menu-toggle {
-            display: none;
-            background: none;
-            border: none;
-            color: var(--gray);
-            font-size: 1.2rem;
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 6px;
-            transition: var(--transition);
-        }
-
-        .menu-toggle:hover {
-            background: var(--gray-light);
-            color: var(--dark);
-        }
-
-        .header-title {
-            font-family: 'Poppins', sans-serif;
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .search-bar {
-            position: relative;
-        }
-
-        .search-input {
-            padding: 0.6rem 0.8rem 0.6rem 2.5rem;
-            border: 1.5px solid var(--gray-light);
-            border-radius: var(--radius-sm);
-            font-family: 'Inter', sans-serif;
-            font-size: 0.9rem;
-            width: 240px;
-            transition: var(--transition);
-            background: var(--gray-light);
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: var(--primary-blue);
-            background: var(--light);
-            width: 280px;
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 0.8rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray);
-            font-size: 0.9rem;
-        }
-
-        .notification-btn {
-            background: none;
-            border: none;
-            color: var(--gray);
-            font-size: 1.2rem;
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 6px;
-            position: relative;
-            transition: var(--transition);
-        }
-
-        .notification-btn:hover {
-            background: var(--gray-light);
-            color: var(--dark);
-        }
-
-        .notification-badge {
-            position: absolute;
-            top: 0;
-            right: 0;
-            background: var(--accent-red);
-            color: var(--light);
-            font-size: 0.65rem;
-            font-weight: 600;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Content Area */
-        .content-wrapper {
-            padding: 2rem;
-        }
-
-        /* Welcome Card */
-        .welcome-card {
-            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
-            color: var(--light);
-            border-radius: var(--radius-lg);
-            padding: 2.5rem;
-            margin-bottom: 2rem;
-            box-shadow: var(--shadow-medium);
+        /* ===== WALLPAPER & DESKTOP ===== */
+        .desktop {
+            height: 100vh;
+            background: 
+                linear-gradient(var(--win11-overlay), var(--win11-overlay)),
+                url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80') center/cover fixed;
             position: relative;
             overflow: hidden;
         }
 
-        .welcome-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -20%;
-            width: 300px;
-            height: 300px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-        }
-
-        .welcome-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1.5rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        .welcome-text h1 {
-            font-family: 'Poppins', sans-serif;
-            font-size: 1.8rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .welcome-text p {
-            opacity: 0.9;
-            font-size: 0.95rem;
-        }
-
-        .date-time {
-            text-align: right;
-        }
-
-        .current-date {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 0.2rem;
-        }
-
-        .current-time {
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-
-        /* Quick Stats */
-        .quick-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .stat-card {
-            background: var(--light);
-            border-radius: var(--radius-md);
-            padding: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            box-shadow: var(--shadow-subtle);
-            transition: var(--transition);
-            cursor: pointer;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-medium);
-        }
-
-        .stat-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: var(--radius-md);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            color: var(--light);
-        }
-
-        .stat-icon.students { background: var(--accent-green); }
-        .stat-icon.staff { background: var(--primary-blue); }
-        .stat-icon.attendance { background: var(--accent-orange); }
-        .stat-icon.library { background: var(--accent-purple); }
-
-        .stat-content {
-            flex: 1;
-        }
-
-        .stat-value {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--dark);
-            line-height: 1;
-            margin-bottom: 0.2rem;
-        }
-
-        .stat-label {
-            font-size: 0.85rem;
-            color: var(--gray);
-            font-weight: 500;
-        }
-
-        .stat-change {
-            font-size: 0.75rem;
-            font-weight: 600;
-            padding: 0.2rem 0.5rem;
+        /* ===== SCHOOL PANEL ===== */
+        .school-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 260px;
+            background: var(--win11-mica);
+            backdrop-filter: blur(30px) saturate(180%);
+            -webkit-backdrop-filter: blur(30px) saturate(180%);
             border-radius: 12px;
-            display: inline-block;
-            margin-top: 0.3rem;
-        }
-
-        .stat-change.positive {
-            background: rgba(52, 199, 89, 0.1);
-            color: var(--accent-green);
-        }
-
-        .stat-change.negative {
-            background: rgba(255, 59, 48, 0.1);
-            color: var(--accent-red);
-        }
-
-        /* Modules Grid */
-        .modules-section {
-            margin-bottom: 2rem;
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .section-title {
-            font-family: 'Poppins', sans-serif;
-            font-size: 1.4rem;
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        .modules-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .module-card {
-            background: var(--light);
-            border-radius: var(--radius-md);
-            padding: 1.8rem;
-            box-shadow: var(--shadow-subtle);
-            transition: var(--transition);
-            cursor: pointer;
-            border: 1px solid var(--gray-light);
-            position: relative;
+            padding: 20px;
+            z-index: 1000;
+            border: 1px solid var(--win11-border);
+            box-shadow: 0 8px 32px var(--win11-shadow);
             overflow: hidden;
         }
 
-        .module-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-medium);
-            border-color: var(--primary-blue-light);
-        }
-
-        .module-card::before {
+        .school-panel::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
-            width: 4px;
-            height: 100%;
-            background: var(--primary-blue);
-            transform: scaleY(0);
-            transition: transform 0.3s ease;
-        }
-
-        .module-card:hover::before {
-            transform: scaleY(1);
-        }
-
-        .module-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .module-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-            color: var(--light);
-        }
-
-        .module-icon.library { background: var(--accent-purple); }
-        .module-icon.discipline { background: var(--accent-orange); }
-        .module-icon.reports { background: var(--accent-green); }
-        .module-icon.attendance { background: var(--primary-blue); }
-        .module-icon.communication { background: var(--accent-red); }
-        .module-icon.curriculum { background: var(--accent-yellow); color: var(--dark); }
-
-        .module-title {
-            font-weight: 600;
-            font-size: 1.1rem;
-            color: var(--dark);
-            flex: 1;
-        }
-
-        .module-status {
-            font-size: 0.75rem;
-            font-weight: 600;
-            padding: 0.2rem 0.6rem;
-            border-radius: 12px;
-            background: var(--gray-light);
-            color: var(--gray-dark);
-        }
-
-        .module-status.available {
-            background: rgba(52, 199, 89, 0.1);
-            color: var(--accent-green);
-        }
-
-        .module-description {
-            color: var(--gray-dark);
-            font-size: 0.9rem;
-            line-height: 1.5;
-            margin-bottom: 1.5rem;
-        }
-
-        .module-actions {
-            display: flex;
-            gap: 0.8rem;
-        }
-
-        .module-btn {
-            padding: 0.5rem 1rem;
-            border-radius: var(--radius-sm);
-            font-size: 0.85rem;
-            font-weight: 500;
-            border: none;
-            cursor: pointer;
-            transition: var(--transition);
-            flex: 1;
-            text-align: center;
-        }
-
-        .module-btn.primary {
-            background: var(--primary-blue);
-            color: var(--light);
-        }
-
-        .module-btn.primary:hover {
-            background: var(--primary-blue-dark);
-        }
-
-        .module-btn.secondary {
-            background: var(--gray-light);
-            color: var(--gray-dark);
-        }
-
-        .module-btn.secondary:hover {
-            background: var(--gray);
-            color: var(--light);
-        }
-
-        /* Recent Activity */
-        .activity-list {
-            background: var(--light);
-            border-radius: var(--radius-md);
-            padding: 1.5rem;
-            box-shadow: var(--shadow-subtle);
-        }
-
-        .activity-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 1rem;
-            padding: 1rem;
-            border-bottom: 1px solid var(--gray-light);
-        }
-
-        .activity-item:last-child {
-            border-bottom: none;
-        }
-
-        .activity-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9rem;
-            color: var(--light);
-            flex-shrink: 0;
-        }
-
-        .activity-icon.info { background: var(--primary-blue); }
-        .activity-icon.success { background: var(--accent-green); }
-        .activity-icon.warning { background: var(--accent-orange); }
-        .activity-icon.error { background: var(--accent-red); }
-
-        .activity-content {
-            flex: 1;
-        }
-
-        .activity-title {
-            font-weight: 500;
-            color: var(--dark);
-            margin-bottom: 0.2rem;
-            font-size: 0.95rem;
-        }
-
-        .activity-description {
-            color: var(--gray);
-            font-size: 0.85rem;
-            margin-bottom: 0.3rem;
-        }
-
-        .activity-time {
-            font-size: 0.75rem;
-            color: var(--gray);
-        }
-
-        /* Notifications Panel */
-        .notifications-panel {
-            position: fixed;
-            top: var(--header-height);
-            right: -320px;
-            width: 320px;
-            height: calc(100vh - var(--header-height));
-            background: var(--light);
-            box-shadow: var(--shadow-large);
-            z-index: 1000;
-            transition: right 0.3s ease;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .notifications-panel.active {
             right: 0;
+            height: 4px;
+            background: var(--win11-accent);
         }
 
-        .notifications-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--gray-light);
+        .school-logo {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--win11-accent), var(--win11-accent-light));
+            border-radius: 10px;
+            margin: 0 auto 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .school-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--win11-text);
+            text-align: center;
+            margin-bottom: 4px;
+        }
+
+        .school-subtitle {
+            font-size: 12px;
+            color: var(--win11-text-secondary);
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .user-info {
+            background: var(--win11-surface-light);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .user-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .user-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--win11-accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-right: 10px;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: var(--win11-text-secondary);
+        }
+
+        .time-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--win11-border);
+        }
+
+        .time-display {
+            font-size: 24px;
+            font-weight: 300;
+            color: var(--win11-text);
+        }
+
+        .day {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .term {
+            font-size: 12px;
+            color: var(--win11-accent);
+            background: rgba(0, 120, 212, 0.1);
+            padding: 3px 8px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        /* ===== STATISTICS SECTION ===== */
+        .stats-section {
+            margin-bottom: 16px;
+        }
+
+        .stats-header {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--win11-text);
+            margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .notifications-title {
+        .stats-total {
+            background: var(--win11-surface-light);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .total-number {
+            font-size: 28px;
             font-weight: 600;
-            color: var(--dark);
+            color: var(--win11-accent);
+            margin-bottom: 4px;
         }
 
-        .notifications-close {
-            background: none;
-            border: none;
-            color: var(--gray);
-            cursor: pointer;
-            font-size: 1.2rem;
-            padding: 0.3rem;
-            border-radius: 4px;
-            transition: var(--transition);
+        .total-label {
+            font-size: 12px;
+            color: var(--win11-text-secondary);
         }
 
-        .notifications-close:hover {
-            background: var(--gray-light);
-            color: var(--dark);
+        .gender-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 20px;
         }
 
-        .notifications-list {
-            flex: 1;
-            overflow-y: auto;
-            padding: 1rem;
+        .gender-stat {
+            background: var(--win11-surface-light);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
         }
 
-        .notification-item {
-            padding: 1rem;
-            border-radius: var(--radius-sm);
-            background: var(--gray-light);
-            margin-bottom: 0.8rem;
-            cursor: pointer;
-            transition: var(--transition);
+        .gender-number {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 2px;
         }
 
-        .notification-item:hover {
-            background: #e5e5ea;
+        .boys .gender-number {
+            color: #0078D4;
         }
 
-        .notification-item.unread {
-            background: rgba(0, 122, 255, 0.08);
+        .girls .gender-number {
+            color: #E3008C;
         }
 
-        .notification-title {
-            font-weight: 500;
-            color: var(--dark);
-            margin-bottom: 0.3rem;
-            font-size: 0.9rem;
+        .gender-label {
+            font-size: 11px;
+            color: var(--win11-text-secondary);
         }
 
-        .notification-message {
-            color: var(--gray-dark);
-            font-size: 0.85rem;
-            line-height: 1.4;
-            margin-bottom: 0.5rem;
+        /* ===== THEME SWITCHER ===== */
+        .theme-switcher {
+            margin-bottom: 20px;
         }
 
-        .notification-time {
-            font-size: 0.75rem;
-            color: var(--gray);
-        }
-
-        /* User Menu Dropdown */
-        .user-dropdown {
-            position: fixed;
-            top: calc(var(--header-height) + 10px);
-            right: 20px;
-            background: var(--light);
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-large);
-            min-width: 200px;
-            z-index: 1001;
-            display: none;
-        }
-
-        .user-dropdown.active {
-            display: block;
-            animation: fadeInUp 0.2s ease;
-        }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .dropdown-item {
+        .theme-toggle {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 0.8rem 1rem;
-            text-decoration: none;
-            color: var(--dark);
-            border-bottom: 1px solid var(--gray-light);
-            transition: var(--transition);
-            font-size: 0.9rem;
+            justify-content: space-between;
+            background: var(--win11-surface-light);
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
-        .dropdown-item:hover {
-            background: var(--gray-light);
+        .theme-toggle:hover {
+            background: var(--win11-surface-lighter);
         }
 
-        .dropdown-item:last-child {
-            border-bottom: none;
+        .theme-label {
+            font-size: 13px;
+            font-weight: 500;
         }
 
-        .dropdown-item.logout {
-            color: var(--accent-red);
+        .theme-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--win11-accent);
         }
 
-        /* Responsive Design */
-        @media (max-width: 1200px) {
-            .quick-stats {
-                grid-template-columns: repeat(2, 1fr);
-            }
+        /* ===== DESKTOP ICONS WITH TOOLTIP ===== */
+        .desktop-icons {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, 72px);
+            gap: 16px;
         }
 
-        @media (max-width: 992px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
-            
-            .sidebar.active {
-                transform: translateX(0);
-            }
-            
-            .main-content {
-                margin-left: 0;
-            }
-            
-            .menu-toggle {
-                display: block;
-            }
-            
-            .search-input {
-                width: 200px;
-            }
-            
-            .search-input:focus {
-                width: 240px;
-            }
+        .desktop-icon {
+            width: 72px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 8px;
+            border-radius: 6px;
+            position: relative;
         }
 
-        @media (max-width: 768px) {
-            .content-wrapper {
-                padding: 1.5rem;
-            }
-            
-            .welcome-card {
-                padding: 1.8rem;
-            }
-            
-            .welcome-text h1 {
-                font-size: 1.5rem;
-            }
-            
-            .quick-stats {
-                grid-template-columns: 1fr;
-            }
-            
-            .modules-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .header-actions {
-                gap: 0.5rem;
-            }
-            
-            .search-input {
-                width: 160px;
-            }
-            
-            .search-input:focus {
-                width: 200px;
-            }
+        .desktop-icon:hover {
+            background: var(--win11-acrylic);
         }
 
-        @media (max-width: 576px) {
-            .main-header {
-                padding: 0 1rem;
-            }
-            
-            .content-wrapper {
-                padding: 1rem;
-            }
-            
-            .welcome-header {
-                flex-direction: column;
-                gap: 1rem;
-            }
-            
-            .date-time {
-                text-align: left;
-                width: 100%;
-            }
-            
-            .section-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1rem;
-            }
-            
-            .search-input {
-                display: none;
-            }
-            
-            .notifications-panel {
-                width: 100%;
-                right: -100%;
-            }
+        .desktop-icon.active {
+            background: var(--win11-surface-lighter);
         }
 
-        /* Overlay for mobile */
-        .sidebar-overlay {
+        .icon-container {
+            width: 48px;
+            height: 48px;
+            background: var(--win11-surface);
+            border-radius: 10px;
+            margin: 0 auto 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: var(--win11-accent);
+            box-shadow: 0 2px 8px var(--win11-shadow);
+            transition: all 0.2s;
+            overflow: hidden;
+        }
+
+        .icon-container img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+        }
+
+        .desktop-icon:hover .icon-container {
+            transform: scale(1.05);
+            background: var(--win11-surface-light);
+        }
+
+        .icon-label {
+            font-size: 12px;
+            color: var(--win11-text);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            word-break: break-word;
+            line-height: 1.2;
+        }
+
+        /* ===== ICON TOOLTIP ===== */
+        .icon-tooltip {
+            position: absolute;
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(50, 50, 50, 0.9);
+            color: white;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1001;
+            display: none;
+            pointer-events: none;
+            backdrop-filter: blur(10px);
+        }
+
+        .icon-tooltip::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid rgba(50, 50, 50, 0.9);
+        }
+
+        .desktop-icon:hover .icon-tooltip {
+            display: block;
+        }
+
+        /* ===== WINDOWS 11 TASKBAR ===== */
+        .taskbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: var(--taskbar-height);
+            background: var(--win11-mica);
+            backdrop-filter: blur(30px) saturate(180%);
+            -webkit-backdrop-filter: blur(30px) saturate(180%);
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            z-index: var(--taskbar-z);
+            border-top: 1px solid var(--win11-border);
+        }
+
+        .taskbar-left {
+            display: flex;
+            align-items: center;
+            margin-right: auto;
+        }
+
+        .updates-button {
+            width: 36px;
+            height: 36px;
+            background: transparent;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--win11-text);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .updates-button:hover {
+            background: var(--win11-acrylic);
+        }
+
+        .updates-button.has-updates::after {
+            content: '';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 6px;
+            height: 6px;
+            background: var(--win11-accent);
+            border-radius: 50%;
+        }
+
+        .taskbar-center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .show-all-apps {
+            width: 36px;
+            height: 36px;
+            background: transparent;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--win11-text);
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-right: 8px;
+        }
+
+        .show-all-apps:hover {
+            background: var(--win11-acrylic);
+        }
+
+        .taskbar-app {
+            width: 36px;
+            height: 36px;
+            background: transparent;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--win11-text);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .taskbar-app:hover {
+            background: var(--win11-acrylic);
+        }
+
+        .taskbar-app.active {
+            background: var(--win11-surface-lighter);
+            color: var(--win11-accent);
+        }
+
+        .taskbar-app.running::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            background: var(--win11-accent);
+            border-radius: 50%;
+        }
+
+        .taskbar-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        /* ===== DATE DISPLAY IN TASKBAR ===== */
+        .date-display {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            padding-right: 12px;
+            color: var(--win11-text);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            cursor: default;
+            min-width: 40px;
+        }
+
+        .date-day {
+            font-size: 18px;
+            font-weight: 400;
+            line-height: 1;
+            margin-bottom: 1px;
+        }
+
+        .date-month {
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--win11-text-secondary);
+            line-height: 1;
+        }
+
+        .taskbar-icon {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--win11-text);
+            border-radius: 6px;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .taskbar-icon:hover {
+            background: var(--win11-acrylic);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 18px;
+            height: 18px;
+            background: var(--win11-error);
+            color: white;
+            border-radius: 50%;
+            font-size: 10px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logout-button {
+            background: transparent;
+            color: var(--win11-text);
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+        }
+
+        .logout-button:hover {
+            background: var(--win11-acrylic);
+        }
+
+        /* ===== WINDOW SYSTEM ===== */
+        .window {
+            position: absolute;
+            background: var(--win11-surface);
+            border-radius: 10px;
+            overflow: hidden;
+            z-index: var(--window-z);
+            min-width: 400px;
+            min-height: 300px;
+            resize: both;
+            border: 1px solid var(--win11-border);
+            box-shadow: 0 16px 48px var(--win11-shadow);
+            transition: box-shadow 0.2s;
+            max-width: calc(100vw - 40px);
+            max-height: calc(100vh - 100px);
+        }
+
+        .window.active {
+            box-shadow: 0 24px 64px var(--win11-shadow);
+            z-index: calc(var(--window-z) + 1);
+        }
+
+        .window-header {
+            height: 40px;
+            background: var(--win11-surface-light);
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            cursor: move;
+            border-bottom: 1px solid var(--win11-border);
+            user-select: none;
+        }
+
+        .window-icon {
+            width: 20px;
+            height: 20px;
+            background: var(--win11-accent);
+            border-radius: 4px;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+        }
+
+        .window-icon img {
+            width: 16px;
+            height: 16px;
+            object-fit: contain;
+        }
+
+        .window-title {
+            flex: 1;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--win11-text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 4px;
+        }
+
+        .window-btn {
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: transparent;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--win11-text-secondary);
+            transition: all 0.2s;
+            font-size: 12px;
+        }
+
+        .window-btn:hover {
+            background: var(--win11-acrylic);
+            color: var(--win11-text);
+        }
+
+        .window-btn.close:hover {
+            background: var(--win11-error);
+            color: white;
+        }
+
+        .window-content {
+            height: calc(100% - 40px);
+            background: var(--win11-surface);
+            overflow: hidden;
+        }
+
+        .app-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: var(--win11-surface);
+        }
+
+        /* ===== MAC OS STYLE APP LAUNCHER ===== */
+        .app-launcher-overlay {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(2px);
-            z-index: 99;
+            background: var(--win11-overlay);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            display: none;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding-top: 100px;
+            z-index: var(--overlay-z);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .app-launcher-overlay.active {
+            display: flex;
+            opacity: 1;
+            cursor: default;
+        }
+
+        .app-launcher-search {
+            width: 600px;
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .app-launcher-search input {
+            width: 100%;
+            padding: 16px 24px;
+            background: var(--win11-surface);
+            border: 2px solid var(--win11-border);
+            border-radius: 16px;
+            font-size: 18px;
+            color: var(--win11-text);
+            outline: none;
+            transition: all 0.2s;
+            backdrop-filter: blur(10px);
+        }
+
+        .app-launcher-search input:focus {
+            background: var(--win11-surface-light);
+            border-color: var(--win11-accent);
+            box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.3);
+        }
+
+        .app-launcher-search input::placeholder {
+            color: var(--win11-text-secondary);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--win11-text-secondary);
+        }
+
+        .apps-grid-launcher {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, 100px);
+            gap: 24px;
+            max-width: 800px;
+            justify-content: center;
+        }
+
+        .app-item-launcher {
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 12px;
+            border-radius: 12px;
+        }
+
+        .app-item-launcher:hover {
+            background: var(--win11-acrylic);
+            transform: translateY(-4px);
+        }
+
+        .app-item-launcher .icon-container {
+            margin-bottom: 8px;
+        }
+
+        /* ===== FLYOUT PANELS ===== */
+        .flyout-panel {
+            position: fixed;
+            bottom: calc(var(--taskbar-height) + 10px);
+            background: var(--win11-surface);
+            backdrop-filter: blur(30px) saturate(180%);
+            -webkit-backdrop-filter: blur(30px) saturate(180%);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 16px 48px var(--win11-shadow);
+            border: 1px solid var(--win11-border);
+            z-index: var(--overlay-z);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             display: none;
         }
 
-        .sidebar-overlay.active {
+        .flyout-panel.active {
             display: block;
+            opacity: 1;
+            transform: translateY(0);
+            animation: slideUp 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .flyout-header {
+            padding: 16px;
+            background: var(--win11-surface-light);
+            border-bottom: 1px solid var(--win11-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .flyout-content {
+            padding: 16px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .updates-panel {
+            left: 60px;
+            width: 380px;
+        }
+
+        .notifications-panel {
+            right: 120px;
+            width: 380px;
+        }
+
+        .flyout-item {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            background: var(--win11-surface-light);
+            transition: all 0.2s;
+            border-left: 3px solid var(--win11-accent);
+            cursor: pointer;
+        }
+
+        .flyout-item.new {
+            border-left-color: var(--win11-success);
+        }
+
+        .flyout-item.important {
+            border-left-color: var(--win11-error);
+        }
+
+        .flyout-item.warning {
+            border-left-color: var(--win11-warning);
+        }
+
+        .flyout-item.info {
+            border-left-color: var(--win11-info);
+        }
+
+        .flyout-item:hover {
+            background: var(--win11-surface-lighter);
+        }
+
+        .flyout-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--win11-text);
+            font-size: 14px;
+        }
+
+        .flyout-description {
+            font-size: 12px;
+            color: var(--win11-text-secondary);
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+
+        .flyout-time {
+            font-size: 11px;
+            color: var(--win11-text-secondary);
+        }
+
+        .clear-all {
+            background: transparent;
+            border: none;
+            color: var(--win11-accent);
+            font-size: 12px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .clear-all:hover {
+            background: var(--win11-acrylic);
+        }
+
+        /* ===== RESIZE HANDLES ===== */
+        .resize-handle {
+            position: absolute;
+            background: transparent;
+            z-index: 10;
+        }
+
+        .resize-handle.n { top: 0; left: 5px; right: 5px; height: 5px; cursor: n-resize; }
+        .resize-handle.s { bottom: 0; left: 5px; right: 5px; height: 5px; cursor: s-resize; }
+        .resize-handle.e { top: 5px; right: 0; bottom: 5px; width: 5px; cursor: e-resize; }
+        .resize-handle.w { top: 5px; left: 0; bottom: 5px; width: 5px; cursor: w-resize; }
+        .resize-handle.ne { top: 0; right: 0; width: 10px; height: 10px; cursor: ne-resize; }
+        .resize-handle.nw { top: 0; left: 0; width: 10px; height: 10px; cursor: nw-resize; }
+        .resize-handle.se { bottom: 0; right: 0; width: 10px; height: 10px; cursor: se-resize; }
+        .resize-handle.sw { bottom: 0; left: 0; width: 10px; height: 10px; cursor: sw-resize; }
+
+        /* ===== LOADING STATE ===== */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            color: var(--win11-text-secondary);
+            font-size: 14px;
+        }
+
+        .loading::after {
+            content: '';
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--win11-border);
+            border-top-color: var(--win11-accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ===== RESPONSIVE FIXES ===== */
+        @media (max-width: 1024px) {
+            .school-panel {
+                display: none;
+            }
+            
+            .desktop-icons {
+                right: 20px;
+            }
+            
+            .app-launcher-search {
+                width: 90%;
+            }
+            
+            .apps-grid-launcher {
+                grid-template-columns: repeat(auto-fill, 80px);
+                gap: 16px;
+            }
+            
+            .window {
+                min-width: 300px;
+                min-height: 200px;
+            }
+        }
+
+        /* Fix for window responsiveness */
+        .window.maximized {
+            width: calc(100% - 40px) !important;
+            height: calc(100% - 100px) !important;
+            left: 20px !important;
+            top: 20px !important;
+            resize: none !important;
+        }
+
+        /* Notification indicator animation */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .notification-badge.pulse {
+            animation: pulse 1s infinite;
         }
     </style>
 </head>
 <body>
-    <!-- Sidebar Overlay (Mobile) -->
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <!-- DESKTOP -->
+    <div class="desktop" id="desktop">
+        <!-- Desktop Icons -->
+        <div class="desktop-icons" id="desktopIcons">
+            <!-- Icons will be populated by JavaScript -->
+        </div>
 
-    <!-- Sidebar -->
-    <nav class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="sidebar-logo">A</div>
-            <div class="sidebar-title">Akademia</div>
-        </div>
-        
-        <div class="nav-section">
-            <div class="nav-title">Main</div>
-            <ul class="nav-list">
-                <li class="nav-item">
-                    <a href="#" class="nav-link active">
-                        <div class="nav-icon">
-                            <i class="fas fa-home"></i>
-                        </div>
-                        Dashboard
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <div class="nav-icon">
-                            <i class="fas fa-calendar-alt"></i>
-                        </div>
-                        Schedule
-                        <span class="nav-badge">3</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <div class="nav-icon">
-                            <i class="fas fa-users"></i>
-                        </div>
-                        Students
-                    </a>
-                </li>
-            </ul>
-        </div>
-        
-        <div class="nav-section">
-            <div class="nav-title">Modules</div>
-            <ul class="nav-list">
-                <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <div class="nav-icon">
-                            <i class="fas fa-book"></i>
-                        </div>
-                        Library
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <div class="nav-icon">
-                            <i class="fas fa-clipboard-check"></i>
-                        </div>
-                        Discipline
-                        <span class="nav-badge">5</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <div class="nav-icon">
-                            <i class="fas fa-chart-bar"></i>
-                        </div>
-                        Reports
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <div class="nav-icon">
-                            <i class="fas fa-user-check"></i>
-                        </div>
-                        Attendance
-                    </a>
-                </li>
-            </ul>
-        </div>
-        
-        <div class="nav-section">
-            <div class="nav-title">Communication</div>
-            <ul class="nav-list">
-                <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <div class="nav-icon">
-                            <i class="fas fa-comments"></i>
-                        </div>
-                        Messages
-                        <span class="nav-badge">12</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <div class="nav-icon">
-                            <i class="fas fa-bullhorn"></i>
-                        </div>
-                        Announcements
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <div class="nav-icon">
-                            <i class="fas fa-bell"></i>
-                        </div>
-                        Notifications
-                    </a>
-                </li>
-            </ul>
-        </div>
-        
-        <div class="user-profile">
-            <div class="user-avatar" id="userAvatar">JD</div>
-            <div class="user-info">
-                <div class="user-name" id="userName">John Doe</div>
-                <div class="user-role" id="userRole">Teacher</div>
+        <!-- School Panel -->
+        <div class="school-panel">
+            <div class="school-logo">
+                <i class="fas fa-graduation-cap"></i>
             </div>
-            <button class="user-menu" id="userMenuBtn">
-                <i class="fas fa-ellipsis-v"></i>
-            </button>
-        </div>
-    </nav>
-
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Header -->
-        <header class="main-header">
-            <div class="header-left">
-                <button class="menu-toggle" id="menuToggle">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <h1 class="header-title" id="pageTitle">Dashboard</h1>
+            <div class="school-name" id="schoolNameDisplay">Loading...</div>
+            <div class="school-subtitle" id="schoolSubtitle">Akademia Platform</div>
+            
+            <div class="user-info">
+                <div class="user-row">
+                    <div class="user-icon" id="userAvatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <div class="user-name" id="userNameDisplay">Loading...</div>
+                        <div class="user-role" id="userRoleDisplay">Loading...</div>
+                    </div>
+                </div>
             </div>
             
-            <div class="header-actions">
-                <div class="search-bar">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="text" class="search-input" placeholder="Search...">
+            <div class="time-info">
+                <div class="time-display" id="currentTime">09:45 AM</div>
+                <div>
+                    <div class="day" id="currentDay">Wednesday</div>
+                    <div class="term" id="currentTerm">Term III</div>
+                </div>
+            </div>
+
+            <!-- Statistics Section -->
+            <div class="stats-section">
+                <div class="stats-header">
+                    <span>School Statistics</span>
+                    <span id="statsYear">2024</span>
+                </div>
+                <div class="stats-total">
+                    <div class="total-number" id="totalStudents">0</div>
+                    <div class="total-label">Total Students</div>
+                </div>
+                <div class="gender-stats">
+                    <div class="gender-stat boys">
+                        <div class="gender-number" id="totalBoys">0</div>
+                        <div class="gender-label">Boys</div>
+                    </div>
+                    <div class="gender-stat girls">
+                        <div class="gender-number" id="totalGirls">0</div>
+                        <div class="gender-label">Girls</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Theme Switcher -->
+            <div class="theme-switcher">
+                <div class="theme-toggle" onclick="toggleTheme()">
+                    <div class="theme-label">
+                        <span id="themeLabel">Dark Mode</span>
+                    </div>
+                    <div class="theme-icon">
+                        <i class="fas fa-moon" id="themeIcon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Windows 11 Taskbar -->
+        <div class="taskbar">
+            <div class="taskbar-left">
+                <div class="updates-button" id="updatesButton" onclick="toggleUpdatesPanel()">
+                    <i class="fas fa-newspaper"></i>
+                </div>
+            </div>
+            
+            <div class="taskbar-center">
+                <div class="show-all-apps" onclick="toggleAppLauncher()">
+                    <i class="fas fa-th"></i>
                 </div>
                 
-                <button class="notification-btn" id="notificationBtn">
+                <!-- Taskbar apps will be populated by JavaScript -->
+            </div>
+            
+            <div class="taskbar-right">
+                <!-- Date Display in Taskbar -->
+                <div class="date-display" id="taskbarDate">
+                    <div class="date-day" id="dateDay">14</div>
+                    <div class="date-month" id="dateMonth">DEC</div>
+                </div>
+                
+                <div class="taskbar-icon" onclick="toggleNotificationsPanel()">
                     <i class="fas fa-bell"></i>
-                    <span class="notification-badge">7</span>
+                    <div class="notification-badge" id="notificationBadge" style="display: none;"></div>
+                </div>
+                <div class="taskbar-icon" onclick="showUserMenu()">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <button class="logout-button" onclick="logout()">
+                    <i class="fas fa-power-off"></i>
+                    <span>Logout</span>
                 </button>
             </div>
-        </header>
+        </div>
+    </div>
 
-        <!-- Content -->
-        <div class="content-wrapper">
-            <!-- Welcome Card -->
-            <div class="welcome-card">
-                <div class="welcome-header">
-                    <div class="welcome-text">
-                        <h1 id="welcomeMessage">Good Morning, John!</h1>
-                        <p>Welcome to your Akademia dashboard. Here's what's happening today.</p>
-                    </div>
-                    <div class="date-time">
-                        <div class="current-date" id="currentDate">Monday, Dec 15</div>
-                        <div class="current-time" id="currentTime">10:30 AM</div>
-                    </div>
-                </div>
+    <!-- App Launcher -->
+    <div class="app-launcher-overlay" id="appLauncher" onclick="handleAppLauncherClick(event)">
+        <div class="app-launcher-search" onclick="event.stopPropagation()">
+            <input type="text" id="appSearch" placeholder="Search apps...">
+            <div class="search-icon">
+                <i class="fas fa-search"></i>
             </div>
+        </div>
+        <div class="apps-grid-launcher" id="appsGrid" onclick="event.stopPropagation()">
+            <!-- Apps populated by JavaScript -->
+        </div>
+    </div>
 
-            <!-- Quick Stats -->
-            <div class="quick-stats">
-                <div class="stat-card">
-                    <div class="stat-icon students">
-                        <i class="fas fa-user-graduate"></i>
-                    </div>
-                    <div class="stat-content">
-                        <div class="stat-value" id="studentCount">1,240</div>
-                        <div class="stat-label">Total Students</div>
-                        <span class="stat-change positive">+5% this month</span>
-                    </div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon staff">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="stat-content">
-                        <div class="stat-value" id="staffCount">85</div>
-                        <div class="stat-label">Staff Members</div>
-                        <span class="stat-change positive">+2 new</span>
-                    </div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon attendance">
-                        <i class="fas fa-user-check"></i>
-                    </div>
-                    <div class="stat-content">
-                        <div class="stat-value" id="attendanceRate">94%</div>
-                        <div class="stat-label">Today's Attendance</div>
-                        <span class="stat-change positive">+2% from yesterday</span>
-                    </div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon library">
-                        <i class="fas fa-book"></i>
-                    </div>
-                    <div class="stat-content">
-                        <div class="stat-value" id="libraryBooks">5,280</div>
-                        <div class="stat-label">Library Books</div>
-                        <span class="stat-change positive">+120 new</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Modules Section -->
-            <div class="modules-section">
-                <div class="section-header">
-                    <h2 class="section-title">Quick Access</h2>
-                </div>
-                
-                <div class="modules-grid">
-                    <!-- Library Module -->
-                    <div class="module-card">
-                        <div class="module-header">
-                            <div class="module-icon library">
-                                <i class="fas fa-book"></i>
-                            </div>
-                            <div class="module-title">Digital Library</div>
-                            <span class="module-status available">Available</span>
-                        </div>
-                        <p class="module-description">
-                            Manage books, track checkouts, and access digital resources.
-                            Current: 45 books checked out.
-                        </p>
-                        <div class="module-actions">
-                            <button class="module-btn secondary">
-                                <i class="fas fa-search"></i> Browse
-                            </button>
-                            <button class="module-btn primary">
-                                <i class="fas fa-plus"></i> Add Book
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- Discipline Module -->
-                    <div class="module-card">
-                        <div class="module-header">
-                            <div class="module-icon discipline">
-                                <i class="fas fa-clipboard-check"></i>
-                            </div>
-                            <div class="module-title">Discipline Tracking</div>
-                            <span class="module-status">5 Pending</span>
-                        </div>
-                        <p class="module-description">
-                            Monitor student behavior and record disciplinary actions.
-                            5 cases need attention.
-                        </p>
-                        <div class="module-actions">
-                            <button class="module-btn secondary">
-                                <i class="fas fa-list"></i> View All
-                            </button>
-                            <button class="module-btn primary">
-                                <i class="fas fa-plus"></i> New Case
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- Reports Module -->
-                    <div class="module-card">
-                        <div class="module-header">
-                            <div class="module-icon reports">
-                                <i class="fas fa-chart-bar"></i>
-                            </div>
-                            <div class="module-title">Student Reports</div>
-                            <span class="module-status available">Available</span>
-                        </div>
-                        <p class="module-description">
-                            Generate academic reports and track student progress.
-                            12 reports pending review.
-                        </p>
-                        <div class="module-actions">
-                            <button class="module-btn secondary">
-                                <i class="fas fa-download"></i> Export
-                            </button>
-                            <button class="module-btn primary">
-                                <i class="fas fa-chart-line"></i> Analytics
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- Attendance Module -->
-                    <div class="module-card">
-                        <div class="module-header">
-                            <div class="module-icon attendance">
-                                <i class="fas fa-user-check"></i>
-                            </div>
-                            <div class="module-title">Attendance System</div>
-                            <span class="module-status available">Live</span>
-                        </div>
-                        <p class="module-description">
-                            Mark and track student attendance in real-time.
-                            Today: 94% attendance rate.
-                        </p>
-                        <div class="module-actions">
-                            <button class="module-btn secondary">
-                                <i class="fas fa-calendar"></i> View Calendar
-                            </button>
-                            <button class="module-btn primary">
-                                <i class="fas fa-edit"></i> Mark Attendance
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- Communication Module -->
-                    <div class="module-card">
-                        <div class="module-header">
-                            <div class="module-icon communication">
-                                <i class="fas fa-comments"></i>
-                            </div>
-                            <div class="module-title">Communication Hub</div>
-                            <span class="module-status">12 Unread</span>
-                        </div>
-                        <p class="module-description">
-                            Secure messaging system for staff, students, and parents.
-                            You have 12 unread messages.
-                        </p>
-                        <div class="module-actions">
-                            <button class="module-btn secondary">
-                                <i class="fas fa-inbox"></i> Inbox
-                            </button>
-                            <button class="module-btn primary">
-                                <i class="fas fa-paper-plane"></i> New Message
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- Curriculum Module -->
-                    <div class="module-card">
-                        <div class="module-header">
-                            <div class="module-icon curriculum">
-                                <i class="fas fa-graduation-cap"></i>
-                            </div>
-                            <div class="module-title">Curriculum Planning</div>
-                            <span class="module-status available">Available</span>
-                        </div>
-                        <p class="module-description">
-                            Plan lessons, create assignments, and collaborate with educators.
-                            Next class: Mathematics in 2 hours.
-                        </p>
-                        <div class="module-actions">
-                            <button class="module-btn secondary">
-                                <i class="fas fa-file-alt"></i> Lesson Plans
-                            </button>
-                            <button class="module-btn primary">
-                                <i class="fas fa-tasks"></i> Assignments
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Recent Activity -->
-            <div class="modules-section">
-                <div class="section-header">
-                    <h2 class="section-title">Recent Activity</h2>
-                </div>
-                
-                <div class="activity-list">
-                    <div class="activity-item">
-                        <div class="activity-icon success">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                        <div class="activity-content">
-                            <div class="activity-title">Attendance Marked</div>
-                            <div class="activity-description">You marked attendance for Grade 10 Mathematics class</div>
-                            <div class="activity-time">10 minutes ago</div>
-                        </div>
-                    </div>
-                    
-                    <div class="activity-item">
-                        <div class="activity-icon info">
-                            <i class="fas fa-book"></i>
-                        </div>
-                        <div class="activity-content">
-                            <div class="activity-title">Library Book Checked In</div>
-                            <div class="activity-description">"Advanced Physics" returned by Sarah Johnson</div>
-                            <div class="activity-time">45 minutes ago</div>
-                        </div>
-                    </div>
-                    
-                    <div class="activity-item">
-                        <div class="activity-icon warning">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
-                        <div class="activity-content">
-                            <div class="activity-title">Discipline Case Updated</div>
-                            <div class="activity-description">New comment added to case #DC-2024-012</div>
-                            <div class="activity-time">2 hours ago</div>
-                        </div>
-                    </div>
-                    
-                    <div class="activity-item">
-                        <div class="activity-icon info">
-                            <i class="fas fa-comment"></i>
-                        </div>
-                        <div class="activity-content">
-                            <div class="activity-title">New Message Received</div>
-                            <div class="activity-description">From Headmaster: "Staff meeting tomorrow at 10 AM"</div>
-                            <div class="activity-time">3 hours ago</div>
-                        </div>
-                    </div>
-                    
-                    <div class="activity-item">
-                        <div class="activity-icon success">
-                            <i class="fas fa-chart-line"></i>
-                        </div>
-                        <div class="activity-content">
-                            <div class="activity-title">Report Generated</div>
-                            <div class="activity-description">Monthly performance report for Grade 10 created</div>
-                            <div class="activity-time">Yesterday, 4:30 PM</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <!-- Updates Panel (Left Side) -->
+    <div class="flyout-panel updates-panel" id="updatesPanel">
+        <div class="flyout-header">
+            <h3 style="margin: 0; font-size: 16px;">Updates & News</h3>
+            <button class="clear-all" onclick="clearAllUpdates()">Clear All</button>
+        </div>
+        <div class="flyout-content" id="updatesList">
+            <div class="loading">Loading updates...</div>
         </div>
     </div>
 
     <!-- Notifications Panel -->
-    <div class="notifications-panel" id="notificationsPanel">
-        <div class="notifications-header">
-            <h3 class="notifications-title">Notifications</h3>
-            <button class="notifications-close" id="notificationsClose">
-                <i class="fas fa-times"></i>
-            </button>
+    <div class="flyout-panel notifications-panel" id="notificationsPanel">
+        <div class="flyout-header">
+            <h3 style="margin: 0; font-size: 16px;">Notifications</h3>
+            <button class="clear-all" onclick="clearAllNotifications()">Clear All</button>
         </div>
-        <div class="notifications-list" id="notificationsList">
-            <!-- Notifications will be populated here -->
+        <div class="flyout-content" id="notificationsList">
+            <div class="loading">Loading notifications...</div>
         </div>
     </div>
 
-    <!-- User Dropdown Menu -->
-    <div class="user-dropdown" id="userDropdown">
-        <a href="#" class="dropdown-item">
-            <i class="fas fa-user"></i> My Profile
-        </a>
-        <a href="#" class="dropdown-item">
-            <i class="fas fa-cog"></i> Settings
-        </a>
-        <a href="#" class="dropdown-item">
-            <i class="fas fa-bell"></i> Notifications
-        </a>
-        <div class="dropdown-divider"></div>
-        <a href="#" class="dropdown-item logout" id="logoutBtn">
-            <i class="fas fa-sign-out-alt"></i> Logout
-        </a>
-    </div>
+    <!-- Windows will be dynamically added here -->
 
+    <!-- Firebase Import -->
     <script type="module">
-        // Import Firebase services
-        import { auth, signOut } from './firebase-config.js';
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
+        import { 
+            getFirestore, 
+            collection, 
+            getDocs, 
+            query, 
+            where,
+            onSnapshot,
+            addDoc,
+            updateDoc,
+            doc,
+            Timestamp,
+            orderBy,
+            limit
+        } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+        import { 
+            getAuth, 
+            onAuthStateChanged, 
+            signOut 
+        } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
-        // Get session data
-        const sessionData = JSON.parse(sessionStorage.getItem('akademia_staff') || '{}');
-        
-        // Check if user is logged in
-        if (!sessionData.staffId) {
-            window.location.href = 'login.html';
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyA3gohTf1rzOYBBQCI-WD8ORoTK4DOf-fw",
+            authDomain: "akademia-c56ff.firebaseapp.com",
+            databaseURL: "https://akademia-c56ff-default-rtdb.firebaseio.com",
+            projectId: "akademia-c56ff",
+            storageBucket: "akademia-c56ff.firebasestorage.app",
+            messagingSenderId: "678278775270",
+            appId: "1:678278775270:web:ed5aee3d358d613c8cd627",
+            measurementId: "G-X3CHCJE5LK"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+    </script>
+
+    <script>
+        // ===== GLOBAL STATE =====
+        let windows = [];
+        let activeWindow = null;
+        let zIndexCounter = 100;
+        let currentDate = new Date();
+        let isDarkTheme = false;
+        let currentUser = null;
+        let currentSchool = null;
+        let notifications = [];
+        let updates = [];
+        let unsubscribeFunctions = [];
+
+        // ===== APP CONFIGURATION =====
+        const apps = {
+            students: {
+                id: 'students',
+                name: 'Students',
+                icon: 'assets/icons/students.png',
+                fallbackIcon: 'fas fa-user-graduate',
+                file: 'apps/students.html',
+                color: '#0078D4',
+                width: 800,
+                height: 600
+            },
+            discipline: {
+                id: 'discipline',
+                name: 'Discipline',
+                icon: 'assets/icons/discipline.png',
+                fallbackIcon: 'fas fa-clipboard-check',
+                file: 'apps/discipline.html',
+                color: '#D13438',
+                width: 700,
+                height: 500
+            },
+            library: {
+                id: 'library',
+                name: 'Library',
+                icon: 'assets/icons/library.png',
+                fallbackIcon: 'fas fa-book',
+                file: 'apps/library.html',
+                color: '#107C10',
+                width: 750,
+                height: 550
+            },
+            studies: {
+                id: 'studies',
+                name: 'Studies',
+                icon: 'assets/icons/studies.png',
+                fallbackIcon: 'fas fa-graduation-cap',
+                file: 'apps/studies.html',
+                color: '#E3008C',
+                width: 800,
+                height: 600
+            },
+            settings: {
+                id: 'settings',
+                name: 'Settings',
+                icon: 'assets/icons/settings.png',
+                fallbackIcon: 'fas fa-cog',
+                file: 'apps/settings.html',
+                color: '#FFB900',
+                width: 500,
+                height: 400
+            },
+            news: {
+                id: 'news',
+                name: 'School News',
+                icon: 'assets/icons/news.png',
+                fallbackIcon: 'fas fa-newspaper',
+                file: 'apps/news.html',
+                color: '#50B6FF',
+                width: 700,
+                height: 500
+            },
+            chat: {
+                id: 'chat',
+                name: 'Chat',
+                icon: 'assets/icons/chat.png',
+                fallbackIcon: 'fas fa-comments',
+                file: 'apps/chat.html',
+                color: '#AF52DE',
+                width: 600,
+                height: 500
+            },
+            events: {
+                id: 'events',
+                name: 'Events',
+                icon: 'assets/icons/events.png',
+                fallbackIcon: 'fas fa-calendar-alt',
+                file: 'apps/events.html',
+                color: '#00B294',
+                width: 700,
+                height: 550
+            },
+            timetable: {
+                id: 'timetable',
+                name: 'Timetable',
+                icon: 'assets/icons/timetable.png',
+                fallbackIcon: 'fas fa-calendar-day',
+                file: 'apps/timetable.html',
+                color: '#FF8C00',
+                width: 800,
+                height: 600
+            },
+            courses: {
+                id: 'courses',
+                name: 'Courses',
+                icon: 'assets/icons/courses.png',
+                fallbackIcon: 'fas fa-book-open',
+                file: 'apps/courses.html',
+                color: '#0099BC',
+                width: 750,
+                height: 550
+            },
+            staff: {
+                id: 'staff',
+                name: 'Staff',
+                icon: 'assets/icons/staff.png',
+                fallbackIcon: 'fas fa-users',
+                file: 'apps/staff.html',
+                color: '#6B69D6',
+                width: 700,
+                height: 500
+            },
+            reports: {
+                id: 'reports',
+                name: 'Reports',
+                icon: 'assets/icons/reports.png',
+                fallbackIcon: 'fas fa-chart-bar',
+                file: 'apps/reports.html',
+                color: '#498205',
+                width: 800,
+                height: 600
+            },
+            calculator: {
+                id: 'calculator',
+                name: 'Calculator',
+                icon: 'assets/icons/calculator.png',
+                fallbackIcon: 'fas fa-calculator',
+                file: 'apps/calculator.html',
+                color: '#744DA9',
+                width: 320,
+                height: 480
+            },
+            files: {
+                id: 'files',
+                name: 'File Explorer',
+                icon: 'assets/icons/files.png',
+                fallbackIcon: 'fas fa-folder',
+                file: 'apps/files.html',
+                color: '#FFB900',
+                width: 700,
+                height: 500
+            }
+        };
+
+        // ===== INITIALIZATION =====
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeFirebaseAuth();
+            loadTheme();
+            initTime();
+            initDateDisplay();
+            initDesktopIcons();
+            initTaskbarApps();
+            initAppLauncher();
+            initEventListeners();
+            updateRunningApps();
+        });
+
+        // ===== FIREBASE AUTH & DATA =====
+        async function initializeFirebaseAuth() {
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    currentUser = user;
+                    await loadUserData();
+                    await loadSchoolData();
+                    await loadStatistics();
+                    await loadNotifications();
+                    await loadUpdates();
+                    startRealtimeListeners();
+                } else {
+                    // Redirect to login if not authenticated
+                    window.location.href = 'login.html';
+                }
+            });
         }
 
-        // DOM Elements
-        const menuToggle = document.getElementById('menuToggle');
-        const sidebar = document.getElementById('sidebar');
-        const sidebarOverlay = document.getElementById('sidebarOverlay');
-        const notificationBtn = document.getElementById('notificationBtn');
-        const notificationsPanel = document.getElementById('notificationsPanel');
-        const notificationsClose = document.getElementById('notificationsClose');
-        const userMenuBtn = document.getElementById('userMenuBtn');
-        const userDropdown = document.getElementById('userDropdown');
-        const logoutBtn = document.getElementById('logoutBtn');
-        
-        // User info elements
-        const userAvatar = document.getElementById('userAvatar');
-        const userName = document.getElementById('userName');
-        const userRole = document.getElementById('userRole');
-        const welcomeMessage = document.getElementById('welcomeMessage');
-        
-        // Date and time elements
-        const currentDate = document.getElementById('currentDate');
-        const currentTime = document.getElementById('currentTime');
-        
-        // Stats elements
-        const studentCount = document.getElementById('studentCount');
-        const staffCount = document.getElementById('staffCount');
-        const attendanceRate = document.getElementById('attendanceRate');
-        const libraryBooks = document.getElementById('libraryBooks');
-
-        // Initialize user data
-        function initializeUserData() {
-            const name = sessionData.staffName || 'Staff Member';
-            const role = sessionData.staffRole || 'Staff';
-            const email = sessionData.staffEmail || '';
-            
-            // Set user info
-            userName.textContent = name;
-            userRole.textContent = formatRoleName(role);
-            
-            // Set avatar initials
-            const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-            userAvatar.textContent = initials;
-            
-            // Set welcome message with time-based greeting
-            welcomeMessage.textContent = getTimeBasedGreeting() + ', ' + name.split(' ')[0] + '!';
-            
-            // Update page title based on role
-            const roleTitle = formatRoleName(role);
-            document.getElementById('pageTitle').textContent = roleTitle + ' Dashboard';
-            
-            // Update stats based on role (in a real app, this would come from API)
-            updateDashboardStats(role);
+        async function loadUserData() {
+            try {
+                // Get user session from localStorage
+                const sessionData = JSON.parse(localStorage.getItem('akademia_staff') || '{}');
+                if (sessionData.staffName) {
+                    document.getElementById('userNameDisplay').textContent = sessionData.staffName;
+                    document.getElementById('userRoleDisplay').textContent = formatRole(sessionData.staffRole);
+                    
+                    // Set avatar initials
+                    const initials = sessionData.staffName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+                    document.getElementById('userAvatar').textContent = initials;
+                }
+            } catch (error) {
+                console.error('Error loading user data:', error);
+            }
         }
 
-        // Format role name for display
-        function formatRoleName(role) {
+        async function loadSchoolData() {
+            try {
+                const sessionData = JSON.parse(localStorage.getItem('akademia_staff') || '{}');
+                if (sessionData.schoolName) {
+                    document.getElementById('schoolNameDisplay').textContent = sessionData.schoolName;
+                    document.getElementById('schoolSubtitle').textContent = 'Akademia Platform';
+                }
+            } catch (error) {
+                console.error('Error loading school data:', error);
+            }
+        }
+
+        async function loadStatistics() {
+            try {
+                const sessionData = JSON.parse(localStorage.getItem('akademia_staff') || '{}');
+                const schoolId = sessionData.schoolId;
+                
+                if (!schoolId) {
+                    setDefaultStatistics();
+                    return;
+                }
+
+                // Get students count
+                const studentsRef = collection(db, 'schools', schoolId, 'students');
+                const studentsSnapshot = await getDocs(studentsRef);
+                
+                // Count boys and girls
+                let boys = 0;
+                let girls = 0;
+                
+                studentsSnapshot.forEach(doc => {
+                    const student = doc.data();
+                    if (student.gender === 'male') boys++;
+                    if (student.gender === 'female') girls++;
+                });
+                
+                const total = boys + girls;
+                
+                // Update UI
+                document.getElementById('totalStudents').textContent = total.toLocaleString();
+                document.getElementById('totalBoys').textContent = boys.toLocaleString();
+                document.getElementById('totalGirls').textContent = girls.toLocaleString();
+                document.getElementById('statsYear').textContent = new Date().getFullYear();
+                
+            } catch (error) {
+                console.error('Error loading statistics:', error);
+                setDefaultStatistics();
+            }
+        }
+
+        function setDefaultStatistics() {
+            document.getElementById('totalStudents').textContent = '0';
+            document.getElementById('totalBoys').textContent = '0';
+            document.getElementById('totalGirls').textContent = '0';
+            document.getElementById('statsYear').textContent = new Date().getFullYear();
+        }
+
+        async function loadNotifications() {
+            try {
+                const sessionData = JSON.parse(localStorage.getItem('akademia_staff') || '{}');
+                const schoolId = sessionData.schoolId;
+                
+                if (!schoolId) {
+                    setDefaultNotifications();
+                    return;
+                }
+
+                const notificationsRef = collection(db, 'schools', schoolId, 'notifications');
+                const q = query(notificationsRef, 
+                    orderBy('createdAt', 'desc'), 
+                    limit(20)
+                );
+                
+                const unsubscribe = onSnapshot(q, (snapshot) => {
+                    notifications = [];
+                    snapshot.forEach(doc => {
+                        const notification = {
+                            id: doc.id,
+                            ...doc.data(),
+                            timestamp: doc.data().createdAt?.toDate() || new Date()
+                        };
+                        notifications.push(notification);
+                    });
+                    
+                    updateNotificationsUI();
+                    updateNotificationBadge();
+                });
+                
+                unsubscribeFunctions.push(unsubscribe);
+                
+            } catch (error) {
+                console.error('Error loading notifications:', error);
+                setDefaultNotifications();
+            }
+        }
+
+        function updateNotificationsUI() {
+            const notificationsList = document.getElementById('notificationsList');
+            if (!notificationsList) return;
+            
+            if (notifications.length === 0) {
+                notificationsList.innerHTML = '<div style="text-align: center; color: var(--win11-text-secondary); padding: 20px;">No notifications</div>';
+                return;
+            }
+            
+            let html = '';
+            notifications.forEach(notification => {
+                const timeAgo = getTimeAgo(notification.timestamp);
+                const typeClass = getNotificationTypeClass(notification.type);
+                
+                html += `
+                    <div class="flyout-item ${typeClass}" onclick="handleNotificationClick('${notification.id}')">
+                        <div class="flyout-title">${notification.title || 'Notification'}</div>
+                        <div class="flyout-description">${notification.message || ''}</div>
+                        <div class="flyout-time">${timeAgo}</div>
+                    </div>
+                `;
+            });
+            
+            notificationsList.innerHTML = html;
+        }
+
+        function setDefaultNotifications() {
+            const notificationsList = document.getElementById('notificationsList');
+            if (notificationsList) {
+                notificationsList.innerHTML = `
+                    <div class="flyout-item">
+                        <div class="flyout-title">Welcome to Akademia</div>
+                        <div class="flyout-description">Your school management platform is ready to use.</div>
+                        <div class="flyout-time">Just now</div>
+                    </div>
+                `;
+            }
+        }
+
+        async function loadUpdates() {
+            try {
+                const sessionData = JSON.parse(localStorage.getItem('akademia_staff') || '{}');
+                const schoolId = sessionData.schoolId;
+                
+                if (!schoolId) {
+                    setDefaultUpdates();
+                    return;
+                }
+
+                const updatesRef = collection(db, 'schools', schoolId, 'updates');
+                const q = query(updatesRef, 
+                    orderBy('createdAt', 'desc'), 
+                    limit(15)
+                );
+                
+                const unsubscribe = onSnapshot(q, (snapshot) => {
+                    updates = [];
+                    snapshot.forEach(doc => {
+                        const update = {
+                            id: doc.id,
+                            ...doc.data(),
+                            timestamp: doc.data().createdAt?.toDate() || new Date()
+                        };
+                        updates.push(update);
+                    });
+                    
+                    updateUpdatesUI();
+                    updateUpdatesBadge();
+                });
+                
+                unsubscribeFunctions.push(unsubscribe);
+                
+            } catch (error) {
+                console.error('Error loading updates:', error);
+                setDefaultUpdates();
+            }
+        }
+
+        function updateUpdatesUI() {
+            const updatesList = document.getElementById('updatesList');
+            if (!updatesList) return;
+            
+            if (updates.length === 0) {
+                updatesList.innerHTML = '<div style="text-align: center; color: var(--win11-text-secondary); padding: 20px;">No updates</div>';
+                return;
+            }
+            
+            let html = '';
+            updates.forEach(update => {
+                const timeAgo = getTimeAgo(update.timestamp);
+                const isNew = isUpdateNew(update.timestamp);
+                
+                html += `
+                    <div class="flyout-item ${isNew ? 'new' : ''}" onclick="handleUpdateClick('${update.id}')">
+                        <div class="flyout-title">${update.title || 'Update'}</div>
+                        <div class="flyout-description">${update.description || ''}</div>
+                        <div class="flyout-time">${timeAgo}</div>
+                    </div>
+                `;
+            });
+            
+            updatesList.innerHTML = html;
+        }
+
+        function setDefaultUpdates() {
+            const updatesList = document.getElementById('updatesList');
+            if (updatesList) {
+                updatesList.innerHTML = `
+                    <div class="flyout-item new">
+                        <div class="flyout-title">System Online</div>
+                        <div class="flyout-description">Akademia platform is now online and ready.</div>
+                        <div class="flyout-time">Today</div>
+                    </div>
+                `;
+            }
+        }
+
+        function startRealtimeListeners() {
+            // Listen for new notifications in real-time
+            const sessionData = JSON.parse(localStorage.getItem('akademia_staff') || '{}');
+            const schoolId = sessionData.schoolId;
+            
+            if (schoolId) {
+                const notificationsRef = collection(db, 'schools', schoolId, 'notifications');
+                const q = query(notificationsRef, where('read', '==', false));
+                
+                const unsubscribe = onSnapshot(q, (snapshot) => {
+                    const unreadCount = snapshot.size;
+                    updateNotificationBadge(unreadCount);
+                });
+                
+                unsubscribeFunctions.push(unsubscribe);
+            }
+        }
+
+        function updateNotificationBadge(count) {
+            const badge = document.getElementById('notificationBadge');
+            if (!badge) return;
+            
+            const unreadCount = count || notifications.filter(n => !n.read).length;
+            
+            if (unreadCount > 0) {
+                badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+                badge.style.display = 'flex';
+                badge.classList.add('pulse');
+            } else {
+                badge.style.display = 'none';
+                badge.classList.remove('pulse');
+            }
+        }
+
+        function updateUpdatesBadge() {
+            const updatesButton = document.getElementById('updatesButton');
+            if (!updatesButton) return;
+            
+            const newUpdates = updates.filter(u => isUpdateNew(u.timestamp)).length;
+            
+            if (newUpdates > 0) {
+                updatesButton.classList.add('has-updates');
+            } else {
+                updatesButton.classList.remove('has-updates');
+            }
+        }
+
+        function isUpdateNew(timestamp) {
+            const now = new Date();
+            const updateTime = new Date(timestamp);
+            const hoursDiff = (now - updateTime) / (1000 * 60 * 60);
+            return hoursDiff < 24; // New if less than 24 hours old
+        }
+
+        function getTimeAgo(timestamp) {
+            if (!timestamp) return 'Recently';
+            
+            const now = new Date();
+            const date = timestamp instanceof Date ? timestamp : timestamp.toDate();
+            const seconds = Math.floor((now - date) / 1000);
+            
+            if (seconds < 60) return 'Just now';
+            if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+            if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+            if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
+            
+            return date.toLocaleDateString();
+        }
+
+        function getNotificationTypeClass(type) {
+            switch(type) {
+                case 'important': return 'important';
+                case 'warning': return 'warning';
+                case 'info': return 'info';
+                default: return '';
+            }
+        }
+
+        function formatRole(role) {
             const roleMap = {
                 'headmaster': 'Headmaster',
                 'dean_of_studies': 'Dean of Studies',
@@ -1481,259 +1697,920 @@
                 'patron': 'Patron',
                 'matron': 'Matron',
                 'teacher': 'Teacher',
+                'student': 'Student',
                 'other': 'Staff'
             };
-            return roleMap[role] || 'Staff Member';
+            return roleMap[role] || 'User';
         }
 
-        // Get time-based greeting
-        function getTimeBasedGreeting() {
-            const hour = new Date().getHours();
-            if (hour < 12) return 'Good Morning';
-            if (hour < 18) return 'Good Afternoon';
-            return 'Good Evening';
+        // ===== THEME MANAGEMENT =====
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('desktop-theme');
+            isDarkTheme = savedTheme === 'dark';
+            applyTheme();
         }
 
-        // Update dashboard stats based on role
-        function updateDashboardStats(role) {
-            // In a real app, these would be fetched from Firebase
-            const stats = {
-                studentCount: Math.floor(Math.random() * 2000) + 800,
-                staffCount: Math.floor(Math.random() * 100) + 50,
-                attendanceRate: Math.floor(Math.random() * 10) + 90,
-                libraryBooks: Math.floor(Math.random() * 3000) + 4000
-            };
-            
-            studentCount.textContent = stats.studentCount.toLocaleString();
-            staffCount.textContent = stats.staffCount;
-            attendanceRate.textContent = stats.attendanceRate + '%';
-            libraryBooks.textContent = stats.libraryBooks.toLocaleString();
+        function toggleTheme() {
+            isDarkTheme = !isDarkTheme;
+            applyTheme();
+            localStorage.setItem('desktop-theme', isDarkTheme ? 'dark' : 'light');
         }
 
-        // Update date and time
-        function updateDateTime() {
-            const now = new Date();
-            
-            // Format date
-            const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            currentDate.textContent = now.toLocaleDateString('en-US', dateOptions);
-            
-            // Format time
-            const timeOptions = { hour: '2-digit', minute: '2-digit' };
-            currentTime.textContent = now.toLocaleTimeString('en-US', timeOptions);
-        }
-
-        // Load notifications
-        function loadNotifications() {
-            const notifications = [
-                {
-                    id: 1,
-                    title: 'Staff Meeting',
-                    message: 'Quarterly staff meeting scheduled for tomorrow at 2 PM',
-                    time: '2 hours ago',
-                    unread: true
-                },
-                {
-                    id: 2,
-                    title: 'New Student Enrollment',
-                    message: '5 new students enrolled in Grade 10',
-                    time: '4 hours ago',
-                    unread: true
-                },
-                {
-                    id: 3,
-                    title: 'Library Book Due',
-                    message: '"Chemistry Fundamentals" due tomorrow',
-                    time: '1 day ago',
-                    unread: false
-                },
-                {
-                    id: 4,
-                    title: 'System Maintenance',
-                    message: 'Scheduled maintenance on Sunday, 2 AM - 4 AM',
-                    time: '2 days ago',
-                    unread: false
-                },
-                {
-                    id: 5,
-                    title: 'Attendance Report',
-                    message: 'Monthly attendance report is ready for review',
-                    time: '3 days ago',
-                    unread: false
-                }
-            ];
-            
-            const notificationsList = document.getElementById('notificationsList');
-            notificationsList.innerHTML = '';
-            
-            notifications.forEach(notification => {
-                const item = document.createElement('div');
-                item.className = `notification-item ${notification.unread ? 'unread' : ''}`;
-                item.innerHTML = `
-                    <div class="notification-title">${notification.title}</div>
-                    <div class="notification-message">${notification.message}</div>
-                    <div class="notification-time">${notification.time}</div>
-                `;
-                
-                notificationsList.appendChild(item);
-            });
-        }
-
-        // Handle logout
-        async function handleLogout() {
-            try {
-                await signOut(auth);
-                
-                // Clear session storage
-                sessionStorage.removeItem('akademia_staff');
-                sessionStorage.removeItem('akademia_user');
-                
-                // Redirect to login page
-                window.location.href = 'login.html';
-                
-            } catch (error) {
-                console.error('Logout error:', error);
-                alert('Error logging out. Please try again.');
+        function applyTheme() {
+            if (isDarkTheme) {
+                document.body.classList.add('dark-theme');
+                document.getElementById('themeLabel').textContent = 'Light Mode';
+                document.getElementById('themeIcon').className = 'fas fa-sun';
+            } else {
+                document.body.classList.remove('dark-theme');
+                document.getElementById('themeLabel').textContent = 'Dark Mode';
+                document.getElementById('themeIcon').className = 'fas fa-moon';
             }
         }
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeUserData();
-            updateDateTime();
-            loadNotifications();
-            
-            // Update time every minute
-            setInterval(updateDateTime, 60000);
-            
-            // Setup event listeners
-            setupEventListeners();
-        });
+        // ===== TIME & DATE =====
+        function initTime() {
+            updateTime();
+            setInterval(updateTime, 60000);
+        }
 
-        // Setup event listeners
-        function setupEventListeners() {
-            // Mobile menu toggle
-            menuToggle.addEventListener('click', () => {
-                sidebar.classList.toggle('active');
-                sidebarOverlay.classList.toggle('active');
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: true 
+            });
+            const dayStr = now.toLocaleDateString('en-US', { weekday: 'long' });
+            
+            document.getElementById('currentTime').textContent = timeStr;
+            document.getElementById('currentDay').textContent = dayStr;
+            
+            // Set term based on month
+            const month = now.getMonth();
+            let term = 'Term I';
+            if (month >= 4 && month <= 7) term = 'Term II';
+            if (month >= 8) term = 'Term III';
+            document.getElementById('currentTerm').textContent = term;
+        }
+
+        // ===== DATE DISPLAY IN TASKBAR =====
+        function initDateDisplay() {
+            updateDateDisplay();
+            setInterval(updateDateDisplay, 60000);
+        }
+
+        function updateDateDisplay() {
+            const now = new Date();
+            const day = now.getDate();
+            const month = now.toLocaleString('en-US', { month: 'short' }).toUpperCase();
+            
+            document.getElementById('dateDay').textContent = day;
+            document.getElementById('dateMonth').textContent = month;
+        }
+
+        // ===== DESKTOP ICONS =====
+        function initDesktopIcons() {
+            const iconsContainer = document.getElementById('desktopIcons');
+            iconsContainer.innerHTML = '';
+            
+            // Define which apps should appear on desktop
+            const desktopApps = ['students', 'discipline', 'library', 'studies', 'timetable', 'reports'];
+            
+            desktopApps.forEach(appId => {
+                const app = apps[appId];
+                if (!app) return;
+                
+                createDesktopIcon(appId, app, iconsContainer);
             });
             
-            // Close sidebar when clicking overlay
-            sidebarOverlay.addEventListener('click', () => {
-                sidebar.classList.remove('active');
-                sidebarOverlay.classList.remove('active');
-            });
-            
-            // Notifications panel
-            notificationBtn.addEventListener('click', () => {
-                notificationsPanel.classList.toggle('active');
-            });
-            
-            notificationsClose.addEventListener('click', () => {
-                notificationsPanel.classList.remove('active');
-            });
-            
-            // User dropdown
-            userMenuBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                userDropdown.classList.toggle('active');
-            });
-            
-            // Close dropdown when clicking elsewhere
-            document.addEventListener('click', (e) => {
-                if (!userMenuBtn.contains(e.target) && !userDropdown.contains(e.target)) {
-                    userDropdown.classList.remove('active');
-                }
-            });
-            
-            // Logout
-            logoutBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (confirm('Are you sure you want to logout?')) {
-                    handleLogout();
-                }
-            });
-            
-            // Module button actions
-            document.querySelectorAll('.module-btn.primary').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const moduleTitle = this.closest('.module-card').querySelector('.module-title').textContent;
-                    alert(`Opening ${moduleTitle} module...`);
-                    // In a real app, this would navigate to the specific module
-                });
-            });
-            
-            document.querySelectorAll('.module-btn.secondary').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const action = this.textContent.trim();
-                    alert(`Performing ${action} action...`);
-                    // In a real app, this would perform the specific action
-                });
-            });
-            
-            // Navigation links
-            document.querySelectorAll('.nav-link').forEach(link => {
-                if (!link.classList.contains('active')) {
-                    link.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        const navText = this.textContent.trim();
-                        
-                        // Remove active class from all links
-                        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                        
-                        // Add active class to clicked link
-                        this.classList.add('active');
-                        
-                        // Update page title
-                        document.getElementById('pageTitle').textContent = navText;
-                        
-                        // Close sidebar on mobile
-                        if (window.innerWidth <= 992) {
-                            sidebar.classList.remove('active');
-                            sidebarOverlay.classList.remove('active');
-                        }
-                        
-                        // In a real app, this would load the appropriate page content
-                        alert(`Loading ${navText} page...`);
-                    });
-                }
-            });
-            
-            // Search functionality
-            const searchInput = document.querySelector('.search-input');
-            searchInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    const query = searchInput.value.trim();
-                    if (query) {
-                        alert(`Searching for: ${query}`);
-                        // In a real app, this would perform the search
-                    }
-                }
-            });
-            
-            // Activity items click
-            document.querySelectorAll('.activity-item').forEach(item => {
-                item.addEventListener('click', function() {
-                    const title = this.querySelector('.activity-title').textContent;
-                    alert(`Viewing details for: ${title}`);
-                });
-            });
-            
-            // Notification items click
-            document.querySelectorAll('.notification-item').forEach(item => {
-                item.addEventListener('click', function() {
-                    const title = this.querySelector('.notification-title').textContent;
-                    this.classList.remove('unread');
-                    alert(`Opening notification: ${title}`);
+            // Click on desktop to deselect
+            document.getElementById('desktop').addEventListener('click', () => {
+                document.querySelectorAll('.desktop-icon').forEach(icon => {
+                    icon.classList.remove('active');
                 });
             });
         }
 
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            if (window.innerWidth > 992) {
-                sidebar.classList.remove('active');
-                sidebarOverlay.classList.remove('active');
+        function createDesktopIcon(appId, app, container) {
+            const icon = document.createElement('div');
+            icon.className = 'desktop-icon';
+            icon.dataset.app = appId;
+            
+            // Create icon container with image or fallback
+            const iconContainer = document.createElement('div');
+            iconContainer.className = 'icon-container';
+            iconContainer.style.background = app.color;
+            
+            const img = document.createElement('img');
+            img.src = app.icon;
+            img.alt = app.name;
+            img.onerror = function() {
+                // If image fails to load, use font icon
+                this.style.display = 'none';
+                const fallback = document.createElement('i');
+                fallback.className = app.fallbackIcon;
+                fallback.style.color = 'white';
+                fallback.style.fontSize = '24px';
+                iconContainer.appendChild(fallback);
+            };
+            
+            iconContainer.appendChild(img);
+            
+            // Create tooltip
+            const tooltip = document.createElement('div');
+            tooltip.className = 'icon-tooltip';
+            tooltip.textContent = app.name;
+            
+            // Create label
+            const label = document.createElement('div');
+            label.className = 'icon-label';
+            label.textContent = app.name;
+            
+            icon.appendChild(iconContainer);
+            icon.appendChild(tooltip);
+            icon.appendChild(label);
+            
+            // Add event listeners
+            icon.addEventListener('dblclick', (e) => {
+                e.stopPropagation();
+                openApp(appId);
+            });
+            
+            icon.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                showIconContextMenu(e.clientX, e.clientY, appId);
+            });
+            
+            container.appendChild(icon);
+        }
+
+        // ===== WINDOW MANAGEMENT =====
+        function openApp(appId) {
+            const app = apps[appId];
+            if (!app) return;
+            
+            const existingWindow = windows.find(w => w.appId === appId && !w.minimized);
+            if (existingWindow) {
+                bringToFront(existingWindow.id);
+                return existingWindow.id;
+            }
+            
+            const windowId = `window_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            const window = createWindow(windowId, app);
+            
+            windows.push({
+                id: windowId,
+                appId: appId,
+                element: window,
+                minimized: false,
+                iframe: null,
+                maximized: false
+            });
+            
+            updateTaskbarAppState(appId, true);
+            updateRunningApps();
+            bringToFront(windowId);
+            
+            return windowId;
+        }
+
+        function createWindow(id, app) {
+            zIndexCounter++;
+            
+            const window = document.createElement('div');
+            window.className = 'window';
+            window.id = id;
+            window.style.zIndex = zIndexCounter;
+            window.style.width = `${app.width}px`;
+            window.style.height = `${app.height}px`;
+            
+            // Stagger window positions
+            const offset = (windows.length % 5) * 30;
+            window.style.left = `${50 + offset}px`;
+            window.style.top = `${50 + offset}px`;
+            
+            window.innerHTML = `
+                <div class="window-header" onmousedown="startDrag('${id}', event)">
+                    <div class="window-icon" style="background: ${app.color};">
+                        <img src="${app.icon}" alt="${app.name}" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\\'${app.fallbackIcon}\\' style=\\'color: white; font-size: 12px;\\'></i>'">
+                    </div>
+                    <div class="window-title">${app.name}</div>
+                    <div class="window-controls">
+                        <button class="window-btn" onclick="minimizeWindow('${id}')">
+                            <i class="fas fa-window-minimize"></i>
+                        </button>
+                        <button class="window-btn" onclick="toggleMaximize('${id}')">
+                            <i class="fas fa-window-maximize" id="maximizeIcon_${id}"></i>
+                        </button>
+                        <button class="window-btn close" onclick="closeWindow('${id}')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="window-content">
+                    <iframe class="app-frame" 
+                            src="${app.file}" 
+                            sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups"
+                            loading="lazy"
+                            onload="onAppLoad('${id}', this)"
+                            frameborder="0"></iframe>
+                </div>
+                <!-- Resize handles -->
+                <div class="resize-handle n"></div>
+                <div class="resize-handle s"></div>
+                <div class="resize-handle e"></div>
+                <div class="resize-handle w"></div>
+                <div class="resize-handle ne"></div>
+                <div class="resize-handle nw"></div>
+                <div class="resize-handle se"></div>
+                <div class="resize-handle sw"></div>
+            `;
+            
+            document.body.appendChild(window);
+            makeDraggable(window);
+            makeResizable(window);
+            window.addEventListener('mousedown', () => bringToFront(id));
+            
+            return window;
+        }
+
+        function onAppLoad(windowId, iframe) {
+            const window = windows.find(w => w.id === windowId);
+            if (window) {
+                window.iframe = iframe;
+                // Send user and school data to app
+                sendMessageToApp(windowId, {
+                    type: 'INIT_DATA',
+                    payload: {
+                        user: currentUser,
+                        session: JSON.parse(localStorage.getItem('akademia_staff') || '{}'),
+                        theme: isDarkTheme ? 'dark' : 'light'
+                    }
+                });
+            }
+        }
+
+        function closeWindow(windowId) {
+            const windowIndex = windows.findIndex(w => w.id === windowId);
+            if (windowIndex === -1) return;
+            
+            const appId = windows[windowIndex].appId;
+            const windowElement = windows[windowIndex].element;
+            
+            if (windowElement && windowElement.parentNode) {
+                windowElement.parentNode.removeChild(windowElement);
+            }
+            
+            windows.splice(windowIndex, 1);
+            updateTaskbarAppState(appId, false);
+            updateRunningApps();
+            
+            if (activeWindow === windowId) {
+                activeWindow = windows.length > 0 ? windows[windows.length - 1].id : null;
+            }
+        }
+
+        function minimizeWindow(windowId) {
+            const window = windows.find(w => w.id === windowId);
+            if (!window) return;
+            
+            window.minimized = !window.minimized;
+            window.element.style.display = window.minimized ? 'none' : 'block';
+            
+            const taskbarApp = document.querySelector(`.taskbar-app[data-app="${window.appId}"]`);
+            if (taskbarApp) {
+                if (window.minimized) {
+                    taskbarApp.classList.remove('active');
+                } else {
+                    taskbarApp.classList.add('active');
+                    bringToFront(windowId);
+                }
+            }
+        }
+
+        function toggleMaximize(windowId) {
+            const window = windows.find(w => w.id === windowId);
+            if (!window) return;
+            
+            const windowElement = window.element;
+            const isMaximized = windowElement.classList.contains('maximized');
+            
+            if (isMaximized) {
+                // Restore window
+                windowElement.classList.remove('maximized');
+                windowElement.style.width = window.originalWidth || '600px';
+                windowElement.style.height = window.originalHeight || '400px';
+                windowElement.style.left = window.originalLeft || '50px';
+                windowElement.style.top = window.originalTop || '50px';
+                windowElement.style.resize = 'both';
+                window.maximized = false;
+                
+                // Update maximize button icon
+                const icon = document.getElementById(`maximizeIcon_${windowId}`);
+                if (icon) {
+                    icon.className = 'fas fa-window-maximize';
+                }
+            } else {
+                // Maximize window
+                window.originalWidth = windowElement.style.width;
+                window.originalHeight = windowElement.style.height;
+                window.originalLeft = windowElement.style.left;
+                window.originalTop = windowElement.style.top;
+                
+                windowElement.classList.add('maximized');
+                windowElement.style.width = 'calc(100% - 40px)';
+                windowElement.style.height = 'calc(100% - 100px)';
+                windowElement.style.left = '20px';
+                windowElement.style.top = '20px';
+                windowElement.style.resize = 'none';
+                window.maximized = true;
+                
+                // Update maximize button icon
+                const icon = document.getElementById(`maximizeIcon_${windowId}`);
+                if (icon) {
+                    icon.className = 'fas fa-window-restore';
+                }
+            }
+            
+            bringToFront(windowId);
+        }
+
+        function bringToFront(windowId) {
+            const window = windows.find(w => w.id === windowId);
+            if (!window) return;
+            
+            zIndexCounter++;
+            window.element.style.zIndex = zIndexCounter;
+            activeWindow = windowId;
+            
+            // Remove active class from all windows
+            document.querySelectorAll('.window').forEach(w => {
+                w.classList.remove('active');
+            });
+            
+            // Add active class to clicked window
+            window.element.classList.add('active');
+            
+            // Update taskbar active state
+            document.querySelectorAll('.taskbar-app').forEach(app => {
+                app.classList.remove('active');
+            });
+            
+            const taskbarApp = document.querySelector(`.taskbar-app[data-app="${window.appId}"]`);
+            if (taskbarApp) {
+                taskbarApp.classList.add('active');
+            }
+            
+            // Ensure taskbar stays on top
+            document.querySelector('.taskbar').style.zIndex = '10000';
+        }
+
+        // ===== DRAG & RESIZE =====
+        let dragOffset = { x: 0, y: 0 };
+        let isDragging = false;
+        let dragElement = null;
+
+        function startDrag(windowId, e) {
+            if (e.target.closest('.window-btn')) return;
+            
+            const element = document.getElementById(windowId);
+            if (!element) return;
+            
+            isDragging = true;
+            dragElement = element;
+            dragOffset.x = e.clientX - element.offsetLeft;
+            dragOffset.y = e.clientY - element.offsetTop;
+            
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', stopDrag);
+            bringToFront(windowId);
+        }
+
+        function drag(e) {
+            if (!isDragging || !dragElement) return;
+            
+            e.preventDefault();
+            
+            // If window is maximized, restore it first before dragging
+            if (dragElement.classList.contains('maximized')) {
+                const window = windows.find(w => w.id === dragElement.id);
+                if (window) {
+                    // Calculate click position relative to window for smooth transition
+                    const rect = dragElement.getBoundingClientRect();
+                    const relativeX = (e.clientX - rect.left) / rect.width;
+                    const relativeY = (e.clientY - rect.top) / rect.height;
+                    
+                    // Temporarily restore to calculate new position
+                    dragElement.classList.remove('maximized');
+                    dragElement.style.width = window.originalWidth || '600px';
+                    dragElement.style.height = window.originalHeight || '400px';
+                    
+                    // Calculate new position based on mouse and window size
+                    const newWidth = parseInt(window.originalWidth || '600');
+                    const newHeight = parseInt(window.originalHeight || '400');
+                    
+                    // Position window so mouse stays at same relative position
+                    let newX = e.clientX - (newWidth * relativeX);
+                    let newY = e.clientY - (newHeight * relativeY);
+                    
+                    // Ensure window stays on screen
+                    newX = Math.max(0, Math.min(newX, window.innerWidth - newWidth));
+                    newY = Math.max(0, Math.min(newY, window.innerHeight - 100));
+                    
+                    dragElement.style.left = `${newX}px`;
+                    dragElement.style.top = `${newY}px`;
+                    dragElement.style.resize = 'both';
+                    
+                    // Update maximize button icon
+                    const icon = document.getElementById(`maximizeIcon_${dragElement.id}`);
+                    if (icon) {
+                        icon.className = 'fas fa-window-maximize';
+                    }
+                    
+                    // Update window state
+                    const windowObj = windows.find(w => w.id === dragElement.id);
+                    if (windowObj) {
+                        windowObj.maximized = false;
+                        windowObj.originalLeft = `${newX}px`;
+                        windowObj.originalTop = `${newY}px`;
+                    }
+                    
+                    // Update drag offset for new window position
+                    dragOffset.x = e.clientX - newX;
+                    dragOffset.y = e.clientY - newY;
+                }
+            }
+            
+            let x = e.clientX - dragOffset.x;
+            let y = e.clientY - dragOffset.y;
+            
+            // Boundary checking
+            x = Math.max(0, Math.min(x, window.innerWidth - dragElement.offsetWidth));
+            y = Math.max(0, Math.min(y, window.innerHeight - 100));
+            
+            dragElement.style.left = `${x}px`;
+            dragElement.style.top = `${y}px`;
+        }
+
+        function stopDrag() {
+            isDragging = false;
+            dragElement = null;
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('mouseup', stopDrag);
+        }
+
+        function makeDraggable(element) {
+            // Already handled by startDrag function
+        }
+
+        function makeResizable(element) {
+            element.querySelectorAll('.resize-handle').forEach(handle => {
+                handle.addEventListener('mousedown', (e) => {
+                    e.stopPropagation();
+                    const classList = handle.classList;
+                    let resizeDirection = '';
+                    
+                    if (classList.contains('n')) resizeDirection = 'n';
+                    if (classList.contains('s')) resizeDirection = 's';
+                    if (classList.contains('e')) resizeDirection = 'e';
+                    if (classList.contains('w')) resizeDirection = 'w';
+                    if (classList.contains('ne')) resizeDirection = 'ne';
+                    if (classList.contains('nw')) resizeDirection = 'nw';
+                    if (classList.contains('se')) resizeDirection = 'se';
+                    if (classList.contains('sw')) resizeDirection = 'sw';
+                    
+                    const isResizing = true;
+                    const startX = e.clientX;
+                    const startY = e.clientY;
+                    const startWidth = element.offsetWidth;
+                    const startHeight = element.offsetHeight;
+                    const startLeft = element.offsetLeft;
+                    const startTop = element.offsetTop;
+                    
+                    // If window is maximized, restore it first
+                    if (element.classList.contains('maximized')) {
+                        const window = windows.find(w => w.id === element.id);
+                        if (window) {
+                            element.classList.remove('maximized');
+                            element.style.width = window.originalWidth || '600px';
+                            element.style.height = window.originalHeight || '400px';
+                            element.style.left = window.originalLeft || '50px';
+                            element.style.top = window.originalTop || '50px';
+                            element.style.resize = 'both';
+                            window.maximized = false;
+                            
+                            // Update maximize button icon
+                            const icon = document.getElementById(`maximizeIcon_${element.id}`);
+                            if (icon) {
+                                icon.className = 'fas fa-window-maximize';
+                            }
+                        }
+                    }
+                    
+                    function doResize(e) {
+                        if (!isResizing) return;
+                        
+                        e.preventDefault();
+                        
+                        if (resizeDirection.includes('e')) {
+                            const newWidth = Math.max(300, startWidth + (e.clientX - startX));
+                            element.style.width = `${newWidth}px`;
+                        }
+                        if (resizeDirection.includes('s')) {
+                            const newHeight = Math.max(200, startHeight + (e.clientY - startY));
+                            element.style.height = `${newHeight}px`;
+                        }
+                        if (resizeDirection.includes('w')) {
+                            const newWidth = Math.max(300, startWidth - (e.clientX - startX));
+                            element.style.width = `${newWidth}px`;
+                            element.style.left = `${startLeft + (startWidth - newWidth)}px`;
+                        }
+                        if (resizeDirection.includes('n')) {
+                            const newHeight = Math.max(200, startHeight - (e.clientY - startY));
+                            element.style.height = `${newHeight}px`;
+                            element.style.top = `${startTop + (startHeight - newHeight)}px`;
+                        }
+                    }
+                    
+                    function stopResize() {
+                        document.removeEventListener('mousemove', doResize);
+                        document.removeEventListener('mouseup', stopResize);
+                    }
+                    
+                    document.addEventListener('mousemove', doResize);
+                    document.addEventListener('mouseup', stopResize);
+                });
+            });
+        }
+
+        // ===== APP LAUNCHER =====
+        function initAppLauncher() {
+            const appsGrid = document.getElementById('appsGrid');
+            appsGrid.innerHTML = '';
+            
+            for (const [appId, app] of Object.entries(apps)) {
+                const appItem = document.createElement('div');
+                appItem.className = 'app-item-launcher';
+                appItem.innerHTML = `
+                    <div class="icon-container" style="background: ${app.color};">
+                        <img src="${app.icon}" alt="${app.name}" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\\'${app.fallbackIcon}\\' style=\\'color: white; font-size: 24px;\\'></i>'">
+                    </div>
+                    <div style="color: var(--win11-text); font-size: 12px;">${app.name}</div>
+                `;
+                appItem.addEventListener('click', () => {
+                    openApp(appId);
+                    hideAppLauncher();
+                });
+                appsGrid.appendChild(appItem);
+            }
+            
+            const searchInput = document.getElementById('appSearch');
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                const appItems = document.querySelectorAll('.app-item-launcher');
+                
+                appItems.forEach(item => {
+                    const appName = item.querySelector('div:last-child').textContent.toLowerCase();
+                    if (appName.includes(searchTerm)) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+        function toggleAppLauncher() {
+            const launcher = document.getElementById('appLauncher');
+            if (launcher.classList.contains('active')) {
+                hideAppLauncher();
+            } else {
+                showAppLauncher();
+            }
+        }
+
+        function showAppLauncher() {
+            const launcher = document.getElementById('appLauncher');
+            launcher.classList.add('active');
+            document.getElementById('appSearch').focus();
+            document.getElementById('appSearch').value = '';
+            
+            document.querySelectorAll('.app-item-launcher').forEach(item => {
+                item.style.display = 'block';
+            });
+        }
+
+        function hideAppLauncher() {
+            document.getElementById('appLauncher').classList.remove('active');
+        }
+
+        function handleAppLauncherClick(event) {
+            if (event.target === document.getElementById('appLauncher')) {
+                hideAppLauncher();
+            }
+        }
+
+        // ===== TASKBAR =====
+        function initTaskbarApps() {
+            const taskbarCenter = document.querySelector('.taskbar-center');
+            
+            // Add pinned apps to taskbar
+            const pinnedApps = ['students', 'discipline', 'library', 'studies', 'reports'];
+            
+            pinnedApps.forEach(appId => {
+                const app = apps[appId];
+                if (!app) return;
+                
+                const taskbarApp = document.createElement('div');
+                taskbarApp.className = 'taskbar-app';
+                taskbarApp.dataset.app = appId;
+                taskbarApp.title = app.name;
+                
+                taskbarApp.innerHTML = `
+                    <img src="${app.icon}" alt="${app.name}" style="width: 20px; height: 20px;" 
+                         onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\\'${app.fallbackIcon}\\' style=\\'color: inherit;\\'></i>'">
+                `;
+                
+                taskbarApp.addEventListener('click', (e) => {
+                    const appId = taskbarApp.dataset.app;
+                    const window = windows.find(w => w.appId === appId);
+                    
+                    if (window) {
+                        if (window.minimized) {
+                            minimizeWindow(window.id);
+                        } else {
+                            if (activeWindow === window.id) {
+                                minimizeWindow(window.id);
+                            } else {
+                                bringToFront(window.id);
+                            }
+                        }
+                    } else {
+                        openApp(appId);
+                    }
+                });
+                
+                taskbarCenter.appendChild(taskbarApp);
+            });
+        }
+
+        function updateTaskbarAppState(appId, isOpen) {
+            const taskbarApp = document.querySelector(`.taskbar-app[data-app="${appId}"]`);
+            if (!taskbarApp) return;
+            
+            if (isOpen) {
+                taskbarApp.classList.add('running');
+            } else {
+                taskbarApp.classList.remove('running');
+                taskbarApp.classList.remove('active');
+            }
+        }
+
+        function updateRunningApps() {
+            document.querySelectorAll('.taskbar-app').forEach(app => {
+                const appId = app.dataset.app;
+                const isRunning = windows.some(w => w.appId === appId && !w.minimized);
+                
+                if (isRunning) {
+                    app.classList.add('running');
+                } else {
+                    app.classList.remove('running');
+                }
+            });
+        }
+
+        // ===== FLYOUT PANELS =====
+        function toggleUpdatesPanel() {
+            const panel = document.getElementById('updatesPanel');
+            const isActive = panel.classList.contains('active');
+            hideAllFlyouts();
+            if (!isActive) {
+                panel.classList.add('active');
+            }
+        }
+
+        function toggleNotificationsPanel() {
+            const panel = document.getElementById('notificationsPanel');
+            const isActive = panel.classList.contains('active');
+            hideAllFlyouts();
+            if (!isActive) {
+                panel.classList.add('active');
+            }
+        }
+
+        function hideAllFlyouts() {
+            document.querySelectorAll('.flyout-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+        }
+
+        // ===== NOTIFICATION HANDLING =====
+        async function handleNotificationClick(notificationId) {
+            try {
+                const sessionData = JSON.parse(localStorage.getItem('akademia_staff') || '{}');
+                const schoolId = sessionData.schoolId;
+                
+                if (schoolId) {
+                    const notificationRef = doc(db, 'schools', schoolId, 'notifications', notificationId);
+                    await updateDoc(notificationRef, {
+                        read: true,
+                        readAt: new Date()
+                    });
+                }
+                
+                // Find and remove the notification from UI
+                const notificationIndex = notifications.findIndex(n => n.id === notificationId);
+                if (notificationIndex !== -1) {
+                    notifications[notificationIndex].read = true;
+                    updateNotificationsUI();
+                    updateNotificationBadge();
+                }
+                
+            } catch (error) {
+                console.error('Error marking notification as read:', error);
+            }
+        }
+
+        async function handleUpdateClick(updateId) {
+            // For now, just log the click
+            console.log('Update clicked:', updateId);
+            // You can implement opening the update in a window or marking as read
+        }
+
+        async function clearAllNotifications() {
+            try {
+                const sessionData = JSON.parse(localStorage.getItem('akademia_staff') || '{}');
+                const schoolId = sessionData.schoolId;
+                
+                if (schoolId && notifications.length > 0) {
+                    // Mark all as read
+                    const batch = [];
+                    notifications.forEach(notification => {
+                        if (!notification.read) {
+                            const notificationRef = doc(db, 'schools', schoolId, 'notifications', notification.id);
+                            batch.push(updateDoc(notificationRef, {
+                                read: true,
+                                readAt: new Date()
+                            }));
+                        }
+                    });
+                    
+                    await Promise.all(batch);
+                    notifications.forEach(n => n.read = true);
+                    updateNotificationsUI();
+                    updateNotificationBadge();
+                }
+            } catch (error) {
+                console.error('Error clearing notifications:', error);
+            }
+        }
+
+        async function clearAllUpdates() {
+            // For updates, we can't delete them, but we can mark them as seen
+            // or implement a "dismiss" functionality
+            alert('Updates cleared from view (not deleted from database)');
+            // You could add a "dismissed" field to updates and filter them out
+        }
+
+        // ===== CONTEXT MENU =====
+        function showIconContextMenu(x, y, appId) {
+            // For now, just open the app
+            openApp(appId);
+        }
+
+        // ===== INTER-APP COMMUNICATION =====
+        function handleAppMessage(event) {
+            const { type, payload } = event.data;
+            
+            switch (type) {
+                case 'WINDOW_TITLE_CHANGE':
+                    const window = windows.find(w => w.iframe && w.iframe.contentWindow === event.source);
+                    if (window && payload.title) {
+                        const titleElement = window.element.querySelector('.window-title');
+                        if (titleElement) {
+                            titleElement.textContent = payload.title;
+                        }
+                    }
+                    break;
+                    
+                case 'APP_CLOSE_REQUEST':
+                    const windowToClose = windows.find(w => w.iframe && w.iframe.contentWindow === event.source);
+                    if (windowToClose) {
+                        closeWindow(windowToClose.id);
+                    }
+                    break;
+                    
+                case 'THEME_REQUEST':
+                    const requestingWindow = windows.find(w => w.iframe && w.iframe.contentWindow === event.source);
+                    if (requestingWindow) {
+                        sendMessageToApp(requestingWindow.id, {
+                            type: 'THEME_CHANGE',
+                            payload: { isDark: isDarkTheme }
+                        });
+                    }
+                    break;
+                    
+                case 'GET_SESSION_DATA':
+                    const requestingWindow2 = windows.find(w => w.iframe && w.iframe.contentWindow === event.source);
+                    if (requestingWindow2) {
+                        sendMessageToApp(requestingWindow2.id, {
+                            type: 'SESSION_DATA',
+                            payload: {
+                                user: currentUser,
+                                session: JSON.parse(localStorage.getItem('akademia_staff') || '{}'),
+                                schoolId: JSON.parse(localStorage.getItem('akademia_staff') || '{}').schoolId
+                            }
+                        });
+                    }
+                    break;
+            }
+        }
+
+        function sendMessageToApp(windowId, message) {
+            const window = windows.find(w => w.id === windowId);
+            if (window && window.iframe && window.iframe.contentWindow) {
+                window.iframe.contentWindow.postMessage(message, '*');
+            }
+        }
+
+        // ===== SYSTEM FUNCTIONS =====
+        function initEventListeners() {
+            // Close panels when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.flyout-panel') && 
+                    !e.target.closest('.updates-button') && 
+                    !e.target.closest('.taskbar-icon')) {
+                    hideAllFlyouts();
+                }
+            });
+
+            // Close app launcher with Escape
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    hideAppLauncher();
+                    hideAllFlyouts();
+                }
+                if (e.key === 'Meta' || e.key === 'Super') {
+                    e.preventDefault();
+                    toggleAppLauncher();
+                }
+                if (e.altKey && e.key === 'F4') {
+                    e.preventDefault();
+                    if (activeWindow) {
+                        closeWindow(activeWindow);
+                    }
+                }
+            });
+
+            // Handle messages from iframes
+            window.addEventListener('message', handleAppMessage);
+            
+            // Handle clicks on desktop (to bring windows to front)
+            document.getElementById('desktop').addEventListener('mousedown', (e) => {
+                if (!e.target.closest('.desktop-icon') && 
+                    !e.target.closest('.school-panel') &&
+                    !e.target.closest('.window')) {
+                    document.querySelector('.taskbar').style.zIndex = '10000';
+                }
+            });
+        }
+
+        function showUserMenu() {
+            alert('User Menu:\n\n• Profile Settings\n• Account Preferences\n• Help & Support');
+        }
+
+        async function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                try {
+                    // Unsubscribe from all listeners
+                    unsubscribeFunctions.forEach(unsubscribe => {
+                        if (typeof unsubscribe === 'function') {
+                            unsubscribe();
+                        }
+                    });
+                    
+                    // Sign out from Firebase
+                    await signOut(auth);
+                    
+                    // Clear localStorage
+                    localStorage.removeItem('akademia_staff');
+                    localStorage.removeItem('akademia_user');
+                    
+                    // Redirect to login
+                    window.location.href = 'login.html';
+                    
+                } catch (error) {
+                    console.error('Error during logout:', error);
+                    alert('Error logging out. Please try again.');
+                }
+            }
+        }
+
+        // Prevent default context menu
+        document.addEventListener('contextmenu', (e) => {
+            if (e.target.closest('.desktop-icon')) {
+                e.preventDefault();
             }
         });
     </script>
