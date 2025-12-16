@@ -1027,7 +1027,6 @@
 
     <!-- Notification Container -->
     <div class="notification-center" id="notificationContainer"></div>
-
     <!-- Firebase Script -->
     <script type="module">
         import { 
@@ -1536,16 +1535,27 @@
                 
                 notifications.show('Login successful! Redirecting...', 'success');
                 
-                // Store staff session
-                sessionStorage.setItem('akademia_staff', JSON.stringify({
+                // Store staff session in BOTH sessionStorage AND localStorage
+                const staffSessionData = {
                     staffId: selectedStaff.id,
                     staffName: selectedStaff.name,
                     staffRole: selectedStaff.role,
                     staffEmail: selectedStaff.email,
                     schoolId: sessionData.schoolId,
-                    schoolName: sessionData.schoolName,
-                    isPredefined: PREDEFINED_ROLES.some(role => role.id === selectedStaff.id)
-                }));
+                    schoolName: currentSchool?.name || sessionData.schoolName,
+                    isPredefined: PREDEFINED_ROLES.some(role => role.id === selectedStaff.id),
+                    // Also preserve original school login info
+                    originalSchoolEmail: sessionData.email,
+                    loginTimestamp: new Date().toISOString()
+                };
+                
+                // Store in both storage for compatibility
+                sessionStorage.setItem('akademia_staff', JSON.stringify(staffSessionData));
+                localStorage.setItem('akademia_staff', JSON.stringify(staffSessionData));
+                
+                // Also keep the original school session for reference
+                sessionStorage.setItem('akademia_user', JSON.stringify(sessionData));
+                localStorage.setItem('akademia_user', JSON.stringify(sessionData));
                 
                 // Redirect to home.html
                 setTimeout(() => {
@@ -1558,6 +1568,8 @@
                     message = 'Incorrect password';
                 } else if (error.code === 'auth/user-not-found') {
                     message = 'Staff account not found';
+                } else if (error.code === 'auth/too-many-requests') {
+                    message = 'Too many attempts. Please try again later';
                 }
                 notifications.show(message, 'error');
             } finally {
@@ -1711,6 +1723,6 @@
                 }
             });
         }
-    </script>
+                </script>
 </body>
 </html>
