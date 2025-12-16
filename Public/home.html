@@ -1211,7 +1211,9 @@
             orderBy,
             limit,
             signInWithEmailAndPassword,
-            createUserWithEmailAndPassword
+            createUserWithEmailAndPassword,
+            onAuthStateChanged,
+            signOut
         };
     </script>
 
@@ -1390,20 +1392,28 @@
         async function checkAuth() {
             try {
                 // Check session storage first
-                const sessionData = JSON.parse(localStorage.getItem('akademia_staff') || localStorage.getItem('akademia_user') || '{}');
+                const staffSession = JSON.parse(localStorage.getItem('akademia_staff') || sessionStorage.getItem('akademia_staff') || '{}');
+                const schoolSession = JSON.parse(localStorage.getItem('akademia_user') || sessionStorage.getItem('akademia_user') || '{}');
                 
-                if (!sessionData || !sessionData.email) {
+                // Use staff session if available, otherwise use school session
+                const sessionData = staffSession.staffEmail ? staffSession : schoolSession;
+                
+                if (!sessionData || (!sessionData.email && !sessionData.staffEmail)) {
+                    // No valid session found, redirect to login
                     window.location.href = 'login.html';
                     return;
                 }
 
                 // Initialize Firebase auth
                 const auth = window.firebaseServices.auth;
+                const onAuthStateChanged = window.firebaseServices.onAuthStateChanged;
                 
                 // Set up auth state listener
-                window.firebaseServices.onAuthStateChanged(auth, async (user) => {
+                onAuthStateChanged(auth, async (user) => {
                     if (user) {
+                        // User is already authenticated
                         currentUser = user;
+                        console.log('User already authenticated:', user.email);
                         await loadUserData();
                         await loadSchoolData();
                         await loadStatistics();
@@ -1411,29 +1421,28 @@
                         await loadUpdates();
                         startRealtimeListeners();
                     } else {
-                        // Try to sign in with stored credentials
-                        try {
-                            // Check if it's school login or staff login
-                            if (sessionData.schoolId) {
-                                // This is staff login from school-data.html
-                                const userCredential = await window.firebaseServices.signInWithEmailAndPassword(
-                                    auth, 
-                                    sessionData.staffEmail || sessionData.email, 
-                                    sessionData.password || 'defaultPassword123'
-                                );
-                                currentUser = userCredential.user;
-                                await loadUserData();
-                                await loadSchoolData();
-                                await loadStatistics();
-                                await loadNotifications();
-                                await loadUpdates();
-                                startRealtimeListeners();
-                            } else {
-                                // This is school login
-                                window.location.href = 'school-data.html';
-                            }
-                        } catch (error) {
-                            console.error('Auth error:', error);
+                        // User not authenticated, but we have session data
+                        // This means we need to re-authenticate
+                        if (staffSession.staffEmail) {
+                            // Staff user needs to re-enter password
+                            console.log('Staff session found but not authenticated');
+                            
+                            // We cannot automatically sign in without password
+                            // Show a message or redirect to password entry
+                            showStaffPasswordPrompt(staffSession);
+                            
+                        } else if (schoolSession.email) {
+                            // School admin - try to maintain session
+                            console.log('School session found, maintaining state');
+                            currentUser = { email: schoolSession.email };
+                            await loadUserData();
+                            await loadSchoolData();
+                            await loadStatistics();
+                            await loadNotifications();
+                            await loadUpdates();
+                            startRealtimeListeners();
+                        } else {
+                            // No valid session, redirect to login
                             window.location.href = 'login.html';
                         }
                     }
@@ -1445,33 +1454,208 @@
             }
         }
 
+        // Show password prompt for staff users
+        function showStaffPasswordPrompt(staffSession) {
+            // Create a modal for password entry
+            const passwordModal = document.createElement('div');
+            passwordModal.className = 'modal-overlay';
+            passwordModal.style.display = 'flex';
+            passwordModal.innerHTML = `
+                <div class="password-modal">
+                    <div class="password-avatar">
+                        ${staffSession.staffName ? staffSession.staffName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : '?'}
+                    </div>
+                    <h3 class="password-title">${staffSession.staffName || 'Staff Member'}</h3>
+                    <p class="password-subtitle">Enter your password to continue</p>
+                    <div class="form-group">
+                        <input type="password" class="form-input" id="reAuthPassword" placeholder="Enter your password">
+                    </div>
+                    <div style="display: flex; gap: 0.8rem; margin-top: 1.5rem;">
+                        <button type="button" class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove(); window.location.href='login.html'">
+                            Cancel
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="reAuthenticateStaff('${staffSession.staffEmail}', this)">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Login
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(passwordModal);
+            
+            // Add style for modal
+            const style = document.createElement('style');
+            style.textContent = `
+                .modal-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0, 0, 0, 0.5);
+                    backdrop-filter: blur(4px);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 10000;
+                    padding: 1rem;
+                }
+                .password-modal {
+                    background: var(--win11-surface);
+                    border-radius: var(--radius-lg);
+                    width: 100%;
+                    max-width: 400px;
+                    padding: 2rem;
+                    text-align: center;
+                    box-shadow: var(--shadow-medium);
+                }
+                .password-avatar {
+                    width: 60px;
+                    height: 60px;
+                    border-radius: 50%;
+                    margin: 0 auto 1rem;
+                    background: linear-gradient(135deg, var(--win11-accent) 0%, var(--win11-accent-light) 100%);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 1.5rem;
+                    color: var(--light);
+                    font-weight: 600;
+                }
+                .password-title {
+                    font-family: 'Poppins', sans-serif;
+                    font-size: 1.2rem;
+                    font-weight: 600;
+                    color: var(--win11-text);
+                    margin-bottom: 0.5rem;
+                }
+                .password-subtitle {
+                    color: var(--win11-text-secondary);
+                    font-size: 0.9rem;
+                    margin-bottom: 1.5rem;
+                }
+                .form-group {
+                    margin-bottom: 1.5rem;
+                }
+                .form-input {
+                    width: 100%;
+                    padding: 0.7rem 0.8rem;
+                    border: 1.5px solid var(--win11-border);
+                    border-radius: var(--radius-sm);
+                    font-family: 'Inter', sans-serif;
+                    font-size: 0.9rem;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    background: var(--win11-surface);
+                    color: var(--win11-text);
+                }
+                .form-input:focus {
+                    outline: none;
+                    border-color: var(--win11-accent);
+                    box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.1);
+                }
+                .btn {
+                    padding: 0.65rem 1.5rem;
+                    border-radius: var(--radius-sm);
+                    font-family: 'Inter', sans-serif;
+                    font-size: 0.85rem;
+                    font-weight: 500;
+                    border: none;
+                    cursor: pointer;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+                .btn-primary {
+                    background: var(--win11-accent);
+                    color: var(--light);
+                }
+                .btn-primary:hover {
+                    background: var(--win11-accent-light);
+                }
+                .btn-secondary {
+                    background: var(--win11-surface-light);
+                    color: var(--win11-text-secondary);
+                }
+                .btn-secondary:hover {
+                    background: var(--win11-surface-lighter);
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Re-authenticate staff user
+        async function reAuthenticateStaff(email, button) {
+            try {
+                const passwordInput = document.getElementById('reAuthPassword');
+                const password = passwordInput.value.trim();
+                
+                if (!password) {
+                    alert('Please enter your password');
+                    return;
+                }
+                
+                button.disabled = true;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+                
+                const userCredential = await window.firebaseServices.signInWithEmailAndPassword(
+                    window.firebaseServices.auth, 
+                    email, 
+                    password
+                );
+                
+                currentUser = userCredential.user;
+                
+                // Remove modal
+                const modal = button.closest('.modal-overlay');
+                if (modal) modal.remove();
+                
+                // Load data
+                await loadUserData();
+                await loadSchoolData();
+                await loadStatistics();
+                await loadNotifications();
+                await loadUpdates();
+                startRealtimeListeners();
+                
+            } catch (error) {
+                console.error('Re-auth error:', error);
+                alert('Login failed. Please check your password.');
+                button.disabled = false;
+                button.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+            }
+        }
+
         // ===== FIREBASE DATA LOADING =====
         async function loadUserData() {
             try {
                 // Get user session from localStorage
-                const sessionData = JSON.parse(localStorage.getItem('akademia_staff') || localStorage.getItem('akademia_user') || '{}');
+                const staffSession = JSON.parse(localStorage.getItem('akademia_staff') || sessionStorage.getItem('akademia_staff') || '{}');
+                const schoolSession = JSON.parse(localStorage.getItem('akademia_user') || sessionStorage.getItem('akademia_user') || '{}');
                 
-                if (sessionData.staffName || sessionData.schoolName) {
-                    if (sessionData.staffName) {
-                        document.getElementById('userNameDisplay').textContent = sessionData.staffName;
-                        document.getElementById('userRoleDisplay').textContent = formatRole(sessionData.staffRole);
-                        
-                        // Set avatar initials
-                        const initials = sessionData.staffName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-                        document.getElementById('userAvatar').textContent = initials;
-                    } else if (sessionData.schoolName) {
-                        document.getElementById('userNameDisplay').textContent = sessionData.schoolName;
-                        document.getElementById('userRoleDisplay').textContent = 'School Admin';
-                        document.getElementById('userAvatar').innerHTML = '<i class="fas fa-school"></i>';
-                    }
-                } else {
+                // Use staff session if available, otherwise use school session
+                const sessionData = staffSession.staffEmail ? staffSession : schoolSession;
+                
+                if (staffSession.staffName) {
+                    // Staff user
+                    document.getElementById('userNameDisplay').textContent = staffSession.staffName;
+                    document.getElementById('userRoleDisplay').textContent = formatRole(staffSession.staffRole);
+                    
+                    // Set avatar initials
+                    const initials = staffSession.staffName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+                    document.getElementById('userAvatar').textContent = initials;
+                } else if (schoolSession.schoolName) {
+                    // School admin
+                    document.getElementById('userNameDisplay').textContent = schoolSession.schoolName;
+                    document.getElementById('userRoleDisplay').textContent = 'School Administrator';
+                    document.getElementById('userAvatar').innerHTML = '<i class="fas fa-school"></i>';
+                } else if (currentUser) {
                     // Fallback to Firebase user data
-                    if (currentUser) {
-                        document.getElementById('userNameDisplay').textContent = currentUser.email;
-                        document.getElementById('userRoleDisplay').textContent = 'User';
-                        const initials = currentUser.email.substring(0, 2).toUpperCase();
-                        document.getElementById('userAvatar').textContent = initials;
-                    }
+                    document.getElementById('userNameDisplay').textContent = currentUser.email;
+                    document.getElementById('userRoleDisplay').textContent = 'User';
+                    const initials = currentUser.email.substring(0, 2).toUpperCase();
+                    document.getElementById('userAvatar').textContent = initials;
                 }
             } catch (error) {
                 console.error('Error loading user data:', error);
@@ -1482,18 +1666,23 @@
 
         async function loadSchoolData() {
             try {
-                const sessionData = JSON.parse(localStorage.getItem('akademia_staff') || localStorage.getItem('akademia_user') || '{}');
+                const staffSession = JSON.parse(localStorage.getItem('akademia_staff') || sessionStorage.getItem('akademia_staff') || '{}');
+                const schoolSession = JSON.parse(localStorage.getItem('akademia_user') || sessionStorage.getItem('akademia_user') || '{}');
                 
-                if (sessionData.schoolName) {
-                    document.getElementById('schoolNameDisplay').textContent = sessionData.schoolName;
+                if (staffSession.schoolName) {
+                    document.getElementById('schoolNameDisplay').textContent = staffSession.schoolName;
                     document.getElementById('schoolSubtitle').textContent = 'Akademia Platform';
-                } else if (sessionData.staffName) {
+                } else if (schoolSession.schoolName) {
+                    // School admin
+                    document.getElementById('schoolNameDisplay').textContent = schoolSession.schoolName;
+                    document.getElementById('schoolSubtitle').textContent = 'Akademia Platform';
+                } else if (schoolSession.email) {
                     // If it's staff, get school data from Firestore
                     const db = window.firebaseServices.db;
                     const doc = window.firebaseServices.doc;
                     const getDoc = window.firebaseServices.getDoc;
                     
-                    const schoolRef = doc(db, 'schools', sessionData.schoolId);
+                    const schoolRef = doc(db, 'schools', schoolSession.schoolId);
                     const schoolDoc = await getDoc(schoolRef);
                     
                     if (schoolDoc.exists()) {
@@ -1512,7 +1701,10 @@
 
         async function loadStatistics() {
             try {
-                const sessionData = JSON.parse(localStorage.getItem('akademia_staff') || localStorage.getItem('akademia_user') || '{}');
+                const staffSession = JSON.parse(localStorage.getItem('akademia_staff') || sessionStorage.getItem('akademia_staff') || '{}');
+                const schoolSession = JSON.parse(localStorage.getItem('akademia_user') || sessionStorage.getItem('akademia_user') || '{}');
+                
+                const sessionData = staffSession.staffEmail ? staffSession : schoolSession;
                 const schoolId = sessionData.schoolId;
                 
                 if (!schoolId) {
@@ -1580,7 +1772,10 @@
 
         async function loadNotifications() {
             try {
-                const sessionData = JSON.parse(localStorage.getItem('akademia_staff') || localStorage.getItem('akademia_user') || '{}');
+                const staffSession = JSON.parse(localStorage.getItem('akademia_staff') || sessionStorage.getItem('akademia_staff') || '{}');
+                const schoolSession = JSON.parse(localStorage.getItem('akademia_user') || sessionStorage.getItem('akademia_user') || '{}');
+                
+                const sessionData = staffSession.staffEmail ? staffSession : schoolSession;
                 const schoolId = sessionData.schoolId;
                 
                 if (!schoolId) {
@@ -1690,7 +1885,10 @@
 
         async function loadUpdates() {
             try {
-                const sessionData = JSON.parse(localStorage.getItem('akademia_staff') || localStorage.getItem('akademia_user') || '{}');
+                const staffSession = JSON.parse(localStorage.getItem('akademia_staff') || sessionStorage.getItem('akademia_staff') || '{}');
+                const schoolSession = JSON.parse(localStorage.getItem('akademia_user') || sessionStorage.getItem('akademia_user') || '{}');
+                
+                const sessionData = staffSession.staffEmail ? staffSession : schoolSession;
                 const schoolId = sessionData.schoolId;
                 
                 if (!schoolId) {
@@ -1800,7 +1998,10 @@
 
         function startRealtimeListeners() {
             // Listen for new notifications in real-time
-            const sessionData = JSON.parse(localStorage.getItem('akademia_staff') || localStorage.getItem('akademia_user') || '{}');
+            const staffSession = JSON.parse(localStorage.getItem('akademia_staff') || sessionStorage.getItem('akademia_staff') || '{}');
+            const schoolSession = JSON.parse(localStorage.getItem('akademia_user') || sessionStorage.getItem('akademia_user') || '{}');
+            
+            const sessionData = staffSession.staffEmail ? staffSession : schoolSession;
             const schoolId = sessionData.schoolId;
             
             if (schoolId) {
@@ -2603,7 +2804,10 @@
         // ===== NOTIFICATION HANDLING =====
         async function handleNotificationClick(notificationId) {
             try {
-                const sessionData = JSON.parse(localStorage.getItem('akademia_staff') || localStorage.getItem('akademia_user') || '{}');
+                const staffSession = JSON.parse(localStorage.getItem('akademia_staff') || sessionStorage.getItem('akademia_staff') || '{}');
+                const schoolSession = JSON.parse(localStorage.getItem('akademia_user') || sessionStorage.getItem('akademia_user') || '{}');
+                
+                const sessionData = staffSession.staffEmail ? staffSession : schoolSession;
                 const schoolId = sessionData.schoolId;
                 
                 if (schoolId) {
@@ -2639,7 +2843,10 @@
 
         async function clearAllNotifications() {
             try {
-                const sessionData = JSON.parse(localStorage.getItem('akademia_staff') || localStorage.getItem('akademia_user') || '{}');
+                const staffSession = JSON.parse(localStorage.getItem('akademia_staff') || sessionStorage.getItem('akademia_staff') || '{}');
+                const schoolSession = JSON.parse(localStorage.getItem('akademia_user') || sessionStorage.getItem('akademia_user') || '{}');
+                
+                const sessionData = staffSession.staffEmail ? staffSession : schoolSession;
                 const schoolId = sessionData.schoolId;
                 
                 if (schoolId && notifications.length > 0) {
