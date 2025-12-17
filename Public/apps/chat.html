@@ -6,9 +6,58 @@
     <title>Akademia Staff Chat</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js"></script>
+    <!-- Firebase SDK v12.7.0 -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyA3gohTf1rzOYBBQCI-WD8ORoTK4DOf-fw",
+            authDomain: "akademia-c56ff.firebaseapp.com",
+            databaseURL: "https://akademia-c56ff-default-rtdb.firebaseio.com",
+            projectId: "akademia-c56ff",
+            storageBucket: "akademia-c56ff.firebasestorage.app",
+            messagingSenderId: "678278775270",
+            appId: "1:678278775270:web:ed5aee3d358d613c8cd627",
+            measurementId: "G-X3CHCJE5LK"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // Make Firebase available globally
+        window.firebaseApp = app;
+        window.firebaseDB = db;
+        window.firebaseAuth = auth;
+        window.firebaseModules = {
+            collection,
+            addDoc,
+            onSnapshot,
+            query,
+            orderBy,
+            serverTimestamp,
+            doc,
+            updateDoc,
+            arrayUnion,
+            signInAnonymously,
+            onAuthStateChanged
+        };
+
+        console.log("Firebase initialized successfully!");
+        
+        // Initialize app after Firebase is ready
+        window.firebaseReady = true;
+        if (window.initFirebaseApp) {
+            window.initFirebaseApp();
+        }
+    </script>
     
     <style>
         :root {
@@ -23,7 +72,7 @@
             --warning: #ff9500;
             --danger: #ff3b30;
             --online: #34c759;
-            --sidebar-width: 260px;
+            --sidebar-width: 280px;
         }
 
         * {
@@ -41,6 +90,102 @@
             display: flex;
         }
 
+        /* Auth Screen */
+        .auth-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-white);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .auth-box {
+            background: var(--bg-white);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid var(--border);
+        }
+
+        .auth-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            text-align: center;
+            color: var(--primary);
+        }
+
+        .auth-title i {
+            margin-right: 10px;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--primary);
+        }
+
+        .auth-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+
+        .auth-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .error-message {
+            color: var(--danger);
+            font-size: 14px;
+            text-align: center;
+            margin-top: 10px;
+            min-height: 20px;
+        }
+
         /* Loading Screen */
         .loading-screen {
             position: fixed;
@@ -53,7 +198,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
+            z-index: 1500;
             transition: opacity 0.3s;
         }
 
@@ -84,6 +229,7 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
+            transition: transform 0.3s;
         }
 
         .sidebar-header {
@@ -126,17 +272,32 @@
             font-size: 14px;
         }
 
-        .user-name {
+        .user-details {
             flex: 1;
+        }
+
+        .user-name {
             font-weight: 600;
             font-size: 14px;
         }
 
-        .user-status {
-            width: 8px;
-            height: 8px;
-            background: var(--online);
-            border-radius: 50%;
+        .user-role {
+            font-size: 12px;
+            color: var(--text-gray);
+            margin-top: 2px;
+        }
+
+        .logout-btn {
+            background: none;
+            border: none;
+            color: var(--text-gray);
+            cursor: pointer;
+            font-size: 16px;
+            transition: color 0.2s;
+        }
+
+        .logout-btn:hover {
+            color: var(--danger);
         }
 
         /* Search */
@@ -344,6 +505,12 @@
             margin-bottom: 12px;
             display: flex;
             flex-direction: column;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .message.received {
@@ -623,6 +790,36 @@
             transition: width 0.3s;
         }
 
+        /* Typing Indicator */
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 16px;
+            background: var(--bg-white);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            align-self: flex-start;
+            margin-bottom: 8px;
+            max-width: 120px;
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--text-gray);
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-6px); }
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .sidebar {
@@ -631,7 +828,6 @@
                 top: 0;
                 height: 100%;
                 transform: translateX(-100%);
-                transition: transform 0.3s;
                 z-index: 800;
             }
 
@@ -649,6 +845,10 @@
 
             .message {
                 max-width: 85%;
+            }
+            
+            .auth-box {
+                padding: 30px 20px;
             }
         }
 
@@ -672,6 +872,37 @@
     </style>
 </head>
 <body>
+    <!-- Auth Screen -->
+    <div class="auth-screen" id="authScreen">
+        <div class="auth-box">
+            <div class="auth-title">
+                <i class="fas fa-comments"></i>
+                Akademia Staff Chat
+            </div>
+            <form class="auth-form" id="authForm">
+                <div class="form-group">
+                    <label for="userName">Your Name</label>
+                    <input type="text" id="userName" placeholder="Enter your full name" required>
+                </div>
+                <div class="form-group">
+                    <label for="userRole">Your Role</label>
+                    <select id="userRole" required>
+                        <option value="">Select your role</option>
+                        <option value="Principal">Principal</option>
+                        <option value="Vice Principal">Vice Principal</option>
+                        <option value="Teacher">Teacher</option>
+                        <option value="Admin Staff">Admin Staff</option>
+                        <option value="Department Head">Department Head</option>
+                        <option value="Librarian">Librarian</option>
+                        <option value="Counselor">Counselor</option>
+                    </select>
+                </div>
+                <button type="submit" class="auth-btn">Enter Chat</button>
+                <div class="error-message" id="authError"></div>
+            </form>
+        </div>
+    </div>
+
     <!-- Loading Screen -->
     <div class="loading-screen" id="loadingScreen">
         <div class="loading-spinner"></div>
@@ -686,9 +917,14 @@
                 <span>Akademia Chat</span>
             </div>
             <div class="user-info">
-                <div class="user-avatar">JD</div>
-                <div class="user-name">John Doe</div>
-                <div class="user-status"></div>
+                <div class="user-avatar" id="userAvatar">JD</div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">John Doe</div>
+                    <div class="user-role" id="userRole">Principal</div>
+                </div>
+                <button class="logout-btn" id="logoutBtn" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
             </div>
         </div>
 
@@ -766,19 +1002,13 @@
     </div>
 
     <script>
-        // Firebase Configuration - using YOUR credentials
-        const firebaseConfig = {
-            apiKey: "AIzaSyA3gohTf1rzOYBBQCI-WD8ORoTK4DOf-fw",
-            authDomain: "akademia-c56ff.firebaseapp.com",
-            databaseURL: "https://akademia-c56ff-default-rtdb.firebaseio.com",
-            projectId: "akademia-c56ff",
-            storageBucket: "akademia-c56ff.firebasestorage.app",
-            messagingSenderId: "678278775270",
-            appId: "1:678278775270:web:ed5aee3d358d613c8cd627",
-            measurementId: "G-X3CHCJE5LK"
-        };
+        // ImgBB API Key
+        const IMGBB_API_KEY = '82d2010a938dfd0a780ff9e6c71e68a7';
 
         // DOM Elements
+        const authScreen = document.getElementById('authScreen');
+        const authForm = document.getElementById('authForm');
+        const authError = document.getElementById('authError');
         const loadingScreen = document.getElementById('loadingScreen');
         const sidebar = document.getElementById('sidebar');
         const chatArea = document.getElementById('chatArea');
@@ -790,6 +1020,10 @@
         const backBtn = document.getElementById('backBtn');
         const chatTitle = document.getElementById('chatTitle');
         const chatMembers = document.getElementById('chatMembers');
+        const userAvatar = document.getElementById('userAvatar');
+        const userNameDisplay = document.getElementById('userName');
+        const userRoleDisplay = document.getElementById('userRole');
+        const logoutBtn = document.getElementById('logoutBtn');
         const imageUploadBtn = document.getElementById('imageUploadBtn');
         const imageInput = document.getElementById('imageInput');
         const uploadPreview = document.getElementById('uploadPreview');
@@ -804,186 +1038,279 @@
         const closePreview = document.getElementById('closePreview');
 
         // App State
-        let currentUser = {
-            id: 'user_001',
-            name: 'John Doe',
-            avatar: 'JD',
-            role: 'Principal'
-        };
-        
+        let currentUser = null;
         let currentDepartment = null;
         let departments = [];
+        let messagesListener = null;
+        let departmentsListener = null;
+        let typingTimeout = null;
 
-        // Sample departments data
-        const sampleDepartments = [
+        // Default departments (will be fetched from Firebase)
+        const defaultDepartments = [
             {
                 id: 'admin-office',
                 name: 'Admin Office',
                 icon: 'fa-cogs',
                 color: '#8e44ad',
-                members: 6,
                 description: 'Administrative discussions',
-                lastMessage: 'Meeting at 3 PM tomorrow',
-                lastMessageTime: new Date(),
-                unread: 3
+                members: []
             },
             {
                 id: 'science-dept',
                 name: 'Science Department',
                 icon: 'fa-flask',
                 color: '#2ecc71',
-                members: 8,
                 description: 'Science faculty discussions',
-                lastMessage: 'Lab equipment update',
-                lastMessageTime: new Date(Date.now() - 86400000),
-                unread: 0
+                members: []
             },
             {
                 id: 'faculty-meeting',
                 name: 'Faculty Meeting',
                 icon: 'fa-chalkboard-teacher',
                 color: '#e74c3c',
-                members: 24,
                 description: 'All faculty members',
-                lastMessage: 'Monthly meeting agenda',
-                lastMessageTime: new Date(Date.now() - 172800000),
-                unread: 1
-            },
-            {
-                id: 'math-dept',
-                name: 'Mathematics Department',
-                icon: 'fa-calculator',
-                color: '#3498db',
-                members: 7,
-                description: 'Math faculty discussions',
-                lastMessage: 'New curriculum materials',
-                lastMessageTime: new Date(Date.now() - 259200000),
-                unread: 0
-            },
-            {
-                id: 'english-dept',
-                name: 'English Department',
-                icon: 'fa-book',
-                color: '#9b59b6',
-                members: 5,
-                description: 'English faculty discussions',
-                lastMessage: 'Book list finalized',
-                lastMessageTime: new Date(Date.now() - 345600000),
-                unread: 0
+                members: []
             }
         ];
 
-        // Initialize Firebase and App
-        function initializeApp() {
-            console.log("Starting app initialization...");
+        // Initialize Firebase App
+        function initFirebaseApp() {
+            console.log("Initializing Firebase app...");
             
-            try {
-                // Check if Firebase is available
-                if (typeof firebase === 'undefined') {
-                    console.error("Firebase SDK not loaded!");
-                    showError("Firebase SDK failed to load. Please refresh the page.");
-                    return;
-                }
-                
-                // Initialize Firebase
-                console.log("Initializing Firebase...");
-                firebase.initializeApp(firebaseConfig);
-                
-                // Check Firestore
-                if (!firebase.firestore) {
-                    console.error("Firestore not available!");
-                    // Continue with demo mode
-                    console.log("Continuing in demo mode...");
-                    startApp();
+            // Check if Firebase is ready
+            if (!window.firebaseReady || !window.firebaseModules) {
+                console.log("Firebase not ready yet, waiting...");
+                setTimeout(initFirebaseApp, 500);
+                return;
+            }
+
+            const { onAuthStateChanged, signInAnonymously } = window.firebaseModules;
+            const auth = window.firebaseAuth;
+            const db = window.firebaseDB;
+
+            // Check authentication state
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    console.log("User authenticated:", user.uid);
+                    // Check if we have user info in localStorage
+                    const savedUser = localStorage.getItem('akademia_chat_user');
+                    
+                    if (savedUser) {
+                        try {
+                            currentUser = JSON.parse(savedUser);
+                            currentUser.uid = user.uid;
+                            console.log("Loaded user from localStorage:", currentUser);
+                            startApp();
+                        } catch (error) {
+                            console.error("Error parsing saved user:", error);
+                            showAuthScreen();
+                        }
+                    } else {
+                        showAuthScreen();
+                    }
                 } else {
-                    console.log("Firebase initialized successfully!");
-                    // Test Firestore connection
-                    testFirestoreConnection();
+                    // Sign in anonymously
+                    signInAnonymously(auth)
+                        .then(() => {
+                            console.log("Signed in anonymously");
+                        })
+                        .catch((error) => {
+                            console.error("Anonymous sign-in error:", error);
+                            // Continue with demo mode
+                            showAuthScreen();
+                        });
                 }
-                
-            } catch (error) {
-                console.error("Firebase initialization error:", error);
-                // Continue with demo mode even if Firebase fails
-                console.log("Continuing in demo mode due to Firebase error...");
-                startApp();
-            }
+            });
         }
 
-        // Test Firestore Connection
-        function testFirestoreConnection() {
-            console.log("Testing Firestore connection...");
+        // Show Authentication Screen
+        function showAuthScreen() {
+            console.log("Showing auth screen");
+            authScreen.style.display = 'flex';
+            loadingScreen.classList.add('hidden');
             
-            try {
-                const db = firebase.firestore();
-                // Try a simple operation to test connection
-                db.collection('test').limit(1).get()
-                    .then(() => {
-                        console.log("Firestore connection successful!");
-                        startApp();
-                    })
-                    .catch((error) => {
-                        console.warn("Firestore connection test failed, using demo mode:", error);
-                        startApp();
-                    });
-            } catch (error) {
-                console.warn("Firestore test error, using demo mode:", error);
-                startApp();
+            // Setup auth form submit
+            authForm.addEventListener('submit', handleAuthSubmit);
+        }
+
+        // Handle Authentication
+        function handleAuthSubmit(event) {
+            event.preventDefault();
+            
+            const nameInput = document.getElementById('userName');
+            const roleInput = document.getElementById('userRole');
+            
+            const name = nameInput.value.trim();
+            const role = roleInput.value;
+            
+            // Validation
+            if (!name || name.length < 2) {
+                showAuthError('Please enter a valid name (at least 2 characters)');
+                return;
             }
+            
+            if (!role) {
+                showAuthError('Please select your role');
+                return;
+            }
+            
+            // Generate avatar from initials
+            const avatar = name.split(' ').map(n => n[0]).join('').toUpperCase().substr(0, 2);
+            
+            // Create user object
+            currentUser = {
+                uid: window.firebaseAuth?.currentUser?.uid || 'demo_' + Math.random().toString(36).substr(2, 9),
+                name: name,
+                role: role,
+                avatar: avatar,
+                lastLogin: new Date().toISOString()
+            };
+            
+            // Save to localStorage
+            localStorage.setItem('akademia_chat_user', JSON.stringify(currentUser));
+            console.log("User saved to localStorage:", currentUser);
+            
+            // Hide auth screen and start app
+            authScreen.style.display = 'none';
+            startApp();
         }
 
-        // Show Error Message
-        function showError(message) {
-            loadingScreen.innerHTML = `
-                <div style="color: var(--danger); margin-bottom: 20px;">
-                    <i class="fas fa-exclamation-triangle" style="font-size: 48px;"></i>
-                </div>
-                <p style="color: var(--danger); text-align: center; max-width: 300px;">${message}</p>
-                <button onclick="location.reload()" style="
-                    background: var(--primary);
-                    color: white;
-                    border: none;
-                    padding: 10px 20px;
-                    border-radius: 8px;
-                    margin-top: 20px;
-                    cursor: pointer;
-                ">
-                    Refresh Page
-                </button>
-            `;
+        // Show Auth Error
+        function showAuthError(message) {
+            authError.textContent = message;
+            setTimeout(() => {
+                authError.textContent = '';
+            }, 3000);
         }
 
-        // Start the Main App
+        // Start the Main Application
         function startApp() {
-            console.log("Starting main application...");
+            console.log("Starting main application for user:", currentUser);
             
-            // Load departments
+            // Update UI with user info
+            updateUserInfo();
+            
+            // Load departments from Firebase
             loadDepartments();
             
             // Setup event listeners
             setupEventListeners();
             
-            // Hide loading screen with smooth transition
+            // Hide loading screen
             setTimeout(() => {
                 loadingScreen.classList.add('hidden');
                 setTimeout(() => {
                     loadingScreen.style.display = 'none';
-                    console.log("App fully loaded!");
                 }, 300);
-            }, 1000);
+            }, 500);
         }
 
-        // Load Departments
-        function loadDepartments() {
-            console.log("Loading departments...");
+        // Update User Info in UI
+        function updateUserInfo() {
+            if (!currentUser) return;
             
-            // For demo, use sample departments
-            departments = [...sampleDepartments];
-            renderDepartments();
+            userAvatar.textContent = currentUser.avatar;
+            userNameDisplay.textContent = currentUser.name;
+            userRoleDisplay.textContent = currentUser.role;
+        }
+
+        // Load Departments from Firebase
+        async function loadDepartments() {
+            console.log("Loading departments from Firebase...");
             
-            // Simulate real-time updates
-            setInterval(() => {
-                simulateDepartmentUpdates();
-            }, 30000);
+            const db = window.firebaseDB;
+            const { collection, onSnapshot, doc, updateDoc, arrayUnion } = window.firebaseModules;
+            
+            if (!db) {
+                console.log("Firebase not available, using default departments");
+                departments = defaultDepartments;
+                renderDepartments();
+                return;
+            }
+            
+            try {
+                // Listen for departments in real-time
+                const departmentsRef = collection(db, 'departments');
+                departmentsListener = onSnapshot(departmentsRef, (snapshot) => {
+                    if (snapshot.empty) {
+                        // Create default departments if none exist
+                        createDefaultDepartments();
+                        return;
+                    }
+                    
+                    departments = [];
+                    snapshot.forEach((doc) => {
+                        const dept = { id: doc.id, ...doc.data() };
+                        departments.push(dept);
+                    });
+                    
+                    console.log("Departments loaded:", departments.length);
+                    renderDepartments();
+                    
+                    // Add current user to all departments if not already a member
+                    addUserToDepartments();
+                });
+                
+            } catch (error) {
+                console.error("Error loading departments:", error);
+                departments = defaultDepartments;
+                renderDepartments();
+            }
+        }
+
+        // Create default departments in Firebase
+        async function createDefaultDepartments() {
+            console.log("Creating default departments...");
+            
+            const db = window.firebaseDB;
+            const { collection, addDoc } = window.firebaseModules;
+            
+            if (!db) return;
+            
+            try {
+                for (const dept of defaultDepartments) {
+                    await addDoc(collection(db, 'departments'), {
+                        name: dept.name,
+                        icon: dept.icon,
+                        color: dept.color,
+                        description: dept.description,
+                        members: [],
+                        createdAt: new Date().toISOString()
+                    });
+                }
+                console.log("Default departments created");
+            } catch (error) {
+                console.error("Error creating departments:", error);
+            }
+        }
+
+        // Add current user to all departments
+        async function addUserToDepartments() {
+            if (!currentUser || !window.firebaseDB) return;
+            
+            const { doc, updateDoc, arrayUnion } = window.firebaseModules;
+            const db = window.firebaseDB;
+            
+            try {
+                for (const dept of departments) {
+                    const userInDept = dept.members?.some(member => member.uid === currentUser.uid);
+                    
+                    if (!userInDept) {
+                        const deptRef = doc(db, 'departments', dept.id);
+                        await updateDoc(deptRef, {
+                            members: arrayUnion({
+                                uid: currentUser.uid,
+                                name: currentUser.name,
+                                role: currentUser.role,
+                                avatar: currentUser.avatar
+                            })
+                        });
+                        console.log(`Added user to ${dept.name}`);
+                    }
+                }
+            } catch (error) {
+                console.error("Error adding user to departments:", error);
+            }
         }
 
         // Render Departments List
@@ -1005,31 +1332,57 @@
                 return;
             }
             
-            // Group by activity
-            const activeDepts = filteredDepts.filter(dept => 
-                new Date() - dept.lastMessageTime < 86400000
-            );
-            const olderDepts = filteredDepts.filter(dept => 
-                new Date() - dept.lastMessageTime >= 86400000
-            );
+            // Get last messages for each department
+            filteredDepts.forEach(dept => {
+                dept.lastMessage = getLastMessagePreview(dept.id);
+                dept.unread = getUnreadCount(dept.id);
+            });
+            
+            // Group by activity (recent messages)
+            const activeDepts = filteredDepts.filter(dept => dept.lastMessage);
+            const inactiveDepts = filteredDepts.filter(dept => !dept.lastMessage);
             
             if (activeDepts.length > 0) {
                 const section = document.createElement('div');
                 section.className = 'dept-section-title';
-                section.textContent = 'Active Today';
+                section.textContent = 'Active';
                 departmentsList.appendChild(section);
                 
                 activeDepts.forEach(dept => renderDepartmentItem(dept));
             }
             
-            if (olderDepts.length > 0) {
+            if (inactiveDepts.length > 0) {
                 const section = document.createElement('div');
                 section.className = 'dept-section-title';
-                section.textContent = 'Earlier';
+                section.textContent = 'Other Departments';
                 departmentsList.appendChild(section);
                 
-                olderDepts.forEach(dept => renderDepartmentItem(dept));
+                inactiveDepts.forEach(dept => renderDepartmentItem(dept));
             }
+        }
+
+        // Get last message preview for a department
+        function getLastMessagePreview(deptId) {
+            // This would normally come from Firebase
+            // For now, return sample messages
+            const samples = {
+                'admin-office': 'Meeting at 3 PM tomorrow',
+                'science-dept': 'Lab equipment update',
+                'faculty-meeting': 'Monthly meeting agenda'
+            };
+            return samples[deptId] || null;
+        }
+
+        // Get unread count for a department
+        function getUnreadCount(deptId) {
+            // This would normally come from Firebase
+            // For now, return random counts for demo
+            const counts = {
+                'admin-office': 3,
+                'science-dept': 0,
+                'faculty-meeting': 1
+            };
+            return counts[deptId] || 0;
         }
 
         // Render Single Department Item
@@ -1040,7 +1393,8 @@
                 item.classList.add('active');
             }
             
-            const timeAgo = getTimeAgo(dept.lastMessageTime);
+            const timeAgo = dept.lastMessageTime ? getTimeAgo(dept.lastMessageTime) : '';
+            const memberCount = dept.members?.length || 0;
             
             item.innerHTML = `
                 <div class="dept-icon" style="background: ${dept.color};">
@@ -1064,6 +1418,8 @@
         function selectDepartment(dept) {
             if (currentDepartment?.id === dept.id) return;
             
+            console.log("Selecting department:", dept.name);
+            
             // Remove active class from all items
             document.querySelectorAll('.dept-item').forEach(item => {
                 item.classList.remove('active');
@@ -1076,7 +1432,8 @@
             
             // Update UI
             chatTitle.textContent = dept.name;
-            chatMembers.textContent = `${dept.members} members • ${dept.description}`;
+            const memberCount = dept.members?.length || 0;
+            chatMembers.textContent = `${memberCount} members • ${dept.description}`;
             messageInput.placeholder = `Message ${dept.name}...`;
             messageInput.disabled = false;
             sendBtn.disabled = false;
@@ -1088,7 +1445,7 @@
             loadMessages(dept.id);
             
             // Mark as read
-            dept.unread = 0;
+            // updateUnreadCount(dept.id, 0);
             renderDepartments(searchInput.value);
             
             // On mobile, hide sidebar
@@ -1097,30 +1454,111 @@
             }
         }
 
-        // Load Messages
+        // Load Messages from Firebase
         function loadMessages(departmentId) {
-            // Clear previous messages
-            messagesContainer.innerHTML = '<div class="date-divider"><span>Today</span></div>';
+            // Unsubscribe from previous listener
+            if (messagesListener) {
+                messagesListener();
+            }
             
-            // Load sample messages
+            const db = window.firebaseDB;
+            const { collection, query, orderBy, onSnapshot } = window.firebaseModules;
+            
+            if (!db || !departmentId) {
+                console.log("Firebase not available or no department selected");
+                loadSampleMessages(departmentId);
+                return;
+            }
+            
+            try {
+                // Create query for messages in this department, ordered by timestamp
+                const messagesRef = collection(db, 'messages');
+                const messagesQuery = query(
+                    messagesRef,
+                    orderBy('timestamp', 'asc')
+                );
+                
+                // Listen for real-time updates
+                messagesListener = onSnapshot(messagesQuery, (snapshot) => {
+                    // Filter messages for current department
+                    const deptMessages = [];
+                    snapshot.forEach((doc) => {
+                        const msg = doc.data();
+                        if (msg.departmentId === departmentId) {
+                            deptMessages.push({
+                                id: doc.id,
+                                ...msg,
+                                timestamp: msg.timestamp?.toDate() || new Date()
+                            });
+                        }
+                    });
+                    
+                    // Render messages
+                    renderMessages(deptMessages);
+                });
+                
+            } catch (error) {
+                console.error("Error loading messages:", error);
+                loadSampleMessages(departmentId);
+            }
+        }
+
+        // Load sample messages (fallback)
+        function loadSampleMessages(departmentId) {
             const sampleMessages = getSampleMessages(departmentId);
-            sampleMessages.forEach(msg => renderMessage(msg));
+            renderMessages(sampleMessages);
+        }
+
+        // Render Messages
+        function renderMessages(messages) {
+            // Clear existing messages except date divider
+            const dateDivider = messagesContainer.querySelector('.date-divider');
+            messagesContainer.innerHTML = '';
+            if (dateDivider) {
+                messagesContainer.appendChild(dateDivider);
+            }
+            
+            // Sort messages by timestamp
+            messages.sort((a, b) => a.timestamp - b.timestamp);
+            
+            // Group messages by date
+            const messagesByDate = {};
+            messages.forEach(msg => {
+                const dateKey = msg.timestamp.toDateString();
+                if (!messagesByDate[dateKey]) {
+                    messagesByDate[dateKey] = [];
+                }
+                messagesByDate[dateKey].push(msg);
+            });
+            
+            // Render messages grouped by date
+            Object.keys(messagesByDate).forEach(dateKey => {
+                // Add date divider
+                if (Object.keys(messagesByDate).length > 1) {
+                    const dateDiv = document.createElement('div');
+                    dateDiv.className = 'date-divider';
+                    dateDiv.innerHTML = `<span>${formatDate(new Date(dateKey))}</span>`;
+                    messagesContainer.appendChild(dateDiv);
+                }
+                
+                // Render messages for this date
+                messagesByDate[dateKey].forEach(msg => {
+                    renderMessage(msg);
+                });
+            });
             
             // Scroll to bottom
             setTimeout(() => {
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }, 100);
-            
-            // Simulate new messages
-            simulateNewMessages(departmentId);
         }
 
-        // Render Message
+        // Render Single Message
         function renderMessage(msg) {
             const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${msg.senderId === currentUser.id ? 'sent' : 'received'}`;
+            messageDiv.className = `message ${msg.senderId === currentUser.uid ? 'sent' : 'received'}`;
             
-            const time = msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const time = formatTime(msg.timestamp);
             
             let contentHTML = '';
             if (msg.imageUrl) {
@@ -1135,7 +1573,7 @@
             }
             
             messageDiv.innerHTML = `
-                ${msg.senderId !== currentUser.id ? `<div class="message-sender">${msg.senderName}</div>` : ''}
+                ${msg.senderId !== currentUser.uid ? `<div class="message-sender">${msg.senderName}</div>` : ''}
                 ${contentHTML}
                 <div class="message-time">${time}</div>
             `;
@@ -1152,43 +1590,66 @@
             }
         }
 
-        // Send Message
-        function sendMessage() {
+        // Send Message to Firebase
+        async function sendMessage() {
             const text = messageInput.value.trim();
-            if (!text || !currentDepartment || !currentUser) return;
+            if (!text || !currentDepartment || !currentUser || !window.firebaseDB) return;
             
-            const message = {
-                text: text,
-                senderId: currentUser.id,
-                senderName: currentUser.name,
-                departmentId: currentDepartment.id,
-                timestamp: new Date(),
-                type: 'text'
-            };
+            const db = window.firebaseDB;
+            const { collection, addDoc, serverTimestamp } = window.firebaseModules;
             
-            // Render immediately
-            renderMessage(message);
-            
-            // Update department last message
-            const dept = departments.find(d => d.id === currentDepartment.id);
-            if (dept) {
-                dept.lastMessage = text.length > 30 ? text.substring(0, 30) + '...' : text;
-                dept.lastMessageTime = new Date();
-                renderDepartments(searchInput.value);
+            try {
+                const messageData = {
+                    text: text,
+                    senderId: currentUser.uid,
+                    senderName: currentUser.name,
+                    departmentId: currentDepartment.id,
+                    timestamp: serverTimestamp(),
+                    type: 'text'
+                };
+                
+                console.log("Sending message:", messageData);
+                
+                // Add message to Firebase
+                await addDoc(collection(db, 'messages'), messageData);
+                
+                // Clear input
+                messageInput.value = '';
+                
+                // Update department last message
+                updateDepartmentLastMessage(currentDepartment.id, text);
+                
+            } catch (error) {
+                console.error("Error sending message:", error);
+                alert("Failed to send message. Please try again.");
             }
+        }
+
+        // Update department's last message
+        async function updateDepartmentLastMessage(deptId, message) {
+            if (!window.firebaseDB) return;
             
-            // Clear input
-            messageInput.value = '';
+            const { doc, updateDoc } = window.firebaseModules;
+            const db = window.firebaseDB;
             
-            // Scroll to bottom
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            try {
+                const deptRef = doc(db, 'departments', deptId);
+                await updateDoc(deptRef, {
+                    lastMessage: message.length > 30 ? message.substring(0, 30) + '...' : message,
+                    lastMessageTime: new Date().toISOString()
+                });
+            } catch (error) {
+                console.error("Error updating department:", error);
+            }
         }
 
         // Upload Image to ImgBB
         async function uploadImageToImgBB(file) {
+            console.log("Uploading image to ImgBB...");
+            
             const formData = new FormData();
             formData.append('image', file);
-            formData.append('key', '82d2010a938dfd0a780ff9e6c71e68a7');
+            formData.append('key', IMGBB_API_KEY);
             
             try {
                 const response = await fetch('https://api.imgbb.com/1/upload', {
@@ -1199,6 +1660,7 @@
                 const data = await response.json();
                 
                 if (data.success) {
+                    console.log("Image uploaded successfully:", data.data.url);
                     return data.data.url;
                 } else {
                     throw new Error(data.error?.message || 'Upload failed');
@@ -1209,42 +1671,55 @@
             }
         }
 
-        // Send Image Message
+        // Send Image Message to Firebase
         async function sendImageMessage(imageUrl, caption = '') {
-            if (!currentDepartment || !currentUser) return;
+            if (!currentDepartment || !currentUser || !window.firebaseDB) return;
             
-            const message = {
-                text: caption,
-                imageUrl: imageUrl,
-                senderId: currentUser.id,
-                senderName: currentUser.name,
-                departmentId: currentDepartment.id,
-                timestamp: new Date(),
-                type: 'image'
-            };
+            const db = window.firebaseDB;
+            const { collection, addDoc, serverTimestamp } = window.firebaseModules;
             
-            // Render immediately
-            renderMessage(message);
-            
-            // Update department last message
-            const dept = departments.find(d => d.id === currentDepartment.id);
-            if (dept) {
-                dept.lastMessage = '📷 Image shared';
-                dept.lastMessageTime = new Date();
-                renderDepartments(searchInput.value);
+            try {
+                const messageData = {
+                    text: caption,
+                    imageUrl: imageUrl,
+                    senderId: currentUser.uid,
+                    senderName: currentUser.name,
+                    departmentId: currentDepartment.id,
+                    timestamp: serverTimestamp(),
+                    type: 'image'
+                };
+                
+                console.log("Sending image message:", messageData);
+                
+                // Add message to Firebase
+                await addDoc(collection(db, 'messages'), messageData);
+                
+                // Update department last message
+                updateDepartmentLastMessage(currentDepartment.id, '📷 Image shared');
+                
+            } catch (error) {
+                console.error("Error sending image message:", error);
+                alert("Failed to send image. Please try again.");
             }
-            
-            // Scroll to bottom
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
         // Setup Event Listeners
         function setupEventListeners() {
+            console.log("Setting up event listeners...");
+            
             // Send message on Enter
             messageInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     sendMessage();
+                }
+            });
+            
+            // Typing indicator
+            messageInput.addEventListener('input', () => {
+                // Show typing indicator (simulated)
+                if (messageInput.value.trim() && currentDepartment) {
+                    showTypingIndicator();
                 }
             });
             
@@ -1259,6 +1734,14 @@
             // Back button (mobile)
             backBtn.addEventListener('click', () => {
                 sidebar.classList.add('active');
+            });
+            
+            // Logout button
+            logoutBtn.addEventListener('click', () => {
+                if (confirm('Are you sure you want to logout?')) {
+                    localStorage.removeItem('akademia_chat_user');
+                    location.reload();
+                }
             });
             
             // Image upload
@@ -1333,12 +1816,48 @@
             // Responsive sidebar
             window.addEventListener('resize', handleResize);
             handleResize();
+            
+            console.log("Event listeners setup complete");
+        }
+
+        // Show typing indicator (simulated)
+        function showTypingIndicator() {
+            // Clear existing typing indicator
+            const existingTyping = messagesContainer.querySelector('.typing-indicator');
+            if (existingTyping) {
+                existingTyping.remove();
+            }
+            
+            // Clear previous timeout
+            if (typingTimeout) {
+                clearTimeout(typingTimeout);
+            }
+            
+            // Show typing indicator
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.innerHTML = `
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            `;
+            messagesContainer.appendChild(typingDiv);
+            
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Hide after 2 seconds
+            typingTimeout = setTimeout(() => {
+                typingDiv.remove();
+            }, 2000);
         }
 
         // Helper Functions
         function getTimeAgo(date) {
+            if (!date) return '';
             const now = new Date();
-            const diff = now - date;
+            const past = new Date(date);
+            const diff = now - past;
             
             if (diff < 60000) return 'just now';
             if (diff < 3600000) return `${Math.floor(diff / 60000)}m`;
@@ -1347,10 +1866,37 @@
             return `${Math.floor(diff / 604800000)}w`;
         }
 
+        function formatDate(date) {
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            
+            if (date.toDateString() === today.toDateString()) {
+                return 'Today';
+            } else if (date.toDateString() === yesterday.toDateString()) {
+                return 'Yesterday';
+            } else {
+                return date.toLocaleDateString('en-US', { 
+                    weekday: 'long', 
+                    month: 'short', 
+                    day: 'numeric' 
+                });
+            }
+        }
+
+        function formatTime(date) {
+            return date.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: true 
+            });
+        }
+
         function getSampleMessages(departmentId) {
             const samples = {
                 'admin-office': [
                     {
+                        id: '1',
                         text: 'Hi team, don\'t forget we have the meeting with the district superintendent tomorrow at 3 PM.',
                         senderId: 'user_002',
                         senderName: 'Sarah Chen',
@@ -1359,121 +1905,51 @@
                         type: 'text'
                     },
                     {
+                        id: '2',
                         text: 'I\'ve prepared the quarterly report. Can everyone review it before the meeting?',
                         senderId: 'user_003',
                         senderName: 'Michael Rodriguez',
                         departmentId: 'admin-office',
                         timestamp: new Date(Date.now() - 3300000),
                         type: 'text'
-                    },
-                    {
-                        text: 'I\'ll review it this morning.',
-                        senderId: 'user_001',
-                        senderName: 'John Doe',
-                        departmentId: 'admin-office',
-                        timestamp: new Date(Date.now() - 3000000),
-                        type: 'text'
                     }
                 ],
                 'science-dept': [
                     {
+                        id: '3',
                         text: 'The new lab equipment has arrived safely.',
                         senderId: 'user_004',
                         senderName: 'Dr. Smith',
                         departmentId: 'science-dept',
                         timestamp: new Date(Date.now() - 7200000),
                         type: 'text'
-                    },
-                    {
-                        text: 'Great! Let\'s schedule training sessions for next week.',
-                        senderId: 'user_001',
-                        senderName: 'John Doe',
-                        departmentId: 'science-dept',
-                        timestamp: new Date(Date.now() - 7000000),
-                        type: 'text'
                     }
                 ],
                 'faculty-meeting': [
                     {
+                        id: '4',
                         text: 'Monthly faculty meeting agenda has been posted.',
                         senderId: 'user_002',
                         senderName: 'Sarah Chen',
                         departmentId: 'faculty-meeting',
                         timestamp: new Date(Date.now() - 172800000),
                         type: 'text'
-                    },
-                    {
-                        text: 'Please review the new curriculum changes.',
-                        senderId: 'user_001',
-                        senderName: 'John Doe',
-                        departmentId: 'faculty-meeting',
-                        timestamp: new Date(Date.now() - 170000000),
-                        type: 'text'
                     }
                 ]
             };
             
-            return samples[departmentId] || [
-                {
-                    text: `Welcome to the ${departments.find(d => d.id === departmentId)?.name || 'department'} chat!`,
-                    senderId: 'system',
-                    senderName: 'System',
-                    departmentId: departmentId,
-                    timestamp: new Date(Date.now() - 86400000),
-                    type: 'text'
-                }
-            ];
-        }
-
-        function simulateDepartmentUpdates() {
-            // Randomly update a department's last message
-            if (departments.length > 0) {
-                const randomDept = departments[Math.floor(Math.random() * departments.length)];
-                if (randomDept && randomDept.id !== currentDepartment?.id) {
-                    const messages = [
-                        'Meeting agenda finalized',
-                        'New resources uploaded',
-                        'Please review the report',
-                        'Important announcement',
-                        'Schedule updated',
-                        'Document shared in drive',
-                        'Reminder: Deadline tomorrow',
-                        'New policy implemented'
-                    ];
-                    
-                    randomDept.lastMessage = messages[Math.floor(Math.random() * messages.length)];
-                    randomDept.lastMessageTime = new Date();
-                    randomDept.unread = (randomDept.unread || 0) + 1;
-                    
-                    renderDepartments(searchInput.value);
-                }
-            }
-        }
-
-        function simulateNewMessages(departmentId) {
-            // Simulate receiving new messages after a delay
-            if (departmentId === 'admin-office') {
-                setTimeout(() => {
-                    const msg = {
-                        text: 'Reminder: Budget reports are due by Friday.',
-                        senderId: 'user_002',
-                        senderName: 'Sarah Chen',
-                        departmentId: 'admin-office',
-                        timestamp: new Date(),
-                        type: 'text'
-                    };
-                    renderMessage(msg);
-                    
-                    const dept = departments.find(d => d.id === 'admin-office');
-                    if (dept && currentDepartment?.id !== 'admin-office') {
-                        dept.unread = (dept.unread || 0) + 1;
-                        renderDepartments(searchInput.value);
-                    }
-                    
-                    // Scroll to bottom
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                }, 15000);
-            }
+            // Add a welcome message from current user if they haven't messaged yet
+            const welcomeMsg = {
+                id: 'welcome',
+                text: `Hello everyone! I've joined the ${departmentId === 'admin-office' ? 'Admin Office' : departmentId === 'science-dept' ? 'Science Department' : 'Faculty Meeting'} chat.`,
+                senderId: currentUser.uid,
+                senderName: currentUser.name,
+                departmentId: departmentId,
+                timestamp: new Date(Date.now() - 60000),
+                type: 'text'
+            };
+            
+            return [welcomeMsg, ...(samples[departmentId] || [])];
         }
 
         function resetUploadUI() {
@@ -1492,21 +1968,13 @@
             }
         }
 
-        // Initialize the app when the page loads
-        window.addEventListener('DOMContentLoaded', () => {
-            console.log("DOM fully loaded, initializing app...");
-            initializeApp();
-        });
-
-        // Also try to initialize when window loads as a backup
-        window.addEventListener('load', () => {
-            console.log("Window fully loaded");
-            // If app hasn't initialized yet, try again
-            if (loadingScreen.style.display !== 'none') {
-                console.log("App not initialized yet, trying again...");
-                setTimeout(initializeApp, 1000);
-            }
-        });
+        // Set up Firebase initialization callback
+        window.initFirebaseApp = initFirebaseApp;
+        
+        // Start initialization if Firebase is already ready
+        if (window.firebaseReady) {
+            initFirebaseApp();
+        }
     </script>
 </body>
 </html>
