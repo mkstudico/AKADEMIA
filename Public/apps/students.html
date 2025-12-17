@@ -1,1 +1,3317 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Students Management | Akademia</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js"></script>
+    <style>
+        /* ===== APPLE DESIGN SYSTEM ===== */
+        :root {
+            /* Apple Color System */
+            --apple-blue: #007AFF;
+            --apple-blue-light: #5AC8FA;
+            --apple-blue-dark: #0056D6;
+            --apple-gray-1: #F5F5F7;
+            --apple-gray-2: #E5E5EA;
+            --apple-gray-3: #D1D1D6;
+            --apple-gray-4: #C7C7CC;
+            --apple-gray-5: #8E8E93;
+            --apple-gray-6: #48484A;
+            --apple-white: #FFFFFF;
+            --apple-black: #1D1D1F;
+            --apple-red: #FF3B30;
+            --apple-green: #34C759;
+            --apple-orange: #FF9500;
+            --apple-purple: #AF52DE;
+            
+            /* Typography */
+            --font-sf: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --font-size-xs: 12px;
+            --font-size-sm: 14px;
+            --font-size-base: 16px;
+            --font-size-lg: 18px;
+            --font-size-xl: 20px;
+            --font-size-2xl: 24px;
+            --font-size-3xl: 32px;
+            
+            /* Spacing */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+            --space-2xl: 48px;
+            
+            /* Border Radius */
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 18px;
+            --radius-xl: 24px;
+            --radius-full: 9999px;
+            
+            /* Shadows */
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.12);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
+            --shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+            
+            /* Transitions */
+            --transition-fast: 0.2s ease;
+            --transition-normal: 0.3s ease;
+            --transition-slow: 0.5s ease;
+            
+            /* Z-index layers */
+            --z-dropdown: 100;
+            --z-modal: 1000;
+            --z-popover: 2000;
+            --z-tooltip: 3000;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-sf);
+            background: var(--apple-gray-1);
+            color: var(--apple-black);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ===== HEADER SECTION ===== */
+        .header {
+            background: var(--apple-white);
+            border-bottom: 1px solid var(--apple-gray-2);
+            padding: var(--space-md) var(--space-xl);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .header-title {
+            font-size: var(--font-size-2xl);
+            font-weight: 700;
+            color: var(--apple-black);
+            letter-spacing: -0.5px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .profile-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--apple-blue), var(--apple-blue-light));
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--apple-white);
+            font-weight: 600;
+            font-size: var(--font-size-lg);
+            transition: all var(--transition-fast);
+        }
+
+        .profile-btn:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-md);
+        }
+
+        .settings-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--apple-gray-5);
+            transition: all var(--transition-fast);
+            position: relative;
+        }
+
+        .settings-btn:hover {
+            color: var(--apple-blue);
+            background: rgba(0, 122, 255, 0.1);
+        }
+
+        .settings-btn.glow {
+            animation: glow 2s infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(0, 122, 255, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(0, 122, 255, 0.8); }
+        }
+
+        /* ===== PROFILE DROPDOWN ===== */
+        .profile-dropdown {
+            position: absolute;
+            top: 70px;
+            right: var(--space-xl);
+            background: var(--apple-white);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            padding: var(--space-md);
+            width: 280px;
+            z-index: var(--z-dropdown);
+            display: none;
+            border: 1px solid var(--apple-gray-2);
+        }
+
+        .profile-dropdown.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding-bottom: var(--space-md);
+            border-bottom: 1px solid var(--apple-gray-2);
+        }
+
+        .profile-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--apple-blue), var(--apple-blue-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--apple-white);
+            font-size: var(--font-size-2xl);
+            font-weight: 600;
+        }
+
+        .profile-info h3 {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .profile-info p {
+            color: var(--apple-gray-5);
+            font-size: var(--font-size-sm);
+        }
+
+        .profile-menu {
+            list-style: none;
+            margin-top: var(--space-md);
+        }
+
+        .profile-menu li {
+            padding: var(--space-sm) 0;
+        }
+
+        .profile-menu a {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            color: var(--apple-black);
+            text-decoration: none;
+            padding: var(--space-sm) var(--space-sm);
+            border-radius: var(--radius-sm);
+            transition: all var(--transition-fast);
+        }
+
+        .profile-menu a:hover {
+            background: var(--apple-gray-1);
+            color: var(--apple-blue);
+        }
+
+        /* ===== MODAL OVERLAY ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: var(--z-modal);
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-normal);
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--apple-white);
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl);
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform var(--transition-normal);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-overlay.show .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-xl);
+        }
+
+        .modal-title {
+            font-size: var(--font-size-2xl);
+            font-weight: 700;
+            color: var(--apple-black);
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-sm);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--apple-gray-5);
+            transition: all var(--transition-fast);
+        }
+
+        .modal-close:hover {
+            background: var(--apple-gray-1);
+            color: var(--apple-black);
+        }
+
+        /* ===== SETTINGS MODAL ===== */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-lg);
+        }
+
+        .settings-card {
+            background: var(--apple-gray-1);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            border: 1px solid transparent;
+            transition: all var(--transition-normal);
+            cursor: pointer;
+        }
+
+        .settings-card:hover {
+            background: var(--apple-white);
+            border-color: var(--apple-blue);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .settings-card.danger:hover {
+            border-color: var(--apple-red);
+        }
+
+        .settings-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-md);
+            background: rgba(0, 122, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: var(--space-md);
+            color: var(--apple-blue);
+            font-size: var(--font-size-xl);
+        }
+
+        .settings-card.danger .settings-icon {
+            background: rgba(255, 59, 48, 0.1);
+            color: var(--apple-red);
+        }
+
+        .settings-card h3 {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            margin-bottom: var(--space-xs);
+        }
+
+        .settings-card p {
+            color: var(--apple-gray-5);
+            font-size: var(--font-size-sm);
+            line-height: 1.5;
+        }
+
+        /* ===== HERO SECTION ===== */
+        .hero-section {
+            padding: var(--space-xl);
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-lg);
+            margin-bottom: var(--space-xl);
+        }
+
+        .stat-card {
+            background: var(--apple-white);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--apple-gray-2);
+            transition: transform var(--transition-fast);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-md);
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            background: var(--apple-gray-1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--apple-blue);
+        }
+
+        .stat-value {
+            font-size: var(--font-size-3xl);
+            font-weight: 700;
+            margin-bottom: var(--space-xs);
+            color: var(--apple-black);
+        }
+
+        .stat-label {
+            color: var(--apple-gray-5);
+            font-size: var(--font-size-sm);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .gender-chart {
+            grid-column: span 2;
+            background: var(--apple-white);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--apple-gray-2);
+        }
+
+        .chart-container {
+            height: 200px;
+            position: relative;
+        }
+
+        /* ===== CLASSES SECTION ===== */
+        .classes-section {
+            padding: 0 var(--space-xl) var(--space-xl);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-lg);
+        }
+
+        .section-title {
+            font-size: var(--font-size-xl);
+            font-weight: 600;
+            color: var(--apple-black);
+        }
+
+        .search-box {
+            position: relative;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: var(--space-md) var(--space-md) var(--space-md) 44px;
+            border: 1px solid var(--apple-gray-2);
+            border-radius: var(--radius-lg);
+            font-size: var(--font-size-base);
+            background: var(--apple-white);
+            transition: all var(--transition-fast);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--apple-blue);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: var(--space-md);
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--apple-gray-4);
+        }
+
+        .btn-primary {
+            background: var(--apple-blue);
+            color: var(--apple-white);
+            border: none;
+            padding: var(--space-md) var(--space-lg);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            transition: all var(--transition-fast);
+        }
+
+        .btn-primary:hover {
+            background: var(--apple-blue-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--apple-gray-6);
+            border: 1px solid var(--apple-gray-3);
+            padding: var(--space-md) var(--space-lg);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            transition: all var(--transition-fast);
+        }
+
+        .btn-secondary:hover {
+            background: var(--apple-gray-1);
+            border-color: var(--apple-gray-4);
+        }
+
+        .btn-danger {
+            background: var(--apple-red);
+            color: var(--apple-white);
+            border: none;
+            padding: var(--space-md) var(--space-lg);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .btn-danger:hover {
+            background: #D70015;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .classes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: var(--space-lg);
+        }
+
+        .class-card {
+            background: var(--apple-white);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--apple-gray-2);
+            transition: all var(--transition-normal);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .class-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--apple-blue);
+        }
+
+        .class-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--apple-blue), var(--apple-blue-light));
+        }
+
+        .class-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-md);
+        }
+
+        .class-name {
+            font-size: var(--font-size-lg);
+            font-weight: 700;
+            color: var(--apple-black);
+        }
+
+        .class-level {
+            color: var(--apple-gray-5);
+            font-size: var(--font-size-sm);
+        }
+
+        .class-stats {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .class-stat {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-number {
+            font-size: var(--font-size-2xl);
+            font-weight: 700;
+            color: var(--apple-black);
+        }
+
+        .stat-label-small {
+            font-size: var(--font-size-xs);
+            color: var(--apple-gray-5);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ===== SUB-MODALS ===== */
+        .sub-modal {
+            background: var(--apple-white);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            max-width: 500px;
+            width: 90%;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group {
+            margin-bottom: var(--space-lg);
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: var(--space-sm);
+            font-weight: 600;
+            color: var(--apple-black);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: var(--space-md);
+            border: 1px solid var(--apple-gray-2);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            transition: all var(--transition-fast);
+            background: var(--apple-white);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--apple-blue);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: var(--space-md);
+            border: 1px solid var(--apple-gray-2);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            background: var(--apple-white);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: var(--apple-blue);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-sm);
+            cursor: pointer;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .combinations-search {
+            position: relative;
+            margin-bottom: var(--space-md);
+        }
+
+        .combinations-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid var(--apple-gray-2);
+            border-radius: var(--radius-md);
+            margin-top: var(--space-sm);
+        }
+
+        .combination-item {
+            padding: var(--space-sm) var(--space-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .combination-item:hover {
+            background: var(--apple-gray-1);
+        }
+
+        .combination-item.selected {
+            background: rgba(0, 122, 255, 0.1);
+            color: var(--apple-blue);
+        }
+
+        /* ===== CLASS DETAIL VIEW ===== */
+        .class-detail-view {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--apple-white);
+            z-index: var(--z-modal);
+            transform: translateX(100%);
+            transition: transform var(--transition-normal);
+            overflow-y: auto;
+        }
+
+        .class-detail-view.active {
+            transform: translateX(0);
+        }
+
+        .class-detail-header {
+            padding: var(--space-xl);
+            background: var(--apple-gray-1);
+            border-bottom: 1px solid var(--apple-gray-2);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            background: transparent;
+            border: none;
+            color: var(--apple-blue);
+            font-size: var(--font-size-base);
+            cursor: pointer;
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-md);
+            transition: all var(--transition-fast);
+        }
+
+        .back-btn:hover {
+            background: rgba(0, 122, 255, 0.1);
+        }
+
+        .students-table {
+            padding: var(--space-xl);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--apple-gray-2);
+            background: var(--apple-white);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        thead {
+            background: var(--apple-gray-1);
+        }
+
+        th {
+            padding: var(--space-md);
+            text-align: left;
+            font-weight: 600;
+            color: var(--apple-gray-6);
+            border-bottom: 1px solid var(--apple-gray-2);
+        }
+
+        td {
+            padding: var(--space-md);
+            border-bottom: 1px solid var(--apple-gray-2);
+        }
+
+        tbody tr {
+            transition: all var(--transition-fast);
+            cursor: pointer;
+        }
+
+        tbody tr:hover {
+            background: var(--apple-gray-1);
+        }
+
+        .student-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--apple-blue), var(--apple-blue-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--apple-white);
+            font-weight: 600;
+        }
+
+        /* ===== STUDENT DETAIL MODAL ===== */
+        .student-modal {
+            max-width: 600px;
+            width: 90%;
+        }
+
+        .student-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-lg);
+            margin-bottom: var(--space-xl);
+        }
+
+        .student-avatar-large {
+            width: 100px;
+            height: 100px;
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--apple-blue), var(--apple-blue-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--apple-white);
+            font-size: var(--font-size-3xl);
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .student-avatar-large img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .upload-btn {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-full);
+            background: var(--apple-blue);
+            color: var(--apple-white);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-sm);
+        }
+
+        .student-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-lg);
+        }
+
+        .info-group h4 {
+            color: var(--apple-gray-5);
+            font-size: var(--font-size-sm);
+            margin-bottom: var(--space-xs);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-group p {
+            font-size: var(--font-size-base);
+            color: var(--apple-black);
+            font-weight: 500;
+        }
+
+        /* ===== EXCEL UPLOAD ===== */
+        .upload-area {
+            border: 2px dashed var(--apple-gray-3);
+            border-radius: var(--radius-lg);
+            padding: var(--space-2xl);
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            margin-bottom: var(--space-lg);
+        }
+
+        .upload-area:hover {
+            border-color: var(--apple-blue);
+            background: rgba(0, 122, 255, 0.02);
+        }
+
+        .upload-area.dragover {
+            border-color: var(--apple-blue);
+            background: rgba(0, 122, 255, 0.05);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: var(--apple-gray-4);
+            margin-bottom: var(--space-md);
+        }
+
+        .download-template {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-sm);
+            color: var(--apple-blue);
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: var(--space-md);
+        }
+
+        /* ===== CONFIRMATION MODALS ===== */
+        .confirmation-modal {
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .confirmation-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: var(--radius-full);
+            background: rgba(255, 59, 48, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--space-lg);
+            color: var(--apple-red);
+            font-size: var(--font-size-2xl);
+        }
+
+        .confirmation-text {
+            margin-bottom: var(--space-lg);
+            color: var(--apple-gray-6);
+            line-height: 1.6;
+        }
+
+        .confirmation-input {
+            text-align: center;
+            font-size: var(--font-size-lg);
+            letter-spacing: 1px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: var(--space-md);
+            justify-content: center;
+            margin-top: var(--space-xl);
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 768px) {
+            .header {
+                padding: var(--space-md);
+            }
+            
+            .hero-section,
+            .classes-section {
+                padding: var(--space-md);
+            }
+            
+            .hero-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .gender-chart {
+                grid-column: span 1;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                gap: var(--space-md);
+                align-items: stretch;
+            }
+            
+            .classes-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                padding: var(--space-lg);
+            }
+            
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ===== LOADING STATES ===== */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--apple-gray-3);
+            border-top-color: var(--apple-blue);
+            border-radius: var(--radius-full);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: var(--space-2xl);
+            color: var(--apple-gray-5);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: var(--space-md);
+            opacity: 0.5;
+        }
+
+        /* ===== UTILITY CLASSES ===== */
+        .hidden {
+            display: none !important;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mb-sm { margin-bottom: var(--space-sm); }
+        .mb-md { margin-bottom: var(--space-md); }
+        .mb-lg { margin-bottom: var(--space-lg); }
+        .mb-xl { margin-bottom: var(--space-xl); }
+
+        .mt-sm { margin-top: var(--space-sm); }
+        .mt-md { margin-top: var(--space-md); }
+        .mt-lg { margin-top: var(--space-lg); }
+        .mt-xl { margin-top: var(--space-xl); }
+    </style>
+</head>
+<body>
+    <!-- ===== HEADER ===== -->
+    <header class="header">
+        <div class="header-left">
+            <h1 class="header-title">STUDENTS</h1>
+        </div>
+        <div class="header-right">
+            <button class="settings-btn glow" onclick="openSettings()">
+                <i class="fas fa-cog"></i>
+            </button>
+            <button class="profile-btn" onclick="toggleProfile()">A</button>
+        </div>
+    </header>
+
+    <!-- ===== PROFILE DROPDOWN ===== -->
+    <div class="profile-dropdown" id="profileDropdown">
+        <div class="profile-header">
+            <div class="profile-avatar">A</div>
+            <div class="profile-info">
+                <h3 id="profileName">Administrator</h3>
+                <p id="profileRole">School Admin</p>
+            </div>
+        </div>
+        <ul class="profile-menu">
+            <li><a href="#"><i class="fas fa-user"></i> My Profile</a></li>
+            <li><a href="#"><i class="fas fa-bell"></i> Notifications</a></li>
+            <li><a href="#"><i class="fas fa-cog"></i> Account Settings</a></li>
+            <li><a href="#"><i class="fas fa-question-circle"></i> Help & Support</a></li>
+            <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </div>
+
+    <!-- ===== HERO SECTION ===== -->
+    <section class="hero-section">
+        <div class="hero-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-trend">
+                        <span style="color: var(--apple-green);">↑ 12%</span>
+                    </div>
+                </div>
+                <div class="stat-value" id="totalStudents">0</div>
+                <div class="stat-label">Total Students</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-male"></i>
+                    </div>
+                </div>
+                <div class="stat-value" id="totalBoys">0</div>
+                <div class="stat-label">Boys</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-female"></i>
+                    </div>
+                </div>
+                <div class="stat-value" id="totalGirls">0</div>
+                <div class="stat-label">Girls</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                </div>
+                <div class="stat-value" id="totalClasses">0</div>
+                <div class="stat-label">Classes</div>
+            </div>
+
+            <div class="gender-chart">
+                <h3 style="margin-bottom: var(--space-lg);">Gender Distribution</h3>
+                <div class="chart-container">
+                    <canvas id="genderChart"></canvas>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                </div>
+                <div class="stat-value" id="currentTerm">Term I</div>
+                <div class="stat-label">Current Term</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CLASSES SECTION ===== -->
+    <section class="classes-section">
+        <div class="section-header">
+            <h2 class="section-title">Classes</h2>
+            <div style="display: flex; gap: var(--space-md); align-items: center;">
+                <div class="search-box">
+                    <input type="text" class="search-input" placeholder="Search classes..." onkeyup="searchClasses(this.value)">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+                <button class="btn-primary" onclick="openAddClassModal()">
+                    <i class="fas fa-plus"></i>
+                    ADD CLASS
+                </button>
+            </div>
+        </div>
+
+        <div class="classes-grid" id="classesGrid">
+            <!-- Classes will be populated here -->
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+                <h3>No Classes Yet</h3>
+                <p>Start by adding your first class</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== SETTINGS MODAL ===== -->
+    <div class="modal-overlay" id="settingsModal" onclick="closeModal(event, 'settingsModal')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 class="modal-title">System Settings</h2>
+                <button class="modal-close" onclick="closeModal(event, 'settingsModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="settings-grid">
+                <div class="settings-card" onclick="openRemoveStudentModal()">
+                    <div class="settings-icon">
+                        <i class="fas fa-user-minus"></i>
+                    </div>
+                    <h3>Remove Student</h3>
+                    <p>Remove a specific student from the system</p>
+                </div>
+
+                <div class="settings-card" onclick="openCurrentTermModal()">
+                    <div class="settings-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <h3>Current Term</h3>
+                    <p>Set the current academic term and year</p>
+                </div>
+
+                <div class="settings-card" onclick="openPromotionModal()">
+                    <div class="settings-icon">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <h3>Go to Next Grade</h3>
+                    <p>Promote students to the next academic year</p>
+                </div>
+
+                <div class="settings-card danger" onclick="openDeleteAllModal()">
+                    <div class="settings-icon">
+                        <i class="fas fa-trash-alt"></i>
+                    </div>
+                    <h3>Delete All Data</h3>
+                    <p>Permanently delete all student data (dangerous)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== REMOVE STUDENT MODAL ===== -->
+    <div class="modal-overlay" id="removeStudentModal" onclick="closeModal(event, 'removeStudentModal')">
+        <div class="modal-content sub-modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 class="modal-title">Remove Student</h2>
+                <button class="modal-close" onclick="closeModal(event, 'removeStudentModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="removeStudentForm" onsubmit="removeStudent(event)">
+                <div class="form-group">
+                    <label class="form-label" for="studentName">Student Name</label>
+                    <input type="text" class="form-input" id="studentName" placeholder="Enter student full name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="studentClass">Class</label>
+                    <select class="form-select" id="studentClass" required>
+                        <option value="">Select Class</option>
+                        <!-- Classes will be populated -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="studentRegNo">Registration Number (Optional)</label>
+                    <input type="text" class="form-input" id="studentRegNo" placeholder="Enter registration number">
+                </div>
+                <div class="button-group">
+                    <button type="button" class="btn-secondary" onclick="closeModal(event, 'removeStudentModal')">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn-danger">
+                        <i class="fas fa-trash-alt"></i>
+                        Remove Student
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== CURRENT TERM MODAL ===== -->
+    <div class="modal-overlay" id="currentTermModal" onclick="closeModal(event, 'currentTermModal')">
+        <div class="modal-content sub-modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 class="modal-title">Set Current Term</h2>
+                <button class="modal-close" onclick="closeModal(event, 'currentTermModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="currentTermForm" onsubmit="setCurrentTerm(event)">
+                <div class="form-group">
+                    <label class="form-label" for="term">Term</label>
+                    <select class="form-select" id="term" required>
+                        <option value="I">Term I</option>
+                        <option value="II">Term II</option>
+                        <option value="III">Term III</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="academicYear">Academic Year</label>
+                    <input type="text" class="form-input" id="academicYear" placeholder="e.g., 2024-2025" required>
+                </div>
+                <div class="button-group">
+                    <button type="button" class="btn-secondary" onclick="closeModal(event, 'currentTermModal')">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i>
+                        Save Term
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== PROMOTION MODAL ===== -->
+    <div class="modal-overlay" id="promotionModal" onclick="closeModal(event, 'promotionModal')">
+        <div class="modal-content" style="max-width: 700px;" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 class="modal-title">Promote Students to Next Grade</h2>
+                <button class="modal-close" onclick="closeModal(event, 'promotionModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="mb-lg">
+                <p style="color: var(--apple-gray-5);">Select classes to promote. Students will move to the next grade level.</p>
+            </div>
+            
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="selectAllClasses" onchange="toggleAllClasses()">
+                    <label for="selectAllClasses">Select All Classes</label>
+                </div>
+            </div>
+
+            <div id="promotionClassesList" style="max-height: 300px; overflow-y: auto; border: 1px solid var(--apple-gray-2); border-radius: var(--radius-md); padding: var(--space-md);">
+                <!-- Classes will be populated here -->
+                <div class="empty-state">
+                    <p>No classes available</p>
+                </div>
+            </div>
+
+            <div class="form-group mb-lg">
+                <label class="form-label">Exceptions (Students to exclude from promotion)</label>
+                <div style="display: flex; gap: var(--space-sm);">
+                    <input type="text" class="form-input" id="exceptionSearch" placeholder="Search students to exclude...">
+                    <button type="button" class="btn-secondary" onclick="searchExceptions()">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                <div id="exceptionsList" class="mt-md" style="max-height: 200px; overflow-y: auto;">
+                    <!-- Exceptions will be populated here -->
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="button" class="btn-secondary" onclick="closeModal(event, 'promotionModal')">
+                    Cancel
+                </button>
+                <button type="button" class="btn-primary" onclick="promoteStudents()">
+                    <i class="fas fa-arrow-up"></i>
+                    Promote Selected
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== DELETE ALL MODAL (STEP 1) ===== -->
+    <div class="modal-overlay" id="deleteAllModal1" onclick="closeModal(event, 'deleteAllModal1')">
+        <div class="modal-content sub-modal confirmation-modal" onclick="event.stopPropagation()">
+            <div class="confirmation-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h2 class="modal-title text-center">Danger Zone</h2>
+            <p class="confirmation-text">
+                You are about to delete all student data. This action cannot be undone. 
+                Are you sure you want to proceed?
+            </p>
+            <div class="button-group">
+                <button type="button" class="btn-secondary" onclick="closeModal(event, 'deleteAllModal1')">
+                    No, Cancel
+                </button>
+                <button type="button" class="btn-danger" onclick="showDeleteAllStep2()">
+                    Yes, Proceed
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== DELETE ALL MODAL (STEP 2) ===== -->
+    <div class="modal-overlay" id="deleteAllModal2" onclick="closeModal(event, 'deleteAllModal2')">
+        <div class="modal-content sub-modal" style="max-width: 500px;" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 class="modal-title">Delete All Students</h2>
+                <button class="modal-close" onclick="closeModal(event, 'deleteAllModal2')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="mb-lg">
+                <p style="color: var(--apple-red); font-weight: 600;">
+                    <i class="fas fa-exclamation-circle"></i>
+                    Final Warning: This will permanently delete all data
+                </p>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Select Classes to Delete</label>
+                <div class="checkbox-group mb-sm">
+                    <input type="checkbox" id="deleteAllClasses" onchange="toggleDeleteAllClasses()">
+                    <label for="deleteAllClasses">Select All Classes</label>
+                </div>
+                <div id="deleteClassesList" style="max-height: 200px; overflow-y: auto; border: 1px solid var(--apple-gray-2); border-radius: var(--radius-md); padding: var(--space-md);">
+                    <!-- Classes will be populated -->
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">
+                    Type "DELETE ALL STUDENTS" to confirm
+                </label>
+                <input type="text" class="form-input confirmation-input" id="deleteConfirmation" 
+                       placeholder="DELETE ALL STUDENTS" oninput="validateDeleteConfirmation()">
+            </div>
+
+            <div class="button-group">
+                <button type="button" class="btn-secondary" onclick="closeModal(event, 'deleteAllModal2')">
+                    Cancel
+                </button>
+                <button type="button" class="btn-danger" id="finalDeleteBtn" disabled onclick="deleteAllStudents()">
+                    <i class="fas fa-trash-alt"></i>
+                    Delete Permanently
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ADD CLASS MODAL ===== -->
+    <div class="modal-overlay" id="addClassModal" onclick="closeModal(event, 'addClassModal')">
+        <div class="modal-content sub-modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 class="modal-title">Add New Class</h2>
+                <button class="modal-close" onclick="closeModal(event, 'addClassModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="addClassForm" onsubmit="addClass(event)">
+                <div class="form-group">
+                    <label class="form-label" for="classLevel">Class Level</label>
+                    <select class="form-select" id="classLevel" onchange="handleLevelChange()" required>
+                        <option value="">Select Level</option>
+                        <option value="Nursery">Nursery</option>
+                        <option value="Primary">Primary</option>
+                        <option value="Senior">Senior</option>
+                        <option value="Grade">Grade</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="classLevelNo">Class Level Number</label>
+                    <select class="form-select" id="classLevelNo" required>
+                        <option value="">Select Number</option>
+                        <!-- Options will be populated based on level -->
+                    </select>
+                </div>
+
+                <div class="form-group hidden" id="combinationGroup">
+                    <label class="form-label" for="combinationSearch">Combination</label>
+                    <div class="combinations-search">
+                        <input type="text" class="form-input" id="combinationSearch" 
+                               placeholder="Search combinations..." onkeyup="searchCombinations()">
+                    </div>
+                    <div class="combinations-list" id="combinationsList">
+                        <!-- Combinations will be populated -->
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="subClass">Sub-class</label>
+                    <select class="form-select" id="subClass">
+                        <option value="">None</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                        <option value="E">E</option>
+                        <option value="F">F</option>
+                        <option value="G">G</option>
+                        <option value="H">H</option>
+                        <option value="I">I</option>
+                        <option value="J">J</option>
+                    </select>
+                </div>
+
+                <div class="button-group">
+                    <button type="button" class="btn-secondary" onclick="closeModal(event, 'addClassModal')">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Add Class
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== CLASS DETAIL VIEW ===== -->
+    <div class="class-detail-view" id="classDetailView">
+        <div class="class-detail-header">
+            <button class="back-btn" onclick="closeClassDetail()">
+                <i class="fas fa-arrow-left"></i>
+                Back to Classes
+            </button>
+            <div style="display: flex; align-items: center; gap: var(--space-md);">
+                <h2 id="detailClassName">Class Name</h2>
+                <button class="btn-primary" onclick="openAddStudentModal()">
+                    <i class="fas fa-user-plus"></i>
+                    ADD STUDENTS
+                </button>
+            </div>
+        </div>
+
+        <div class="students-table">
+            <div class="section-header">
+                <div class="search-box">
+                    <input type="text" class="search-input" placeholder="Search students..." 
+                           onkeyup="searchStudents(this.value)">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Student</th>
+                            <th>Reg No</th>
+                            <th>Gender</th>
+                            <th>Date of Birth</th>
+                            <th>Father's Name</th>
+                            <th>Mother's Name</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentsTableBody">
+                        <!-- Students will be populated -->
+                        <tr>
+                            <td colspan="8" class="empty-state">
+                                <p>No students in this class</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ADD STUDENT MODAL ===== -->
+    <div class="modal-overlay" id="addStudentModal" onclick="closeModal(event, 'addStudentModal')">
+        <div class="modal-content" style="max-width: 800px;" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 class="modal-title">Add Students</h2>
+                <button class="modal-close" onclick="closeModal(event, 'addStudentModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div style="display: flex; gap: var(--space-md); margin-bottom: var(--space-xl);">
+                <button class="btn-primary" onclick="showManualForm()" style="flex: 1;">
+                    <i class="fas fa-user-plus"></i>
+                    Add Manually
+                </button>
+                <button class="btn-secondary" onclick="showExcelForm()" style="flex: 1;">
+                    <i class="fas fa-file-excel"></i>
+                    Upload Excel
+                </button>
+            </div>
+
+            <!-- Manual Form -->
+            <div id="manualForm">
+                <form id="addStudentManualForm" onsubmit="addStudentManually(event)">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--space-lg);">
+                        <div class="form-group">
+                            <label class="form-label" for="fullName">Full Name *</label>
+                            <input type="text" class="form-input" id="fullName" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="gender">Gender *</label>
+                            <select class="form-select" id="gender" required>
+                                <option value="">Select</option>
+                                <option value="M">Male</option>
+                                <option value="F">Female</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="dob">Date of Birth *</label>
+                            <input type="date" class="form-input" id="dob" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="regNo">Registration Number</label>
+                            <input type="text" class="form-input" id="regNo">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="fatherName">Father's Name</label>
+                            <input type="text" class="form-input" id="fatherName">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="fatherPhone">Father's Phone</label>
+                            <input type="tel" class="form-input" id="fatherPhone">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="motherName">Mother's Name</label>
+                            <input type="text" class="form-input" id="motherName">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="motherPhone">Mother's Phone</label>
+                            <input type="tel" class="form-input" id="motherPhone">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="guardianName">Guardian Name</label>
+                            <input type="text" class="form-input" id="guardianName">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="guardianPhone">Guardian Phone</label>
+                            <input type="tel" class="form-input" id="guardianPhone">
+                        </div>
+                    </div>
+                    <div class="button-group mt-lg">
+                        <button type="button" class="btn-secondary" onclick="closeModal(event, 'addStudentModal')">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i>
+                            Add Student
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Excel Form -->
+            <div id="excelForm" style="display: none;">
+                <div class="upload-area" id="uploadArea" 
+                     ondragover="handleDragOver(event)" 
+                     ondragleave="handleDragLeave(event)" 
+                     ondrop="handleDrop(event)">
+                    <div class="upload-icon">
+                        <i class="fas fa-file-excel"></i>
+                    </div>
+                    <h3>Upload Excel File</h3>
+                    <p>Drag & drop your Excel file here or click to browse</p>
+                    <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" style="display: none;" onchange="handleFileSelect(event)">
+                    <button type="button" class="btn-secondary mt-md" onclick="document.getElementById('excelFile').click()">
+                        <i class="fas fa-upload"></i>
+                        Browse Files
+                    </button>
+                </div>
+
+                <a href="#" class="download-template" onclick="downloadTemplate()">
+                    <i class="fas fa-download"></i>
+                    Download Template
+                </a>
+
+                <div id="uploadPreview" class="mt-lg" style="display: none;">
+                    <h4 style="margin-bottom: var(--space-md);">Preview (First 5 rows)</h4>
+                    <div class="table-container">
+                        <table id="previewTable">
+                            <thead>
+                                <tr>
+                                    <th>Full Name</th>
+                                    <th>Gender</th>
+                                    <th>Date of Birth</th>
+                                    <th>Reg No</th>
+                                </tr>
+                            </thead>
+                            <tbody id="previewBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="button-group mt-lg">
+                        <button type="button" class="btn-secondary" onclick="cancelUpload()">
+                            Cancel
+                        </button>
+                        <button type="button" class="btn-primary" onclick="uploadExcel()">
+                            <i class="fas fa-upload"></i>
+                            Upload Students
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== STUDENT DETAIL MODAL ===== -->
+    <div class="modal-overlay" id="studentDetailModal" onclick="closeModal(event, 'studentDetailModal')">
+        <div class="modal-content student-modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 class="modal-title">Student Details</h2>
+                <button class="modal-close" onclick="closeModal(event, 'studentDetailModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="student-header">
+                <div class="student-avatar-large" id="studentAvatarLarge">
+                    <span id="avatarInitials">JD</span>
+                    <button class="upload-btn" onclick="uploadStudentImage()">
+                        <i class="fas fa-camera"></i>
+                    </button>
+                </div>
+                <div style="flex: 1;">
+                    <h2 id="studentFullName">John Doe</h2>
+                    <p id="studentClassInfo" style="color: var(--apple-gray-5);">Class: S4 A</p>
+                    <p id="studentRegInfo">Reg No: 2024-001</p>
+                </div>
+            </div>
+
+            <div class="student-info-grid">
+                <div class="info-group">
+                    <h4>Personal Information</h4>
+                    <p><strong>Gender:</strong> <span id="studentGender">Male</span></p>
+                    <p><strong>Date of Birth:</strong> <span id="studentDOB">2008-05-15</span></p>
+                    <p><strong>Age:</strong> <span id="studentAge">16 years</span></p>
+                </div>
+
+                <div class="info-group">
+                    <h4>Contact Information</h4>
+                    <p><strong>Address:</strong> <span id="studentAddress">Not specified</span></p>
+                    <p><strong>Phone:</strong> <span id="studentPhone">Not specified</span></p>
+                    <p><strong>Email:</strong> <span id="studentEmail">Not specified</span></p>
+                </div>
+
+                <div class="info-group">
+                    <h4>Father's Information</h4>
+                    <p><strong>Name:</strong> <span id="studentFatherName">John Doe Sr.</span></p>
+                    <p><strong>Phone:</strong> <span id="studentFatherPhone">+256 700 000 000</span></p>
+                </div>
+
+                <div class="info-group">
+                    <h4>Mother's Information</h4>
+                    <p><strong>Name:</strong> <span id="studentMotherName">Jane Doe</span></p>
+                    <p><strong>Phone:</strong> <span id="studentMotherPhone">+256 700 000 001</span></p>
+                </div>
+
+                <div class="info-group">
+                    <h4>Guardian Information</h4>
+                    <p><strong>Name:</strong> <span id="studentGuardianName">Not specified</span></p>
+                    <p><strong>Phone:</strong> <span id="studentGuardianPhone">Not specified</span></p>
+                    <p><strong>Relationship:</strong> <span id="studentGuardianRel">Not specified</span></p>
+                </div>
+
+                <div class="info-group">
+                    <h4>Academic Information</h4>
+                    <p><strong>Enrollment Date:</strong> <span id="studentEnrollmentDate">2024-01-15</span></p>
+                    <p><strong>Status:</strong> <span id="studentStatus" style="color: var(--apple-green);">Active</span></p>
+                    <p><strong>Last Updated:</strong> <span id="studentUpdated">2024-10-20</span></p>
+                </div>
+            </div>
+
+            <div class="button-group mt-xl">
+                <button type="button" class="btn-secondary" onclick="closeModal(event, 'studentDetailModal')">
+                    Close
+                </button>
+                <button type="button" class="btn-primary" onclick="editStudent()">
+                    <i class="fas fa-edit"></i>
+                    Edit Student
+                </button>
+                <button type="button" class="btn-danger" onclick="deleteStudent()">
+                    <i class="fas fa-trash-alt"></i>
+                    Remove
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== IMAGE UPLOAD MODAL ===== -->
+    <div class="modal-overlay" id="imageUploadModal" onclick="closeModal(event, 'imageUploadModal')">
+        <div class="modal-content sub-modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 class="modal-title">Upload Profile Image</h2>
+                <button class="modal-close" onclick="closeModal(event, 'imageUploadModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="upload-area" style="margin-bottom: var(--space-lg);" 
+                 onclick="document.getElementById('imageFile').click()">
+                <div class="upload-icon">
+                    <i class="fas fa-image"></i>
+                </div>
+                <h3>Click to select image</h3>
+                <p>JPG, PNG up to 5MB</p>
+                <input type="file" id="imageFile" accept="image/*" style="display: none;" onchange="handleImageSelect(event)">
+            </div>
+            <div id="imagePreview" style="display: none; text-align: center;">
+                <img id="previewImage" src="" alt="Preview" style="max-width: 200px; border-radius: var(--radius-md); margin-bottom: var(--space-md);">
+            </div>
+            <div class="button-group">
+                <button type="button" class="btn-secondary" onclick="closeModal(event, 'imageUploadModal')">
+                    Cancel
+                </button>
+                <button type="button" class="btn-primary" id="uploadImageBtn" disabled onclick="uploadToImgBB()">
+                    <i class="fas fa-upload"></i>
+                    Upload Image
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== FIREBASE CONFIG ===== -->
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyA3gohTf1rzOYBBQCI-WD8ORoTK4DOf-fw",
+            authDomain: "akademia-c56ff.firebaseapp.com",
+            projectId: "akademia-c56ff",
+            storageBucket: "akademia-c56ff.firebasestorage.app",
+            messagingSenderId: "678278775270",
+            appId: "1:678278775270:web:ed5aee3d358d613c8cd627",
+            measurementId: "G-X3CHCJE5LK"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // ImgBB API Key
+        const IMGBB_API_KEY = '9d4c307a2ab9155de8ccc2043cdcf351';
+    </script>
+
+    <!-- ===== CHART.JS ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- ===== XLSX LIBRARY FOR EXCEL ===== -->
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+
+    <script>
+        // ===== GLOBAL STATE =====
+        let currentUser = null;
+        let currentSchool = null;
+        let currentClassId = null;
+        let currentTerm = 'I';
+        let academicYear = '2024-2025';
+        let classes = [];
+        let students = [];
+        let genderChart = null;
+        let selectedCombinations = [];
+        let currentStudentId = null;
+        let selectedImageFile = null;
+
+        // ===== INITIALIZATION =====
+        document.addEventListener('DOMContentLoaded', async () => {
+            await checkAuth();
+            await loadProfileData();
+            await loadStatistics();
+            await loadClasses();
+            initializeGenderChart();
+            initializeCombinations();
+            setupEventListeners();
+        });
+
+        // ===== AUTHENTICATION =====
+        async function checkAuth() {
+            try {
+                const session = JSON.parse(localStorage.getItem('akademia_staff') || localStorage.getItem('akademia_user') || '{}');
+                
+                if (!session || (!session.email && !session.staffEmail)) {
+                    // No session found, redirect to login
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                currentUser = {
+                    name: session.staffName || session.schoolName || 'Administrator',
+                    role: formatRole(session.staffRole) || 'School Admin',
+                    email: session.staffEmail || session.email,
+                    schoolId: session.schoolId
+                };
+
+                currentSchool = {
+                    id: session.schoolId,
+                    name: session.schoolName || 'Akademia School'
+                };
+
+            } catch (error) {
+                console.error('Auth error:', error);
+                window.location.href = 'login.html';
+            }
+        }
+
+        function formatRole(role) {
+            const roles = {
+                'headmaster': 'Headmaster',
+                'dean_of_studies': 'Dean of Studies',
+                'it_staff': 'IT Staff',
+                'dean_of_discipline': 'Dean of Discipline',
+                'patron': 'Patron',
+                'matron': 'Matron',
+                'teacher': 'Teacher',
+                'student': 'Student',
+                'other': 'Staff'
+            };
+            return roles[role] || 'User';
+        }
+
+        // ===== PROFILE DATA =====
+        async function loadProfileData() {
+            if (currentUser) {
+                document.getElementById('profileName').textContent = currentUser.name;
+                document.getElementById('profileRole').textContent = currentUser.role;
+                document.querySelector('.profile-btn').textContent = getInitials(currentUser.name);
+            }
+        }
+
+        function getInitials(name) {
+            return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+        }
+
+        // ===== STATISTICS =====
+        async function loadStatistics() {
+            try {
+                if (!currentSchool) return;
+
+                const classesRef = db.collection('schools').doc(currentSchool.id).collection('classes');
+                const classesSnapshot = await classesRef.get();
+                
+                let totalStudents = 0;
+                let totalBoys = 0;
+                let totalGirls = 0;
+
+                for (const classDoc of classesSnapshot.docs) {
+                    const studentsRef = classDoc.ref.collection('students');
+                    const studentsSnapshot = await studentsRef.get();
+                    
+                    studentsSnapshot.forEach(studentDoc => {
+                        const student = studentDoc.data();
+                        totalStudents++;
+                        if (student.gender === 'M') totalBoys++;
+                        if (student.gender === 'F') totalGirls++;
+                    });
+                }
+
+                // Update UI
+                document.getElementById('totalStudents').textContent = totalStudents.toLocaleString();
+                document.getElementById('totalBoys').textContent = totalBoys.toLocaleString();
+                document.getElementById('totalGirls').textContent = totalGirls.toLocaleString();
+                document.getElementById('totalClasses').textContent = classesSnapshot.size;
+
+                // Update chart
+                if (genderChart) {
+                    genderChart.data.datasets[0].data = [totalBoys, totalGirls];
+                    genderChart.update();
+                }
+
+            } catch (error) {
+                console.error('Error loading statistics:', error);
+            }
+        }
+
+        // ===== GENDER CHART =====
+        function initializeGenderChart() {
+            const ctx = document.getElementById('genderChart').getContext('2d');
+            genderChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Boys', 'Girls'],
+                    datasets: [{
+                        data: [0, 0],
+                        backgroundColor: [
+                            'rgba(0, 122, 255, 0.8)',
+                            'rgba(255, 45, 85, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(0, 122, 255, 1)',
+                            'rgba(255, 45, 85, 1)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        // ===== CLASS MANAGEMENT =====
+        async function loadClasses() {
+            try {
+                if (!currentSchool) return;
+
+                const classesRef = db.collection('schools').doc(currentSchool.id).collection('classes');
+                const snapshot = await classesRef.orderBy('createdAt', 'desc').get();
+                
+                classes = [];
+                snapshot.forEach(doc => {
+                    classes.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+
+                displayClasses();
+                populateClassSelects();
+
+            } catch (error) {
+                console.error('Error loading classes:', error);
+            }
+        }
+
+        function displayClasses() {
+            const grid = document.getElementById('classesGrid');
+            
+            if (classes.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                        </div>
+                        <h3>No Classes Yet</h3>
+                        <p>Start by adding your first class</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = '';
+            classes.forEach(cls => {
+                const card = document.createElement('div');
+                card.className = 'class-card';
+                card.innerHTML = `
+                    <div class="class-header">
+                        <div>
+                            <h3 class="class-name">${getClassName(cls)}</h3>
+                            <p class="class-level">${cls.level} ${cls.levelNo}</p>
+                        </div>
+                        <div class="class-stats">
+                            <div class="class-stat">
+                                <div class="stat-number">${cls.studentCount || 0}</div>
+                                <div class="stat-label-small">Students</div>
+                            </div>
+                        </div>
+                    </div>
+                    ${cls.combination ? `<p style="color: var(--apple-gray-5); margin-top: var(--space-sm);">${cls.combination}</p>` : ''}
+                    <div style="margin-top: var(--space-md); text-align: right;">
+                        <i class="fas fa-chevron-right" style="color: var(--apple-blue);"></i>
+                    </div>
+                `;
+                card.addEventListener('click', () => openClassDetail(cls.id));
+                grid.appendChild(card);
+            });
+        }
+
+        function getClassName(cls) {
+            let name = `${cls.level} ${cls.levelNo}`;
+            if (cls.combination) name += ` ${cls.combination}`;
+            if (cls.subClass) name += ` ${cls.subClass}`;
+            return name;
+        }
+
+        function populateClassSelects() {
+            const selects = [
+                'studentClass',
+                'promotionClassesList',
+                'deleteClassesList'
+            ];
+
+            selects.forEach(selectId => {
+                const container = document.getElementById(selectId);
+                if (!container) return;
+
+                if (selectId === 'promotionClassesList' || selectId === 'deleteClassesList') {
+                    // For checkboxes
+                    container.innerHTML = '';
+                    classes.forEach((cls, index) => {
+                        const div = document.createElement('div');
+                        div.className = 'checkbox-group';
+                        div.innerHTML = `
+                            <input type="checkbox" id="class_${index}" value="${cls.id}">
+                            <label for="class_${index}">${getClassName(cls)} (${cls.studentCount || 0} students)</label>
+                        `;
+                        container.appendChild(div);
+                    });
+                } else {
+                    // For dropdowns
+                    const select = document.getElementById(selectId);
+                    if (select) {
+                        select.innerHTML = '<option value="">Select Class</option>';
+                        classes.forEach(cls => {
+                            const option = document.createElement('option');
+                            option.value = cls.id;
+                            option.textContent = getClassName(cls);
+                            select.appendChild(option);
+                        });
+                    }
+                }
+            });
+        }
+
+        function searchClasses(query) {
+            const filtered = classes.filter(cls => 
+                getClassName(cls).toLowerCase().includes(query.toLowerCase())
+            );
+            
+            const grid = document.getElementById('classesGrid');
+            grid.innerHTML = '';
+            
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h3>No Classes Found</h3>
+                        <p>Try a different search term</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach(cls => {
+                const card = document.createElement('div');
+                card.className = 'class-card';
+                card.innerHTML = `
+                    <div class="class-header">
+                        <div>
+                            <h3 class="class-name">${getClassName(cls)}</h3>
+                            <p class="class-level">${cls.level} ${cls.levelNo}</p>
+                        </div>
+                        <div class="class-stats">
+                            <div class="class-stat">
+                                <div class="stat-number">${cls.studentCount || 0}</div>
+                                <div class="stat-label-small">Students</div>
+                            </div>
+                        </div>
+                    </div>
+                    ${cls.combination ? `<p style="color: var(--apple-gray-5); margin-top: var(--space-sm);">${cls.combination}</p>` : ''}
+                    <div style="margin-top: var(--space-md); text-align: right;">
+                        <i class="fas fa-chevron-right" style="color: var(--apple-blue);"></i>
+                    </div>
+                `;
+                card.addEventListener('click', () => openClassDetail(cls.id));
+                grid.appendChild(card);
+            });
+        }
+
+        // ===== ADD CLASS =====
+        function handleLevelChange() {
+            const level = document.getElementById('classLevel').value;
+            const levelNoSelect = document.getElementById('classLevelNo');
+            const combinationGroup = document.getElementById('combinationGroup');
+            
+            // Clear existing options
+            levelNoSelect.innerHTML = '<option value="">Select Number</option>';
+            
+            // Set options based on level
+            let options = [];
+            switch(level) {
+                case 'Nursery':
+                    options = ['1', '2', '3'];
+                    break;
+                case 'Primary':
+                    options = ['1', '2', '3', '4', '5', '6', '7'];
+                    break;
+                case 'Senior':
+                    options = ['1', '2', '3', '4', '5', '6'];
+                    combinationGroup.classList.remove('hidden');
+                    break;
+                case 'Grade':
+                    options = ['1', '2', '3', '4', '5'];
+                    break;
+            }
+            
+            // Add options
+            options.forEach(option => {
+                const opt = document.createElement('option');
+                opt.value = option;
+                opt.textContent = option;
+                levelNoSelect.appendChild(opt);
+            });
+            
+            // Show/hide combination group
+            if (level === 'Senior') {
+                combinationGroup.classList.remove('hidden');
+            } else {
+                combinationGroup.classList.add('hidden');
+            }
+        }
+
+        async function addClass(event) {
+            event.preventDefault();
+            
+            try {
+                const level = document.getElementById('classLevel').value;
+                const levelNo = document.getElementById('classLevelNo').value;
+                const combination = level === 'Senior' ? document.getElementById('combinationSearch').value : '';
+                const subClass = document.getElementById('subClass').value;
+                
+                if (!currentSchool) {
+                    alert('No school selected');
+                    return;
+                }
+                
+                const classData = {
+                    level,
+                    levelNo,
+                    combination,
+                    subClass,
+                    studentCount: 0,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                const docRef = await db.collection('schools').doc(currentSchool.id).collection('classes').add(classData);
+                
+                // Add to local array
+                classes.push({
+                    id: docRef.id,
+                    ...classData
+                });
+                
+                // Update UI
+                displayClasses();
+                populateClassSelects();
+                
+                // Close modal and reset form
+                closeModal(event, 'addClassModal');
+                document.getElementById('addClassForm').reset();
+                document.getElementById('combinationGroup').classList.add('hidden');
+                
+                // Show success message
+                showNotification('Class added successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Error adding class:', error);
+                alert('Error adding class: ' + error.message);
+            }
+        }
+
+        // ===== COMBINATIONS =====
+        const allCombinations = [
+            'MS1', 'MS2', 'LAN', 'MEG', 'MEC', 'PCM', 'PCB', 'MCB', 'MPG', 'LFK',
+            'MPC', 'MCE', 'BCG', 'CBG', 'EFM', 'EAF', 'HEG', 'LEG', 'HEL', 'HGL',
+            'LKK', 'GEL', 'FKG', 'TAILORING', 'MASONRY', 'CARPENTRY', 'WELDING',
+            'DOMESTIC_ELECTRICITY', 'AUTOMOBILE_ENGINE_TECHNOLOGY', 'AUTO_VEHICLE_MECHANICS',
+            'MOTORCYCLE_TECHNOLOGY', 'PLUMBING', 'PAINTING_AND_DECORATION',
+            'ROAD_CONSTRUCTION_PLANT_OPERATION', 'LAND_SURVEYING', 'CIVIL_ENGINEERING',
+            'ARCHITECTURAL_DRAFTING', 'CULINARY_ARTS', 'FOOD_AND_BEVERAGE_SERVICE',
+            'FOOD_PROCESSING', 'HOUSEKEEPING', 'FRONT_OFFICE_OPERATIONS', 'TOURISM',
+            'HOSPITALITY', 'HAIRDRESSING', 'BEAUTY_AND_COSMETOLOGY', 'LEATHER_CRAFT',
+            'WICKERWORK', 'KNITTING', 'HANDICRAFT', 'FASHION_DESIGN',
+            'COMPUTER_SYSTEMS_TECHNOLOGY', 'COMPUTER_APPLICATIONS', 'COMPUTER_LITERACY',
+            'MULTIMEDIA', 'GRAPHIC_DESIGN', 'NETWORKING', 'SOFTWARE_ENGINEERING',
+            'AGRI_BUSINESS', 'CROP_PRODUCTION', 'IRRIGATION_TECHNOLOGY', 'AGRI_MECHANIZATION',
+            'ELECTRONIC_SERVICES', 'MANUFACTURING_AND_PRODUCTION_TECHNOLOGY',
+            'FITTING_AND_WELDING', 'MUSIC', 'SOFT_SKILLS', 'A', 'B', 'C', 'D', 'E', 'F', 'G'
+        ];
+
+        function initializeCombinations() {
+            const list = document.getElementById('combinationsList');
+            allCombinations.forEach(comb => {
+                const item = document.createElement('div');
+                item.className = 'combination-item';
+                item.textContent = comb;
+                item.addEventListener('click', () => selectCombination(comb, item));
+                list.appendChild(item);
+            });
+        }
+
+        function searchCombinations() {
+            const query = document.getElementById('combinationSearch').value.toLowerCase();
+            const items = document.querySelectorAll('.combination-item');
+            
+            items.forEach(item => {
+                if (item.textContent.toLowerCase().includes(query)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        function selectCombination(comb, element) {
+            const searchInput = document.getElementById('combinationSearch');
+            
+            // Toggle selection
+            if (selectedCombinations.includes(comb)) {
+                selectedCombinations = selectedCombinations.filter(c => c !== comb);
+                element.classList.remove('selected');
+            } else {
+                selectedCombinations.push(comb);
+                element.classList.add('selected');
+            }
+            
+            // Update search input
+            searchInput.value = selectedCombinations.join(', ');
+        }
+
+        // ===== CLASS DETAIL VIEW =====
+        async function openClassDetail(classId) {
+            currentClassId = classId;
+            const cls = classes.find(c => c.id === classId);
+            
+            if (!cls) return;
+            
+            document.getElementById('detailClassName').textContent = getClassName(cls);
+            document.getElementById('classDetailView').classList.add('active');
+            
+            await loadClassStudents(classId);
+        }
+
+        function closeClassDetail() {
+            document.getElementById('classDetailView').classList.remove('active');
+            currentClassId = null;
+        }
+
+        async function loadClassStudents(classId) {
+            try {
+                const studentsRef = db.collection('schools').doc(currentSchool.id)
+                    .collection('classes').doc(classId)
+                    .collection('students');
+                
+                const snapshot = await studentsRef.orderBy('fullName').get();
+                
+                students = [];
+                snapshot.forEach(doc => {
+                    students.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                displayStudents();
+                
+            } catch (error) {
+                console.error('Error loading students:', error);
+            }
+        }
+
+        function displayStudents() {
+            const tbody = document.getElementById('studentsTableBody');
+            
+            if (students.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="empty-state">
+                            <p>No students in this class</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = '';
+            students.forEach((student, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td style="display: flex; align-items: center; gap: var(--space-sm);">
+                        <div class="student-avatar">
+                            ${getInitials(student.fullName)}
+                        </div>
+                        ${student.fullName}
+                    </td>
+                    <td>${student.regNo || 'N/A'}</td>
+                    <td>
+                        <span style="color: ${student.gender === 'M' ? 'var(--apple-blue)' : 'var(--apple-red)'};">
+                            ${student.gender === 'M' ? 'Male' : 'Female'}
+                        </span>
+                    </td>
+                    <td>${student.dob || 'N/A'}</td>
+                    <td>${student.fatherName || 'N/A'}</td>
+                    <td>${student.motherName || 'N/A'}</td>
+                    <td>
+                        <button class="btn-secondary" onclick="viewStudent('${student.id}', event)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function searchStudents(query) {
+            const filtered = students.filter(student => 
+                student.fullName.toLowerCase().includes(query.toLowerCase()) ||
+                (student.regNo && student.regNo.toLowerCase().includes(query.toLowerCase()))
+            );
+            
+            const tbody = document.getElementById('studentsTableBody');
+            tbody.innerHTML = '';
+            
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="empty-state">
+                            <p>No students found</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            filtered.forEach((student, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td style="display: flex; align-items: center; gap: var(--space-sm);">
+                        <div class="student-avatar">
+                            ${getInitials(student.fullName)}
+                        </div>
+                        ${student.fullName}
+                    </td>
+                    <td>${student.regNo || 'N/A'}</td>
+                    <td>
+                        <span style="color: ${student.gender === 'M' ? 'var(--apple-blue)' : 'var(--apple-red)'};">
+                            ${student.gender === 'M' ? 'Male' : 'Female'}
+                        </span>
+                    </td>
+                    <td>${student.dob || 'N/A'}</td>
+                    <td>${student.fatherName || 'N/A'}</td>
+                    <td>${student.motherName || 'N/A'}</td>
+                    <td>
+                        <button class="btn-secondary" onclick="viewStudent('${student.id}', event)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // ===== ADD STUDENT =====
+        function showManualForm() {
+            document.getElementById('manualForm').style.display = 'block';
+            document.getElementById('excelForm').style.display = 'none';
+        }
+
+        function showExcelForm() {
+            document.getElementById('manualForm').style.display = 'none';
+            document.getElementById('excelForm').style.display = 'block';
+        }
+
+        async function addStudentManually(event) {
+            event.preventDefault();
+            
+            try {
+                const studentData = {
+                    fullName: document.getElementById('fullName').value,
+                    gender: document.getElementById('gender').value,
+                    dob: document.getElementById('dob').value,
+                    regNo: document.getElementById('regNo').value || null,
+                    fatherName: document.getElementById('fatherName').value || null,
+                    fatherPhone: document.getElementById('fatherPhone').value || null,
+                    motherName: document.getElementById('motherName').value || null,
+                    motherPhone: document.getElementById('motherPhone').value || null,
+                    guardianName: document.getElementById('guardianName').value || null,
+                    guardianPhone: document.getElementById('guardianPhone').value || null,
+                    status: 'Active',
+                    enrollmentDate: new Date().toISOString().split('T')[0],
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                if (!currentClassId || !currentSchool) {
+                    alert('No class selected');
+                    return;
+                }
+                
+                // Add to Firestore
+                const docRef = await db.collection('schools').doc(currentSchool.id)
+                    .collection('classes').doc(currentClassId)
+                    .collection('students').add(studentData);
+                
+                // Update class student count
+                const classRef = db.collection('schools').doc(currentSchool.id)
+                    .collection('classes').doc(currentClassId);
+                
+                const classDoc = await classRef.get();
+                const currentCount = classDoc.data().studentCount || 0;
+                await classRef.update({
+                    studentCount: currentCount + 1,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Update local data
+                students.push({
+                    id: docRef.id,
+                    ...studentData
+                });
+                
+                // Update UI
+                displayStudents();
+                await loadStatistics(); // Refresh statistics
+                
+                // Reset form and close modal
+                document.getElementById('addStudentManualForm').reset();
+                closeModal(event, 'addStudentModal');
+                
+                showNotification('Student added successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Error adding student:', error);
+                alert('Error adding student: ' + error.message);
+            }
+        }
+
+        // ===== EXCEL UPLOAD =====
+        function handleDragOver(e) {
+            e.preventDefault();
+            document.getElementById('uploadArea').classList.add('dragover');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            document.getElementById('uploadArea').classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            document.getElementById('uploadArea').classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleExcelFile(files[0]);
+            }
+        }
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                handleExcelFile(file);
+            }
+        }
+
+        function handleExcelFile(file) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                
+                // Validate data structure
+                if (!jsonData[0] || !jsonData[0]['Full Name']) {
+                    alert('Invalid Excel format. Please use the provided template.');
+                    return;
+                }
+                
+                // Show preview
+                showPreview(jsonData.slice(0, 5));
+                
+                // Store data for upload
+                window.excelData = jsonData;
+            };
+            
+            reader.readAsArrayBuffer(file);
+        }
+
+        function showPreview(data) {
+            const previewBody = document.getElementById('previewBody');
+            previewBody.innerHTML = '';
+            
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row['Full Name'] || ''}</td>
+                    <td>${row.Gender || ''}</td>
+                    <td>${row['Date of Birth'] || ''}</td>
+                    <td>${row['Registration Number'] || ''}</td>
+                `;
+                previewBody.appendChild(tr);
+            });
+            
+            document.getElementById('uploadPreview').style.display = 'block';
+        }
+
+        function cancelUpload() {
+            document.getElementById('uploadPreview').style.display = 'none';
+            document.getElementById('excelFile').value = '';
+            delete window.excelData;
+        }
+
+        async function uploadExcel() {
+            if (!window.excelData || window.excelData.length === 0) {
+                alert('No data to upload');
+                return;
+            }
+            
+            try {
+                if (!currentClassId || !currentSchool) {
+                    alert('No class selected');
+                    return;
+                }
+                
+                const batch = db.batch();
+                const classRef = db.collection('schools').doc(currentSchool.id)
+                    .collection('classes').doc(currentClassId);
+                
+                let successCount = 0;
+                let errorCount = 0;
+                
+                // Process each row
+                for (const row of window.excelData) {
+                    try {
+                        const studentData = {
+                            fullName: row['Full Name'],
+                            gender: row.Gender === 'M' ? 'M' : row.Gender === 'F' ? 'F' : 'M',
+                            dob: row['Date of Birth'] || null,
+                            regNo: row['Registration Number'] || null,
+                            fatherName: row["Father's Name"] || null,
+                            fatherPhone: row["Father's Phone"] || null,
+                            motherName: row["Mother's Name"] || null,
+                            motherPhone: row["Mother's Phone"] || null,
+                            guardianName: row['Guardian Name'] || null,
+                            guardianPhone: row['Guardian Phone'] || null,
+                            status: 'Active',
+                            enrollmentDate: new Date().toISOString().split('T')[0],
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        };
+                        
+                        const studentRef = classRef.collection('students').doc();
+                        batch.set(studentRef, studentData);
+                        successCount++;
+                        
+                    } catch (error) {
+                        console.error('Error processing row:', error);
+                        errorCount++;
+                    }
+                }
+                
+                // Update class student count
+                const classDoc = await classRef.get();
+                const currentCount = classDoc.data().studentCount || 0;
+                batch.update(classRef, {
+                    studentCount: currentCount + successCount,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Commit batch
+                await batch.commit();
+                
+                // Reload students and statistics
+                await loadClassStudents(currentClassId);
+                await loadStatistics();
+                
+                // Reset and close
+                cancelUpload();
+                closeModal(null, 'addStudentModal');
+                
+                showNotification(`Uploaded ${successCount} students successfully! ${errorCount > 0 ? `(${errorCount} errors)` : ''}`, 
+                    errorCount > 0 ? 'warning' : 'success');
+                
+            } catch (error) {
+                console.error('Error uploading Excel:', error);
+                alert('Error uploading students: ' + error.message);
+            }
+        }
+
+        function downloadTemplate() {
+            // Create sample data
+            const templateData = [
+                {
+                    'Full Name': 'John Doe',
+                    'Gender': 'M',
+                    'Date of Birth': '2008-05-15',
+                    'Registration Number': '2024-001',
+                    "Father's Name": 'John Doe Sr.',
+                    "Father's Phone": '+256700000000',
+                    "Mother's Name": 'Jane Doe',
+                    "Mother's Phone": '+256700000001',
+                    'Guardian Name': '',
+                    'Guardian Phone': ''
+                },
+                {
+                    'Full Name': 'Jane Smith',
+                    'Gender': 'F',
+                    'Date of Birth': '2009-08-22',
+                    'Registration Number': '2024-002',
+                    "Father's Name": 'James Smith',
+                    "Father's Phone": '+256700000002',
+                    "Mother's Name": 'Mary Smith',
+                    "Mother's Phone": '+256700000003',
+                    'Guardian Name': '',
+                    'Guardian Phone': ''
+                }
+            ];
+            
+            // Create worksheet
+            const ws = XLSX.utils.json_to_sheet(templateData);
+            
+            // Create workbook
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Students Template');
+            
+            // Generate Excel file
+            XLSX.writeFile(wb, 'students_template.xlsx');
+        }
+
+        // ===== STUDENT DETAILS =====
+        async function viewStudent(studentId, event) {
+            if (event) event.stopPropagation();
+            
+            try {
+                const studentRef = db.collection('schools').doc(currentSchool.id)
+                    .collection('classes').doc(currentClassId)
+                    .collection('students').doc(studentId);
+                
+                const doc = await studentRef.get();
+                
+                if (!doc.exists) {
+                    alert('Student not found');
+                    return;
+                }
+                
+                const student = { id: doc.id, ...doc.data() };
+                currentStudentId = student.id;
+                
+                // Update modal content
+                document.getElementById('studentFullName').textContent = student.fullName;
+                document.getElementById('avatarInitials').textContent = getInitials(student.fullName);
+                document.getElementById('studentClassInfo').textContent = `Class: ${getClassName(classes.find(c => c.id === currentClassId))}`;
+                document.getElementById('studentRegInfo').textContent = student.regNo ? `Reg No: ${student.regNo}` : '';
+                document.getElementById('studentGender').textContent = student.gender === 'M' ? 'Male' : 'Female';
+                document.getElementById('studentDOB').textContent = student.dob || 'Not specified';
+                
+                // Calculate age
+                if (student.dob) {
+                    const age = calculateAge(student.dob);
+                    document.getElementById('studentAge').textContent = `${age} years`;
+                }
+                
+                // Contact info
+                document.getElementById('studentAddress').textContent = student.address || 'Not specified';
+                document.getElementById('studentPhone').textContent = student.phone || 'Not specified';
+                document.getElementById('studentEmail').textContent = student.email || 'Not specified';
+                
+                // Family info
+                document.getElementById('studentFatherName').textContent = student.fatherName || 'Not specified';
+                document.getElementById('studentFatherPhone').textContent = student.fatherPhone || 'Not specified';
+                document.getElementById('studentMotherName').textContent = student.motherName || 'Not specified';
+                document.getElementById('studentMotherPhone').textContent = student.motherPhone || 'Not specified';
+                document.getElementById('studentGuardianName').textContent = student.guardianName || 'Not specified';
+                document.getElementById('studentGuardianPhone').textContent = student.guardianPhone || 'Not specified';
+                document.getElementById('studentGuardianRel').textContent = student.guardianRelationship || 'Not specified';
+                
+                // Academic info
+                document.getElementById('studentEnrollmentDate').textContent = student.enrollmentDate || 'Not specified';
+                document.getElementById('studentStatus').textContent = student.status || 'Active';
+                document.getElementById('studentStatus').style.color = student.status === 'Active' ? 'var(--apple-green)' : 'var(--apple-red)';
+                document.getElementById('studentUpdated').textContent = 
+                    student.updatedAt ? student.updatedAt.toDate().toLocaleDateString() : 'Not specified';
+                
+                // Load profile image if exists
+                if (student.profileImage) {
+                    const avatar = document.getElementById('studentAvatarLarge');
+                    avatar.innerHTML = `
+                        <img src="${student.profileImage}" alt="${student.fullName}">
+                        <button class="upload-btn" onclick="uploadStudentImage()">
+                            <i class="fas fa-camera"></i>
+                        </button>
+                    `;
+                }
+                
+                // Show modal
+                openModal('studentDetailModal');
+                
+            } catch (error) {
+                console.error('Error loading student:', error);
+                alert('Error loading student details');
+            }
+        }
+
+        function calculateAge(dob) {
+            const birthDate = new Date(dob);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            
+            return age;
+        }
+
+        // ===== IMAGE UPLOAD =====
+        function uploadStudentImage() {
+            openModal('imageUploadModal');
+        }
+
+        function handleImageSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Check file size (5MB max)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File size must be less than 5MB');
+                return;
+            }
+            
+            // Check file type
+            if (!file.type.match('image.*')) {
+                alert('Please select an image file');
+                return;
+            }
+            
+            selectedImageFile = file;
+            
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('imagePreview').style.display = 'block';
+                document.getElementById('previewImage').src = e.target.result;
+                document.getElementById('uploadImageBtn').disabled = false;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function uploadToImgBB() {
+            if (!selectedImageFile) {
+                alert('No image selected');
+                return;
+            }
+            
+            try {
+                const formData = new FormData();
+                formData.append('image', selectedImageFile);
+                formData.append('key', IMGBB_API_KEY);
+                
+                document.getElementById('uploadImageBtn').disabled = true;
+                document.getElementById('uploadImageBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+                
+                const response = await fetch('https://api.imgbb.com/1/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Update student record with image URL
+                    const studentRef = db.collection('schools').doc(currentSchool.id)
+                        .collection('classes').doc(currentClassId)
+                        .collection('students').doc(currentStudentId);
+                    
+                    await studentRef.update({
+                        profileImage: result.data.url,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                    // Update avatar in modal
+                    const avatar = document.getElementById('studentAvatarLarge');
+                    avatar.innerHTML = `
+                        <img src="${result.data.url}" alt="Profile Image">
+                        <button class="upload-btn" onclick="uploadStudentImage()">
+                            <i class="fas fa-camera"></i>
+                        </button>
+                    `;
+                    
+                    closeModal(null, 'imageUploadModal');
+                    showNotification('Profile image uploaded successfully!', 'success');
+                    
+                } else {
+                    throw new Error(result.error?.message || 'Upload failed');
+                }
+                
+            } catch (error) {
+                console.error('Error uploading image:', error);
+                alert('Error uploading image: ' + error.message);
+            } finally {
+                document.getElementById('uploadImageBtn').disabled = false;
+                document.getElementById('uploadImageBtn').innerHTML = '<i class="fas fa-upload"></i> Upload Image';
+            }
+        }
+
+        // ===== SETTINGS FUNCTIONS =====
+        async function removeStudent(event) {
+            event.preventDefault();
+            
+            try {
+                const name = document.getElementById('studentName').value;
+                const classId = document.getElementById('studentClass').value;
+                const regNo = document.getElementById('studentRegNo').value;
+                
+                if (!name || !classId) {
+                    alert('Please fill in required fields');
+                    return;
+                }
+                
+                // Find student
+                const studentsRef = db.collection('schools').doc(currentSchool.id)
+                    .collection('classes').doc(classId)
+                    .collection('students');
+                
+                let query = studentsRef.where('fullName', '==', name);
+                if (regNo) {
+                    query = query.where('regNo', '==', regNo);
+                }
+                
+                const snapshot = await query.get();
+                
+                if (snapshot.empty) {
+                    alert('No student found with the given details');
+                    return;
+                }
+                
+                if (snapshot.size > 1) {
+                    alert('Multiple students found. Please provide registration number');
+                    return;
+                }
+                
+                // Confirm deletion
+                if (!confirm('Are you sure you want to remove this student?')) {
+                    return;
+                }
+                
+                const studentDoc = snapshot.docs[0];
+                await studentDoc.ref.delete();
+                
+                // Update class student count
+                const classRef = db.collection('schools').doc(currentSchool.id)
+                    .collection('classes').doc(classId);
+                
+                const classDoc = await classRef.get();
+                const currentCount = classDoc.data().studentCount || 0;
+                await classRef.update({
+                    studentCount: Math.max(0, currentCount - 1),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Reload data
+                if (currentClassId === classId) {
+                    await loadClassStudents(classId);
+                }
+                await loadStatistics();
+                
+                closeModal(event, 'removeStudentModal');
+                showNotification('Student removed successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Error removing student:', error);
+                alert('Error removing student: ' + error.message);
+            }
+        }
+
+        async function setCurrentTerm(event) {
+            event.preventDefault();
+            
+            try {
+                const term = document.getElementById('term').value;
+                const year = document.getElementById('academicYear').value;
+                
+                // Save to localStorage (or you could save to Firestore)
+                localStorage.setItem('academicTerm', term);
+                localStorage.setItem('academicYear', year);
+                
+                currentTerm = term;
+                academicYear = year;
+                
+                // Update UI
+                document.getElementById('currentTerm').textContent = `Term ${term}`;
+                
+                closeModal(event, 'currentTermModal');
+                showNotification('Current term updated!', 'success');
+                
+            } catch (error) {
+                console.error('Error setting term:', error);
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function promoteStudents() {
+            try {
+                // Get selected classes
+                const selectedClasses = Array.from(
+                    document.querySelectorAll('#promotionClassesList input[type="checkbox"]:checked')
+                ).map(cb => cb.value);
+                
+                if (selectedClasses.length === 0) {
+                    alert('Please select at least one class');
+                    return;
+                }
+                
+                // Get exceptions
+                const exceptions = Array.from(
+                    document.querySelectorAll('#exceptionsList input[type="checkbox"]:checked')
+                ).map(cb => cb.value);
+                
+                if (!confirm(`Promote students from ${selectedClasses.length} class(es)?\n\nExceptions: ${exceptions.length} student(s) will not be promoted.`)) {
+                    return;
+                }
+                
+                // TODO: Implement promotion logic
+                // This would involve:
+                // 1. For each selected class, get all students
+                // 2. Filter out exceptions
+                // 3. Create new class for next grade
+                // 4. Move students to new class
+                // 5. Update student counts
+                
+                showNotification('Promotion feature coming soon!', 'info');
+                closeModal(null, 'promotionModal');
+                
+            } catch (error) {
+                console.error('Error promoting students:', error);
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function deleteAllStudents() {
+            try {
+                const selectedClasses = Array.from(
+                    document.querySelectorAll('#deleteClassesList input[type="checkbox"]:checked')
+                ).map(cb => cb.value);
+                
+                if (selectedClasses.length === 0) {
+                    alert('Please select at least one class');
+                    return;
+                }
+                
+                // Confirm one more time
+                if (!confirm(`PERMANENTLY delete all students from ${selectedClasses.length} class(es)?\n\nTHIS ACTION CANNOT BE UNDONE!`)) {
+                    return;
+                }
+                
+                // TODO: Implement deletion
+                // This would involve:
+                // 1. For each selected class, delete all student documents
+                // 2. Reset student count to 0
+                // 3. Update statistics
+                
+                showNotification('Delete all feature coming soon!', 'warning');
+                closeModal(null, 'deleteAllModal2');
+                
+            } catch (error) {
+                console.error('Error deleting students:', error);
+                alert('Error: ' + error.message);
+            }
+        }
+
+        function toggleAllClasses() {
+            const checkAll = document.getElementById('selectAllClasses').checked;
+            const checkboxes = document.querySelectorAll('#promotionClassesList input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = checkAll);
+        }
+
+        function toggleDeleteAllClasses() {
+            const checkAll = document.getElementById('deleteAllClasses').checked;
+            const checkboxes = document.querySelectorAll('#deleteClassesList input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = checkAll);
+        }
+
+        function validateDeleteConfirmation() {
+            const input = document.getElementById('deleteConfirmation').value;
+            const btn = document.getElementById('finalDeleteBtn');
+            btn.disabled = input !== 'DELETE ALL STUDENTS';
+        }
+
+        function showDeleteAllStep2() {
+            closeModal(null, 'deleteAllModal1');
+            setTimeout(() => openModal('deleteAllModal2'), 300);
+        }
+
+        // ===== MODAL MANAGEMENT =====
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeModal(event, modalId) {
+            if (event) event.stopPropagation();
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('show');
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        function toggleProfile() {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('profileDropdown');
+            const profileBtn = document.querySelector('.profile-btn');
+            
+            if (dropdown.classList.contains('show') && 
+                !dropdown.contains(e.target) && 
+                !profileBtn.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // ===== SETTINGS MODAL FUNCTIONS =====
+        function openSettings() {
+            openModal('settingsModal');
+        }
+
+        function openRemoveStudentModal() {
+            closeModal(null, 'settingsModal');
+            setTimeout(() => openModal('removeStudentModal'), 300);
+        }
+
+        function openCurrentTermModal() {
+            closeModal(null, 'settingsModal');
+            setTimeout(() => openModal('currentTermModal'), 300);
+        }
+
+        function openPromotionModal() {
+            closeModal(null, 'settingsModal');
+            setTimeout(() => openModal('promotionModal'), 300);
+        }
+
+        function openDeleteAllModal() {
+            closeModal(null, 'settingsModal');
+            setTimeout(() => openModal('deleteAllModal1'), 300);
+        }
+
+        function openAddClassModal() {
+            openModal('addClassModal');
+        }
+
+        function openAddStudentModal() {
+            openModal('addStudentModal');
+            showManualForm(); // Default to manual form
+        }
+
+        // ===== EVENT LISTENERS =====
+        function setupEventListeners() {
+            // Close modals with Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    const modals = document.querySelectorAll('.modal-overlay.show');
+                    modals.forEach(modal => {
+                        modal.classList.remove('show');
+                        document.body.style.overflow = 'auto';
+                    });
+                    
+                    const dropdown = document.getElementById('profileDropdown');
+                    if (dropdown.classList.contains('show')) {
+                        dropdown.classList.remove('show');
+                    }
+                }
+            });
+        }
+
+        // ===== NOTIFICATION SYSTEM =====
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <div class="notification-icon">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : type === 'error' ? 'times-circle' : 'info-circle'}"></i>
+                </div>
+                <div class="notification-content">
+                    ${message}
+                </div>
+                <button class="notification-close" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            // Add styles
+            if (!document.querySelector('#notification-styles')) {
+                const style = document.createElement('style');
+                style.id = 'notification-styles';
+                style.textContent = `
+                    .notification {
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        background: var(--apple-white);
+                        border-radius: var(--radius-md);
+                        padding: var(--space-md) var(--space-lg);
+                        display: flex;
+                        align-items: center;
+                        gap: var(--space-md);
+                        box-shadow: var(--shadow-lg);
+                        z-index: 9999;
+                        animation: slideInRight 0.3s ease;
+                        border-left: 4px solid var(--apple-blue);
+                        max-width: 400px;
+                    }
+                    .notification.success { border-color: var(--apple-green); }
+                    .notification.warning { border-color: var(--apple-orange); }
+                    .notification.error { border-color: var(--apple-red); }
+                    .notification-icon {
+                        font-size: var(--font-size-lg);
+                        color: inherit;
+                    }
+                    .notification.success .notification-icon { color: var(--apple-green); }
+                    .notification.warning .notification-icon { color: var(--apple-orange); }
+                    .notification.error .notification-icon { color: var(--apple-red); }
+                    .notification-content {
+                        flex: 1;
+                        color: var(--apple-black);
+                        font-weight: 500;
+                    }
+                    .notification-close {
+                        background: transparent;
+                        border: none;
+                        color: var(--apple-gray-4);
+                        cursor: pointer;
+                        padding: var(--space-xs);
+                        border-radius: var(--radius-sm);
+                    }
+                    .notification-close:hover {
+                        color: var(--apple-black);
+                        background: var(--apple-gray-1);
+                    }
+                    @keyframes slideInRight {
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            document.body.appendChild(notification);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.style.animation = 'slideOutRight 0.3s ease';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }
+            }, 5000);
+        }
+
+        // ===== LOGOUT =====
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('akademia_staff');
+                localStorage.removeItem('akademia_user');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // ===== EDIT & DELETE STUDENT =====
+        function editStudent() {
+            // TODO: Implement edit student functionality
+            alert('Edit student feature coming soon!');
+        }
+
+        async function deleteStudent() {
+            if (!currentStudentId) return;
+            
+            if (!confirm('Are you sure you want to remove this student?')) {
+                return;
+            }
+            
+            try {
+                const studentRef = db.collection('schools').doc(currentSchool.id)
+                    .collection('classes').doc(currentClassId)
+                    .collection('students').doc(currentStudentId);
+                
+                await studentRef.delete();
+                
+                // Update class student count
+                const classRef = db.collection('schools').doc(currentSchool.id)
+                    .collection('classes').doc(currentClassId);
+                
+                const classDoc = await classRef.get();
+                const currentCount = classDoc.data().studentCount || 0;
+                await classRef.update({
+                    studentCount: Math.max(0, currentCount - 1),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Reload data
+                await loadClassStudents(currentClassId);
+                await loadStatistics();
+                
+                closeModal(null, 'studentDetailModal');
+                showNotification('Student removed successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Error deleting student:', error);
+                alert('Error deleting student: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
