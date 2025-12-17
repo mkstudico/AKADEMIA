@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Students Management | Akademia</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js"></script>
+    <!-- Use the COMPATIBILITY version of Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <style>
         /* ===== COMPACT APP DESIGN ===== */
         :root {
@@ -1606,7 +1607,7 @@
 
     <script>
         // ===== FIREBASE INITIALIZATION =====
-        // Firebase configuration
+        // Firebase configuration (from your provided data)
         const firebaseConfig = {
             apiKey: "AIzaSyA3gohTf1rzOYBBQCI-WD8ORoTK4DOf-fw",
             authDomain: "akademia-c56ff.firebaseapp.com",
@@ -1618,17 +1619,23 @@
             measurementId: "G-X3CHCJE5LK"
         };
 
-        // Initialize Firebase
+        // Initialize Firebase - using the compatibility version (v8)
         let app, db, auth;
         
         try {
+            // Check if firebase is available
+            if (typeof firebase === 'undefined') {
+                throw new Error("Firebase SDK not loaded. Check your script tags.");
+            }
+            
+            // Initialize Firebase
             app = firebase.initializeApp(firebaseConfig);
             db = firebase.firestore();
             auth = firebase.auth();
             console.log("Firebase initialized successfully");
         } catch (error) {
             console.error("Firebase initialization error:", error);
-            showError("Failed to initialize database");
+            showError("Failed to initialize database. Please refresh the page.");
         }
 
         // ===== GLOBAL STATE =====
@@ -1654,6 +1661,10 @@
                     await initializeApp();
                 } else {
                     showError('Authentication required. Please login first.');
+                    // Redirect to login if no user found
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
                 }
                 
             } catch (error) {
