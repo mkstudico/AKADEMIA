@@ -9,6 +9,12 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <!-- SheetJS for Excel handling -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- FileSaver for downloading files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <!-- Docx for Word document generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.8.0/index.min.js"></script>
     <style>
         /* ===== COMPACT APP DESIGN ===== */
         :root {
@@ -443,6 +449,29 @@
             box-shadow: var(--shadow-md);
         }
 
+        .btn-success {
+            background: var(--apple-green);
+            color: var(--apple-white);
+            border: none;
+            padding: 8px 14px;
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all var(--transition-fast);
+            height: 32px;
+            white-space: nowrap;
+        }
+
+        .btn-success:hover {
+            background: #2DB94C;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
         .btn-small {
             padding: 4px 8px;
             height: 26px;
@@ -457,17 +486,15 @@
             background: var(--apple-white);
         }
 
-        .classes-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: var(--space-md);
-            padding: var(--space-md);
+        /* CHANGED: Classes as list instead of boxes */
+        .classes-list {
             overflow-y: auto;
             height: 100%;
             max-height: calc(100vh - 280px);
+            padding: var(--space-md);
         }
 
-        .class-card {
+        .class-list-item {
             background: var(--apple-white);
             border-radius: var(--radius-md);
             padding: var(--space-md);
@@ -477,19 +504,19 @@
             cursor: pointer;
             position: relative;
             overflow: hidden;
-            min-height: 100px;
             display: flex;
-            flex-direction: column;
+            align-items: center;
             justify-content: space-between;
+            margin-bottom: var(--space-sm);
         }
 
-        .class-card:hover {
-            transform: translateY(-2px);
+        .class-list-item:hover {
+            transform: translateY(-1px);
             box-shadow: var(--shadow-md);
             border-color: var(--apple-blue);
         }
 
-        .class-card::before {
+        .class-list-item::before {
             content: '';
             position: absolute;
             top: 0;
@@ -499,64 +526,47 @@
             background: linear-gradient(90deg, var(--apple-blue), var(--apple-blue-light));
         }
 
-        .class-header {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            margin-bottom: var(--space-sm);
+        .class-list-info {
+            flex: 1;
         }
 
-        .class-name {
+        .class-list-name {
             font-size: var(--font-size-base);
             font-weight: 600;
             color: var(--apple-black);
             line-height: 1.3;
+            margin-bottom: 2px;
         }
 
-        .class-level {
+        .class-list-details {
+            display: flex;
+            gap: var(--space-md);
+            font-size: var(--font-size-xs);
             color: var(--apple-gray-5);
-            font-size: var(--font-size-xs);
-            margin-top: 2px;
         }
 
-        .class-combination {
+        .class-list-combination {
             color: var(--apple-purple);
-            font-size: var(--font-size-xs);
             font-weight: 500;
-            margin-top: 4px;
-            display: inline-block;
-            padding: 2px 6px;
-            background: rgba(175, 82, 222, 0.1);
-            border-radius: var(--radius-sm);
         }
 
-        .class-stats {
+        .class-list-count {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            margin-top: var(--space-sm);
+            gap: var(--space-sm);
         }
 
-        .class-stat {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            flex: 1;
-        }
-
-        .stat-number {
+        .class-list-number {
             font-size: var(--font-size-lg);
             font-weight: 700;
             color: var(--apple-black);
-            line-height: 1;
         }
 
-        .stat-label-small {
+        .class-list-label {
             font-size: var(--font-size-xs);
             color: var(--apple-gray-5);
             text-transform: uppercase;
             letter-spacing: 0.3px;
-            margin-top: 2px;
         }
 
         /* ===== MODAL SYSTEM ===== */
@@ -660,6 +670,46 @@
             outline: none;
             border-color: var(--apple-blue);
             box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+
+        .file-upload {
+            border: 2px dashed var(--apple-gray-3);
+            border-radius: var(--radius-md);
+            padding: var(--space-xl);
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            background: var(--apple-gray-1);
+            margin-bottom: var(--space-md);
+        }
+
+        .file-upload:hover {
+            border-color: var(--apple-blue);
+            background: rgba(0, 122, 255, 0.05);
+        }
+
+        .file-upload input[type="file"] {
+            display: none;
+        }
+
+        .file-upload-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-sm);
+            color: var(--apple-gray-6);
+            cursor: pointer;
+        }
+
+        .file-upload-icon {
+            font-size: 32px;
+            color: var(--apple-blue);
+        }
+
+        .file-info {
+            font-size: var(--font-size-sm);
+            color: var(--apple-gray-5);
+            margin-top: var(--space-xs);
         }
 
         /* ===== ENHANCED SELECT ===== */
@@ -880,6 +930,83 @@
         .action-buttons {
             display: flex;
             gap: 4px;
+        }
+
+        /* ===== STUDENT DETAIL MODAL ===== */
+        .student-detail-modal {
+            max-width: 500px;
+        }
+
+        .student-detail-content {
+            background: var(--apple-white);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .student-detail-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            margin-bottom: var(--space-lg);
+            padding-bottom: var(--space-md);
+            border-bottom: 1px solid var(--apple-gray-2);
+        }
+
+        .student-detail-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--apple-blue), var(--apple-blue-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--apple-white);
+            font-weight: 600;
+            font-size: var(--font-size-lg);
+            flex-shrink: 0;
+        }
+
+        .student-detail-info {
+            flex: 1;
+        }
+
+        .student-detail-name {
+            font-size: var(--font-size-xl);
+            font-weight: 600;
+            color: var(--apple-black);
+            margin-bottom: 2px;
+        }
+
+        .student-detail-meta {
+            font-size: var(--font-size-sm);
+            color: var(--apple-gray-5);
+        }
+
+        .student-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-md);
+            margin-top: var(--space-lg);
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .detail-label {
+            font-size: var(--font-size-xs);
+            color: var(--apple-gray-5);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-value {
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            color: var(--apple-black);
         }
 
         /* ===== PROFILE DROPDOWN ===== */
@@ -1153,7 +1280,7 @@
         </div>
 
         <div class="classes-container">
-            <div class="classes-grid" id="classesGrid">
+            <div class="classes-list" id="classesList">
                 <div class="empty-state">
                     <div class="empty-state-icon">
                         <i class="fas fa-chalkboard-teacher"></i>
@@ -1281,53 +1408,115 @@
                 </button>
             </div>
             
-            <form id="addStudentForm" onsubmit="addStudent(event)">
-                <div class="form-group">
-                    <label class="form-label" for="studentName">Full Name *</label>
-                    <input type="text" class="form-input" id="studentName" required>
-                </div>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md);">
+            <div style="display: flex; gap: var(--space-sm); margin-bottom: var(--space-md);">
+                <button class="btn-secondary" style="flex: 1;" onclick="showManualForm()">
+                    <i class="fas fa-user-plus"></i>
+                    Manual Entry
+                </button>
+                <button class="btn-success" style="flex: 1;" onclick="showExcelUpload()">
+                    <i class="fas fa-file-excel"></i>
+                    Upload Excel
+                </button>
+            </div>
+            
+            <div id="manualFormContainer" style="display: block;">
+                <form id="addStudentForm" onsubmit="addStudent(event)">
                     <div class="form-group">
-                        <label class="form-label" for="studentGender">Gender *</label>
-                        <select class="form-input" id="studentGender" required>
-                            <option value="">Select</option>
-                            <option value="M">Male</option>
-                            <option value="F">Female</option>
-                        </select>
+                        <label class="form-label" for="studentName">Full Name *</label>
+                        <input type="text" class="form-input" id="studentName" required>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md);">
+                        <div class="form-group">
+                            <label class="form-label" for="studentGender">Gender *</label>
+                            <select class="form-input" id="studentGender" required>
+                                <option value="">Select</option>
+                                <option value="M">Male</option>
+                                <option value="F">Female</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="studentDOB">Date of Birth *</label>
+                            <input type="date" class="form-input" id="studentDOB" required>
+                        </div>
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label" for="studentDOB">Date of Birth *</label>
-                        <input type="date" class="form-input" id="studentDOB" required>
+                        <label class="form-label" for="studentReg">Registration Number</label>
+                        <input type="text" class="form-input" id="studentReg" placeholder="Auto-generated if empty">
                     </div>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label" for="studentReg">Registration Number</label>
-                    <input type="text" class="form-input" id="studentReg" placeholder="Auto-generated if empty">
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label" for="fatherName">Father's Name</label>
-                    <input type="text" class="form-input" id="fatherName">
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label" for="motherName">Mother's Name</label>
-                    <input type="text" class="form-input" id="motherName">
-                </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="fatherName">Father's Name</label>
+                        <input type="text" class="form-input" id="fatherName">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="motherName">Mother's Name</label>
+                        <input type="text" class="form-input" id="motherName">
+                    </div>
 
+                    <div class="button-group">
+                        <button type="button" class="btn-secondary" onclick="closeModal('addStudentModal')">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-plus"></i>
+                            Add Student
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <div id="excelUploadContainer" style="display: none;">
+                <div class="form-group">
+                    <div class="file-upload" onclick="document.getElementById('excelFileInput').click()">
+                        <div class="file-upload-label">
+                            <div class="file-upload-icon">
+                                <i class="fas fa-file-excel"></i>
+                            </div>
+                            <div>Click to upload Excel file</div>
+                            <div class="file-info">Supports .xlsx, .xls, .csv files</div>
+                        </div>
+                    </div>
+                    <input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv" onchange="handleExcelUpload(event)" style="display: none;">
+                    <div id="uploadStatus" class="file-info"></div>
+                </div>
+                
+                <div class="form-group">
+                    <button class="btn-secondary" onclick="downloadExcelTemplate()" style="width: 100%;">
+                        <i class="fas fa-download"></i>
+                        Download Excel Template
+                    </button>
+                </div>
+                
                 <div class="button-group">
                     <button type="button" class="btn-secondary" onclick="closeModal('addStudentModal')">
                         Cancel
                     </button>
-                    <button type="submit" class="btn-primary">
-                        <i class="fas fa-plus"></i>
-                        Add Student
+                    <button type="button" class="btn-primary" id="uploadExcelBtn" onclick="processExcelFile()" disabled>
+                        <i class="fas fa-upload"></i>
+                        Upload & Add Students
                     </button>
                 </div>
-            </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== STUDENT DETAIL MODAL ===== -->
+    <div class="modal-overlay" id="studentDetailModal">
+        <div class="modal-content student-detail-modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Student Details</h2>
+                <button class="modal-close" onclick="closeModal('studentDetailModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="student-detail-content" id="studentDetailContent">
+                <!-- Student details will be populated here -->
+            </div>
         </div>
     </div>
 
@@ -1558,6 +1747,10 @@
             </button>
             <div style="display: flex; align-items: center; gap: var(--space-md);">
                 <h2 id="detailClassName" style="font-size: var(--font-size-base); font-weight: 600;">Class Name</h2>
+                <button class="btn-success" onclick="downloadClassList()">
+                    <i class="fas fa-file-word"></i>
+                    Download List (DOCX)
+                </button>
                 <button class="btn-primary" onclick="openAddStudentModal()">
                     <i class="fas fa-user-plus"></i>
                     ADD STUDENTS
@@ -1650,6 +1843,8 @@
         let pendingAction = null;
         let pendingActionData = null;
         let selectedStudentToRemove = null;
+        let uploadedExcelData = null;
+        let selectedStudentForDetail = null;
 
         // ===== AUTHENTICATION =====
         async function initializeAuth() {
@@ -1856,10 +2051,10 @@
         }
 
         function displayClasses() {
-            const grid = document.getElementById('classesGrid');
+            const list = document.getElementById('classesList');
             
             if (classes.length === 0) {
-                grid.innerHTML = `
+                list.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">
                             <i class="fas fa-chalkboard-teacher"></i>
@@ -1871,33 +2066,33 @@
                 return;
             }
             
-            grid.innerHTML = '';
+            list.innerHTML = '';
             classes.forEach(cls => {
-                const card = document.createElement('div');
-                card.className = 'class-card';
-                card.innerHTML = `
-                    <div class="class-header">
-                        <div>
-                            <h3 class="class-name">${getClassName(cls)}</h3>
-                            <p class="class-level">${cls.level} ${cls.levelNo}</p>
-                            ${cls.combination ? `<span class="class-combination">${cls.combination}</span>` : ''}
+                const item = document.createElement('div');
+                item.className = 'class-list-item';
+                item.innerHTML = `
+                    <div class="class-list-info">
+                        <div class="class-list-name">${getClassName(cls)}</div>
+                        <div class="class-list-details">
+                            <span>${cls.level} ${cls.levelNo}</span>
+                            ${cls.combination ? `<span class="class-list-combination">${cls.combination}</span>` : ''}
+                            ${cls.subClass ? `<span>Sub-class: ${cls.subClass}</span>` : ''}
                         </div>
                     </div>
-                    <div class="class-stats">
-                        <div class="class-stat">
-                            <div class="stat-number">${cls.studentCount || 0}</div>
-                            <div class="stat-label-small">Students</div>
-                        </div>
+                    <div class="class-list-count">
+                        <div class="class-list-number">${cls.studentCount || 0}</div>
+                        <div class="class-list-label">Students</div>
                     </div>
                 `;
-                card.addEventListener('click', () => openClassDetail(cls.id));
-                grid.appendChild(card);
+                item.addEventListener('click', () => openClassDetail(cls.id));
+                list.appendChild(item);
             });
         }
 
         function getClassName(cls) {
             let name = `${cls.level} ${cls.levelNo}`;
             if (cls.subClass) name += ` ${cls.subClass}`;
+            if (cls.combination) name += ` - ${cls.combination}`;
             return name;
         }
 
@@ -1992,177 +2187,6 @@
             document.getElementById('subClassText').textContent = 'None';
         }
 
-        // ===== ENHANCED SELECT FUNCTIONS =====
-        function searchLevelOptions() {
-            const search = document.getElementById('levelSearch').value.toLowerCase();
-            const options = document.querySelectorAll('#levelOptions .select-option');
-            
-            options.forEach(option => {
-                const text = option.textContent.toLowerCase();
-                if (text.includes(search)) {
-                    option.style.display = 'block';
-                } else {
-                    option.style.display = 'none';
-                }
-            });
-            
-            document.getElementById('levelOptions').style.display = 'block';
-        }
-
-        function selectLevel(level) {
-            document.getElementById('classLevel').value = level;
-            document.getElementById('levelText').textContent = level;
-            document.getElementById('selectedLevel').style.display = 'block';
-            document.getElementById('levelOptions').style.display = 'none';
-            
-            // Enable level number search and populate options
-            document.getElementById('levelNoSearch').disabled = false;
-            populateLevelNoOptions(level);
-        }
-
-        function clearLevelSelection() {
-            document.getElementById('classLevel').value = '';
-            document.getElementById('selectedLevel').style.display = 'none';
-            document.getElementById('levelSearch').value = '';
-            
-            // Disable and clear level number
-            document.getElementById('levelNoSearch').disabled = true;
-            document.getElementById('levelNoSearch').value = '';
-            document.getElementById('selectedLevelNo').style.display = 'none';
-            document.getElementById('classLevelNo').value = '';
-            
-            // Hide combination group
-            document.getElementById('combinationGroup').style.display = 'none';
-        }
-
-        function populateLevelNoOptions(level) {
-            const options = document.getElementById('levelNoOptions');
-            options.innerHTML = '';
-            
-            let numbers = [];
-            switch(level) {
-                case 'Nursery':
-                    numbers = ['1', '2', '3'];
-                    break;
-                case 'Primary':
-                    numbers = ['1', '2', '3', '4', '5', '6', '7'];
-                    break;
-                case 'Senior':
-                    numbers = ['1', '2', '3', '4', '5', '6'];
-                    // Show combination group for Senior
-                    document.getElementById('combinationGroup').style.display = 'block';
-                    populateCombinationOptions();
-                    break;
-                case 'Grade':
-                    numbers = ['1', '2', '3', '4', '5'];
-                    document.getElementById('combinationGroup').style.display = 'none';
-                    break;
-            }
-            
-            numbers.forEach(number => {
-                const option = document.createElement('div');
-                option.className = 'select-option';
-                option.textContent = number;
-                option.onclick = () => selectLevelNo(number);
-                options.appendChild(option);
-            });
-        }
-
-        function populateCombinationOptions() {
-            const options = document.getElementById('combinationOptions');
-            options.innerHTML = '';
-            
-            const combinations = ['MS1', 'MS2', 'LAN', 'MEG', 'MEC', 'PCM', 'PCB', 'MCB', 'MPG', 'LFK'];
-            
-            combinations.forEach(comb => {
-                const option = document.createElement('div');
-                option.className = 'select-option';
-                option.textContent = comb;
-                option.onclick = () => selectCombination(comb);
-                options.appendChild(option);
-            });
-        }
-
-        function searchLevelNoOptions() {
-            const search = document.getElementById('levelNoSearch').value.toLowerCase();
-            const options = document.querySelectorAll('#levelNoOptions .select-option');
-            
-            options.forEach(option => {
-                const text = option.textContent.toLowerCase();
-                if (text.includes(search)) {
-                    option.style.display = 'block';
-                } else {
-                    option.style.display = 'none';
-                }
-            });
-            
-            document.getElementById('levelNoOptions').style.display = 'block';
-        }
-
-        function selectLevelNo(number) {
-            document.getElementById('classLevelNo').value = number;
-            document.getElementById('levelNoText').textContent = number;
-            document.getElementById('selectedLevelNo').style.display = 'block';
-            document.getElementById('levelNoOptions').style.display = 'none';
-        }
-
-        function clearLevelNoSelection() {
-            document.getElementById('classLevelNo').value = '';
-            document.getElementById('selectedLevelNo').style.display = 'none';
-            document.getElementById('levelNoSearch').value = '';
-        }
-
-        function searchCombinationOptions() {
-            const search = document.getElementById('combinationSearch').value.toLowerCase();
-            const options = document.querySelectorAll('#combinationOptions .select-option');
-            
-            options.forEach(option => {
-                const text = option.textContent.toLowerCase();
-                if (text.includes(search)) {
-                    option.style.display = 'block';
-                } else {
-                    option.style.display = 'none';
-                }
-            });
-            
-            document.getElementById('combinationOptions').style.display = 'block';
-        }
-
-        function selectCombination(combination) {
-            document.getElementById('combination').value = combination;
-            document.getElementById('combinationText').textContent = combination;
-            document.getElementById('selectedCombination').style.display = 'block';
-            document.getElementById('combinationOptions').style.display = 'none';
-        }
-
-        function clearCombinationSelection() {
-            document.getElementById('combination').value = '';
-            document.getElementById('selectedCombination').style.display = 'none';
-            document.getElementById('combinationSearch').value = '';
-        }
-
-        function searchSubClassOptions() {
-            const search = document.getElementById('subClassSearch').value.toLowerCase();
-            const options = document.querySelectorAll('#subClassOptions .select-option');
-            
-            options.forEach(option => {
-                const text = option.textContent.toLowerCase();
-                if (text.includes(search) || (search === '' && option.textContent === 'None')) {
-                    option.style.display = 'block';
-                } else {
-                    option.style.display = 'none';
-                }
-            });
-            
-            document.getElementById('subClassOptions').style.display = 'block';
-        }
-
-        function selectSubClass(subClass) {
-            document.getElementById('subClass').value = subClass;
-            document.getElementById('subClassText').textContent = subClass || 'None';
-            document.getElementById('subClassOptions').style.display = 'none';
-        }
-
         // ===== STUDENT MANAGEMENT =====
         async function loadClassStudents(classId) {
             try {
@@ -2194,6 +2218,10 @@
                     allStudents.push(student);
                 });
                 
+                // Sort students alphabetically by name
+                students.sort((a, b) => a.fullName.localeCompare(b.fullName));
+                allStudents.sort((a, b) => a.fullName.localeCompare(b.fullName));
+                
                 displayStudents();
                 
             } catch (error) {
@@ -2224,6 +2252,7 @@
             tbody.innerHTML = '';
             students.forEach((student, index) => {
                 const row = document.createElement('tr');
+                row.onclick = () => showStudentDetail(student);
                 row.innerHTML = `
                     <td>${index + 1}</td>
                     <td style="display: flex; align-items: center; gap: var(--space-sm);">
@@ -2253,6 +2282,288 @@
             });
             
             count.textContent = students.length;
+        }
+
+        function showStudentDetail(student) {
+            selectedStudentForDetail = student;
+            const content = document.getElementById('studentDetailContent');
+            
+            content.innerHTML = `
+                <div class="student-detail-header">
+                    <div class="student-detail-avatar">
+                        ${getInitials(student.fullName)}
+                    </div>
+                    <div class="student-detail-info">
+                        <div class="student-detail-name">${student.fullName}</div>
+                        <div class="student-detail-meta">
+                            ${student.regNo || 'No Registration Number'} • 
+                            <span style="color: ${student.gender === 'M' ? 'var(--apple-blue)' : '#FF2D55'}">
+                                ${student.gender === 'M' ? 'Male' : 'Female'}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="student-detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Registration Number</div>
+                        <div class="detail-value">${student.regNo || 'Not specified'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Gender</div>
+                        <div class="detail-value" style="color: ${student.gender === 'M' ? 'var(--apple-blue)' : '#FF2D55'}">
+                            ${student.gender === 'M' ? 'Male' : 'Female'}
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Date of Birth</div>
+                        <div class="detail-value">${student.dob || 'Not specified'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Father's Name</div>
+                        <div class="detail-value">${student.fatherName || 'Not specified'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Mother's Name</div>
+                        <div class="detail-value">${student.motherName || 'Not specified'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Class</div>
+                        <div class="detail-value">${getClassName(classes.find(c => c.id === student.classId))}</div>
+                    </div>
+                </div>
+            `;
+            
+            openModal('studentDetailModal');
+        }
+
+        // ===== EXCEL UPLOAD FUNCTIONALITY =====
+        function showManualForm() {
+            document.getElementById('manualFormContainer').style.display = 'block';
+            document.getElementById('excelUploadContainer').style.display = 'none';
+        }
+
+        function showExcelUpload() {
+            document.getElementById('manualFormContainer').style.display = 'none';
+            document.getElementById('excelUploadContainer').style.display = 'block';
+            resetExcelUpload();
+        }
+
+        function downloadExcelTemplate() {
+            const templateData = [
+                ["Student", "Reg No", "Gender", "Date of Birth", "Father's Name(optional)", "Mother's Name(optional)"],
+                ["John Doe", "2024-001", "M", "2010-05-15", "James Doe", "Mary Doe"],
+                ["Jane Smith", "2024-002", "F", "2010-08-20", "Robert Smith", "Sarah Smith"],
+                ["", "", "", "", "", ""],
+                ["IMPORTANT NOTES:", "", "", "", "", ""],
+                ["1. Keep the column headers exactly as shown", "", "", "", "", ""],
+                ["2. Gender must be 'M' for Male or 'F' for Female", "", "", "", "", ""],
+                ["3. Date format must be YYYY-MM-DD (e.g., 2010-05-15)", "", "", "", "", ""],
+                ["4. Registration Number is optional - leave empty to auto-generate", "", "", "", "", ""],
+                ["5. Father's and Mother's names are optional", "", "", "", "", ""],
+                ["6. Do not modify or delete the first row (headers)", "", "", "", "", ""]
+            ];
+            
+            const ws = XLSX.utils.aoa_to_sheet(templateData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Student Template");
+            
+            // Auto-size columns
+            const wscols = [
+                {wch: 20}, // Student
+                {wch: 15}, // Reg No
+                {wch: 10}, // Gender
+                {wch: 15}, // Date of Birth
+                {wch: 20}, // Father's Name
+                {wch: 20}  // Mother's Name
+            ];
+            ws['!cols'] = wscols;
+            
+            XLSX.writeFile(wb, "Student_Template.xlsx");
+            showSuccess("Excel template downloaded successfully!");
+        }
+
+        function handleExcelUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const fileName = file.name;
+            const fileSize = (file.size / 1024).toFixed(2); // KB
+            document.getElementById('uploadStatus').innerHTML = `
+                <i class="fas fa-check-circle" style="color: var(--apple-green);"></i>
+                File selected: ${fileName} (${fileSize} KB)
+            `;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet, {header: 1});
+                    
+                    // Validate the Excel structure
+                    if (jsonData.length < 2) {
+                        throw new Error("Excel file is empty or has no data");
+                    }
+                    
+                    const headers = jsonData[0];
+                    const expectedHeaders = ["Student", "Reg No", "Gender", "Date of Birth", "Father's Name(optional)", "Mother's Name(optional)"];
+                    
+                    // Check if headers match
+                    let headersMatch = true;
+                    for (let i = 0; i < Math.min(headers.length, expectedHeaders.length); i++) {
+                        if (headers[i] !== expectedHeaders[i]) {
+                            headersMatch = false;
+                            break;
+                        }
+                    }
+                    
+                    if (!headersMatch) {
+                        showError("Invalid Excel template. Please download and use the provided template.");
+                        document.getElementById('uploadExcelBtn').disabled = true;
+                        return;
+                    }
+                    
+                    // Process data rows (skip header row)
+                    uploadedExcelData = [];
+                    for (let i = 1; i < jsonData.length; i++) {
+                        const row = jsonData[i];
+                        if (row.length === 0 || !row[0]) continue; // Skip empty rows
+                        
+                        const studentData = {
+                            fullName: row[0] || '',
+                            regNo: row[1] || generateRegNumber(),
+                            gender: (row[2] || '').toUpperCase(),
+                            dob: row[3] || '',
+                            fatherName: row[4] || '',
+                            motherName: row[5] || ''
+                        };
+                        
+                        // Validate required fields
+                        if (!studentData.fullName || !studentData.gender || !studentData.dob) {
+                            showError(`Row ${i+1} is missing required fields. Student, Gender, and Date of Birth are required.`);
+                            continue;
+                        }
+                        
+                        if (studentData.gender !== 'M' && studentData.gender !== 'F') {
+                            showError(`Row ${i+1}: Gender must be 'M' or 'F'`);
+                            continue;
+                        }
+                        
+                        uploadedExcelData.push(studentData);
+                    }
+                    
+                    if (uploadedExcelData.length > 0) {
+                        document.getElementById('uploadExcelBtn').disabled = false;
+                        showSuccess(`Found ${uploadedExcelData.length} valid student records in the file.`);
+                    } else {
+                        showError("No valid student records found in the file.");
+                        document.getElementById('uploadExcelBtn').disabled = true;
+                    }
+                    
+                } catch (error) {
+                    console.error("Excel parsing error:", error);
+                    showError("Error reading Excel file: " + error.message);
+                    document.getElementById('uploadExcelBtn').disabled = true;
+                }
+            };
+            
+            reader.readAsArrayBuffer(file);
+        }
+
+        function resetExcelUpload() {
+            document.getElementById('excelFileInput').value = '';
+            document.getElementById('uploadStatus').innerHTML = '';
+            document.getElementById('uploadExcelBtn').disabled = true;
+            uploadedExcelData = null;
+        }
+
+        async function processExcelFile() {
+            if (!uploadedExcelData || uploadedExcelData.length === 0) {
+                showError("No student data to upload");
+                return;
+            }
+            
+            try {
+                if (!currentUser || !currentUser.schoolId || !currentClassId) {
+                    showError('No class selected');
+                    return;
+                }
+                
+                if (!db) {
+                    showError('Database not initialized');
+                    return;
+                }
+                
+                const classRef = db.collection('schools').doc(currentUser.schoolId)
+                    .collection('classes').doc(currentClassId);
+                
+                const classDoc = await classRef.get();
+                const currentCount = classDoc.data().studentCount || 0;
+                
+                let successCount = 0;
+                let errorCount = 0;
+                
+                // Show progress
+                showNotification(`Uploading ${uploadedExcelData.length} students...`, 'info');
+                
+                for (const studentData of uploadedExcelData) {
+                    try {
+                        const studentDoc = {
+                            ...studentData,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        };
+                        
+                        await db.collection('schools').doc(currentUser.schoolId)
+                            .collection('classes').doc(currentClassId)
+                            .collection('students').add(studentDoc);
+                        
+                        successCount++;
+                        
+                        // Update students array
+                        students.push({
+                            id: 'temp_' + successCount,
+                            classId: currentClassId,
+                            ...studentData
+                        });
+                        
+                    } catch (error) {
+                        console.error("Error adding student:", error);
+                        errorCount++;
+                    }
+                }
+                
+                // Update class student count
+                const newCount = currentCount + successCount;
+                await classRef.update({
+                    studentCount: newCount,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Sort students alphabetically
+                students.sort((a, b) => a.fullName.localeCompare(b.fullName));
+                allStudents = [...students];
+                
+                // Update UI
+                displayStudents();
+                await loadStatistics();
+                
+                // Reset and close modal
+                resetExcelUpload();
+                showManualForm();
+                closeModal('addStudentModal');
+                
+                if (errorCount === 0) {
+                    showSuccess(`Successfully added ${successCount} students!`);
+                } else {
+                    showSuccess(`Added ${successCount} students. ${errorCount} failed.`);
+                }
+                
+            } catch (error) {
+                console.error("Excel upload error:", error);
+                showError("Failed to upload students: " + error.message);
+            }
         }
 
         async function addStudent(event) {
@@ -2301,6 +2612,10 @@
                     id: docRef.id,
                     ...studentData
                 });
+                
+                // Sort students alphabetically
+                students.sort((a, b) => a.fullName.localeCompare(b.fullName));
+                allStudents = [...students];
                 
                 // Update UI
                 displayStudents();
@@ -2370,6 +2685,99 @@
             }
         }
 
+        // ===== DOCX DOWNLOAD FUNCTIONALITY =====
+        async function downloadClassList() {
+            try {
+                if (!currentClassId || students.length === 0) {
+                    showError('No students to download');
+                    return;
+                }
+                
+                const cls = classes.find(c => c.id === currentClassId);
+                if (!cls) {
+                    showError('Class not found');
+                    return;
+                }
+                
+                const className = getClassName(cls);
+                const currentDate = new Date().toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                
+                // Create table data
+                const tableData = students.map((student, index) => [
+                    (index + 1).toString(),
+                    student.fullName,
+                    student.regNo || '-',
+                    student.gender === 'M' ? 'Male' : 'Female',
+                    student.dob || '-',
+                    student.fatherName || '-',
+                    student.motherName || '-'
+                ]);
+                
+                // Create document using docx library
+                const doc = window.docx.Document;
+                const table = new doc.Table({
+                    rows: [
+                        new doc.TableRow({
+                            children: [
+                                new doc.TableCell({ children: [new doc.Paragraph("#")] }),
+                                new doc.TableCell({ children: [new doc.Paragraph("Student Name")] }),
+                                new doc.TableCell({ children: [new doc.Paragraph("Reg No")] }),
+                                new doc.TableCell({ children: [new doc.Paragraph("Gender")] }),
+                                new doc.TableCell({ children: [new doc.Paragraph("Date of Birth")] }),
+                                new doc.TableCell({ children: [new doc.Paragraph("Father's Name")] }),
+                                new doc.TableCell({ children: [new doc.Paragraph("Mother's Name")] })
+                            ]
+                        }),
+                        ...tableData.map(row => 
+                            new doc.TableRow({
+                                children: row.map(cell => 
+                                    new doc.TableCell({ children: [new doc.Paragraph(cell)] })
+                                )
+                            })
+                        )
+                    ]
+                });
+                
+                const document = new doc.Document({
+                    sections: [{
+                        properties: {},
+                        children: [
+                            new doc.Paragraph({
+                                text: `${className} - Student List`,
+                                heading: doc.HeadingLevel.HEADING_1,
+                                alignment: doc.AlignmentType.CENTER
+                            }),
+                            new doc.Paragraph({
+                                text: `Date: ${currentDate}`,
+                                spacing: { after: 400 }
+                            }),
+                            new doc.Paragraph({
+                                text: `Total Students: ${students.length}`,
+                                spacing: { after: 400 }
+                            }),
+                            table
+                        ]
+                    }]
+                });
+                
+                // Generate and download the document
+                const packer = new doc.Packer();
+                const mimeType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+                const blob = await packer.toBlob(document);
+                saveAs(blob, `${className.replace(/[^a-z0-9]/gi, '_')}_Student_List.docx`);
+                
+                showSuccess('Class list downloaded successfully!');
+                
+            } catch (error) {
+                console.error('Error generating document:', error);
+                showError('Failed to download class list: ' + error.message);
+            }
+        }
+
         // ===== SYSTEM SETTINGS FUNCTIONS =====
         async function openRemoveStudentModal() {
             try {
@@ -2426,6 +2834,9 @@
                         });
                     });
                 }
+                
+                // Sort students alphabetically
+                allStudents.sort((a, b) => a.fullName.localeCompare(b.fullName));
                 
                 // Populate options
                 optionsContainer.innerHTML = '';
@@ -2773,10 +3184,10 @@
         }
 
         function displayFilteredClasses(filteredClasses) {
-            const grid = document.getElementById('classesGrid');
+            const list = document.getElementById('classesList');
             
             if (filteredClasses.length === 0) {
-                grid.innerHTML = `
+                list.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">
                             <i class="fas fa-search"></i>
@@ -2788,27 +3199,26 @@
                 return;
             }
             
-            grid.innerHTML = '';
+            list.innerHTML = '';
             filteredClasses.forEach(cls => {
-                const card = document.createElement('div');
-                card.className = 'class-card';
-                card.innerHTML = `
-                    <div class="class-header">
-                        <div>
-                            <h3 class="class-name">${getClassName(cls)}</h3>
-                            <p class="class-level">${cls.level} ${cls.levelNo}</p>
-                            ${cls.combination ? `<span class="class-combination">${cls.combination}</span>` : ''}
+                const item = document.createElement('div');
+                item.className = 'class-list-item';
+                item.innerHTML = `
+                    <div class="class-list-info">
+                        <div class="class-list-name">${getClassName(cls)}</div>
+                        <div class="class-list-details">
+                            <span>${cls.level} ${cls.levelNo}</span>
+                            ${cls.combination ? `<span class="class-list-combination">${cls.combination}</span>` : ''}
+                            ${cls.subClass ? `<span>Sub-class: ${cls.subClass}</span>` : ''}
                         </div>
                     </div>
-                    <div class="class-stats">
-                        <div class="class-stat">
-                            <div class="stat-number">${cls.studentCount || 0}</div>
-                            <div class="stat-label-small">Students</div>
-                        </div>
+                    <div class="class-list-count">
+                        <div class="class-list-number">${cls.studentCount || 0}</div>
+                        <div class="class-list-label">Students</div>
                     </div>
                 `;
-                card.addEventListener('click', () => openClassDetail(cls.id));
-                grid.appendChild(card);
+                item.addEventListener('click', () => openClassDetail(cls.id));
+                list.appendChild(item);
             });
         }
 
@@ -2854,7 +3264,179 @@
         }
 
         function openAddStudentModal() {
+            showManualForm();
             openModal('addStudentModal');
+        }
+
+        // ===== ENHANCED SELECT FUNCTIONS =====
+        function searchLevelOptions() {
+            const search = document.getElementById('levelSearch').value.toLowerCase();
+            const options = document.querySelectorAll('#levelOptions .select-option');
+            
+            options.forEach(option => {
+                const text = option.textContent.toLowerCase();
+                if (text.includes(search)) {
+                    option.style.display = 'block';
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+            
+            document.getElementById('levelOptions').style.display = 'block';
+        }
+
+        function selectLevel(level) {
+            document.getElementById('classLevel').value = level;
+            document.getElementById('levelText').textContent = level;
+            document.getElementById('selectedLevel').style.display = 'block';
+            document.getElementById('levelOptions').style.display = 'none';
+            
+            // Enable level number search and populate options
+            document.getElementById('levelNoSearch').disabled = false;
+            populateLevelNoOptions(level);
+        }
+
+        function clearLevelSelection() {
+            document.getElementById('classLevel').value = '';
+            document.getElementById('selectedLevel').style.display = 'none';
+            document.getElementById('levelSearch').value = '';
+            
+            // Disable and clear level number
+            document.getElementById('levelNoSearch').disabled = true;
+            document.getElementById('levelNoSearch').value = '';
+            document.getElementById('selectedLevelNo').style.display = 'none';
+            document.getElementById('classLevelNo').value = '';
+            
+            // Hide combination group
+            document.getElementById('combinationGroup').style.display = 'none';
+        }
+
+        function populateLevelNoOptions(level) {
+            const options = document.getElementById('levelNoOptions');
+            options.innerHTML = '';
+            
+            let numbers = [];
+            switch(level) {
+                case 'Nursery':
+                    numbers = ['1', '2', '3'];
+                    break;
+                case 'Primary':
+                    numbers = ['1', '2', '3', '4', '5', '6', '7'];
+                    break;
+                case 'Senior':
+                    numbers = ['1', '2', '3', '4', '5', '6'];
+                    // Show combination group for Senior
+                    document.getElementById('combinationGroup').style.display = 'block';
+                    populateCombinationOptions();
+                    break;
+                case 'Grade':
+                    numbers = ['1', '2', '3', '4', '5'];
+                    document.getElementById('combinationGroup').style.display = 'none';
+                    break;
+            }
+            
+            numbers.forEach(number => {
+                const option = document.createElement('div');
+                option.className = 'select-option';
+                option.textContent = number;
+                option.onclick = () => selectLevelNo(number);
+                options.appendChild(option);
+            });
+        }
+
+        function populateCombinationOptions() {
+            const options = document.getElementById('combinationOptions');
+            options.innerHTML = '';
+            
+            const combinations = ['MS1', 'MS2', 'LAN', 'MEG', 'MEC', 'PCM', 'PCB', 'MCB', 'MPG', 'LFK'];
+            
+            combinations.forEach(comb => {
+                const option = document.createElement('div');
+                option.className = 'select-option';
+                option.textContent = comb;
+                option.onclick = () => selectCombination(comb);
+                options.appendChild(option);
+            });
+        }
+
+        function searchLevelNoOptions() {
+            const search = document.getElementById('levelNoSearch').value.toLowerCase();
+            const options = document.querySelectorAll('#levelNoOptions .select-option');
+            
+            options.forEach(option => {
+                const text = option.textContent.toLowerCase();
+                if (text.includes(search)) {
+                    option.style.display = 'block';
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+            
+            document.getElementById('levelNoOptions').style.display = 'block';
+        }
+
+        function selectLevelNo(number) {
+            document.getElementById('classLevelNo').value = number;
+            document.getElementById('levelNoText').textContent = number;
+            document.getElementById('selectedLevelNo').style.display = 'block';
+            document.getElementById('levelNoOptions').style.display = 'none';
+        }
+
+        function clearLevelNoSelection() {
+            document.getElementById('classLevelNo').value = '';
+            document.getElementById('selectedLevelNo').style.display = 'none';
+            document.getElementById('levelNoSearch').value = '';
+        }
+
+        function searchCombinationOptions() {
+            const search = document.getElementById('combinationSearch').value.toLowerCase();
+            const options = document.querySelectorAll('#combinationOptions .select-option');
+            
+            options.forEach(option => {
+                const text = option.textContent.toLowerCase();
+                if (text.includes(search)) {
+                    option.style.display = 'block';
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+            
+            document.getElementById('combinationOptions').style.display = 'block';
+        }
+
+        function selectCombination(combination) {
+            document.getElementById('combination').value = combination;
+            document.getElementById('combinationText').textContent = combination;
+            document.getElementById('selectedCombination').style.display = 'block';
+            document.getElementById('combinationOptions').style.display = 'none';
+        }
+
+        function clearCombinationSelection() {
+            document.getElementById('combination').value = '';
+            document.getElementById('selectedCombination').style.display = 'none';
+            document.getElementById('combinationSearch').value = '';
+        }
+
+        function searchSubClassOptions() {
+            const search = document.getElementById('subClassSearch').value.toLowerCase();
+            const options = document.querySelectorAll('#subClassOptions .select-option');
+            
+            options.forEach(option => {
+                const text = option.textContent.toLowerCase();
+                if (text.includes(search) || (search === '' && option.textContent === 'None')) {
+                    option.style.display = 'block';
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+            
+            document.getElementById('subClassOptions').style.display = 'block';
+        }
+
+        function selectSubClass(subClass) {
+            document.getElementById('subClass').value = subClass;
+            document.getElementById('subClassText').textContent = subClass || 'None';
+            document.getElementById('subClassOptions').style.display = 'none';
         }
 
         // ===== INITIALIZE APP =====
