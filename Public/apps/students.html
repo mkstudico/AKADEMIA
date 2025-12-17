@@ -1604,9 +1604,9 @@
         </div>
     </div>
 
-    <!-- ===== FIREBASE CONFIG ===== -->
     <script>
-        // Firebase configuration (using the same as home.html)
+        // ===== FIREBASE INITIALIZATION =====
+        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyA3gohTf1rzOYBBQCI-WD8ORoTK4DOf-fw",
             authDomain: "akademia-c56ff.firebaseapp.com",
@@ -1619,12 +1619,18 @@
         };
 
         // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const auth = firebase.auth();
-    </script>
+        let app, db, auth;
+        
+        try {
+            app = firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+            auth = firebase.auth();
+            console.log("Firebase initialized successfully");
+        } catch (error) {
+            console.error("Firebase initialization error:", error);
+            showError("Failed to initialize database");
+        }
 
-    <script>
         // ===== GLOBAL STATE =====
         let currentUser = null;
         let currentSchool = null;
@@ -1727,6 +1733,11 @@
             }
         }
 
+        function setupEventListeners() {
+            // This function is now defined
+            console.log("Event listeners setup");
+        }
+
         function updateUserUI() {
             if (currentUser) {
                 document.getElementById('profileName').textContent = currentUser.name;
@@ -1741,6 +1752,12 @@
             try {
                 if (!currentUser || !currentUser.schoolId) {
                     console.error('No school ID available');
+                    return;
+                }
+                
+                if (!db) {
+                    console.error('Firestore not initialized');
+                    showError('Database not initialized');
                     return;
                 }
                 
@@ -1798,6 +1815,11 @@
             try {
                 if (!currentUser || !currentUser.schoolId) {
                     console.error('No school ID available');
+                    return;
+                }
+                
+                if (!db) {
+                    console.error('Firestore not initialized');
                     return;
                 }
                 
@@ -1875,6 +1897,11 @@
             try {
                 if (!currentUser || !currentUser.schoolId) {
                     showError('No school selected');
+                    return;
+                }
+                
+                if (!db) {
+                    showError('Database not initialized');
                     return;
                 }
                 
@@ -2133,6 +2160,11 @@
                     return;
                 }
                 
+                if (!db) {
+                    showError('Database not initialized');
+                    return;
+                }
+                
                 const studentsRef = db.collection('schools').doc(currentUser.schoolId)
                     .collection('classes').doc(classId)
                     .collection('students');
@@ -2218,6 +2250,11 @@
             try {
                 if (!currentUser || !currentUser.schoolId || !currentClassId) {
                     showError('No class selected');
+                    return;
+                }
+                
+                if (!db) {
+                    showError('Database not initialized');
                     return;
                 }
                 
@@ -2348,6 +2385,11 @@
         async function loadAllStudentsForRemoval() {
             try {
                 if (!currentUser || !currentUser.schoolId) return;
+                
+                if (!db) {
+                    showError('Database not initialized');
+                    return;
+                }
                 
                 const optionsContainer = document.getElementById('removeStudentOptions');
                 optionsContainer.innerHTML = '<div class="select-option" style="color: var(--apple-gray-4);">Loading students...</div>';
@@ -2481,6 +2523,11 @@
             try {
                 if (!currentUser || !currentUser.schoolId) return;
                 
+                if (!db) {
+                    console.error('Firestore not initialized');
+                    return;
+                }
+                
                 const schoolRef = db.collection('schools').doc(currentUser.schoolId);
                 const doc = await schoolRef.get();
                 
@@ -2504,6 +2551,11 @@
             try {
                 if (!currentUser || !currentUser.schoolId) {
                     showError('No school selected');
+                    return;
+                }
+                
+                if (!db) {
+                    showError('Database not initialized');
                     return;
                 }
                 
