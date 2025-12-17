@@ -702,6 +702,28 @@
             background: var(--win11-surface);
         }
 
+        /* ===== FULLSCREEN WINDOW ===== */
+        .window.fullscreen {
+            width: 100% !important;
+            height: calc(100% - var(--taskbar-height)) !important;
+            left: 0 !important;
+            top: 0 !important;
+            resize: none !important;
+            border-radius: 0 !important;
+            border: none !important;
+            max-width: 100% !important;
+            max-height: calc(100% - var(--taskbar-height)) !important;
+            z-index: calc(var(--taskbar-z) - 1) !important;
+        }
+
+        .window.fullscreen .window-header {
+            border-radius: 0 !important;
+        }
+
+        .window.fullscreen .resize-handle {
+            display: none !important;
+        }
+
         /* ===== MAC OS STYLE APP LAUNCHER ===== */
         .app-launcher-overlay {
             position: fixed;
@@ -2261,7 +2283,8 @@
                 element: window,
                 minimized: false,
                 iframe: null,
-                maximized: false
+                maximized: false,
+                fullscreen: false
             });
             
             updateTaskbarAppState(appId, true);
@@ -2287,7 +2310,7 @@
             window.style.top = `${50 + offset}px`;
             
             window.innerHTML = `
-                <div class="window-header" onmousedown="startDrag('${id}', event)">
+                <div class="window-header" onmousedown="startDrag('${id}', event)" ondblclick="toggleFullscreen('${id}')">
                     <div class="window-icon" style="background: ${app.color};">
                         <img src="${app.icon}" alt="${app.name}" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\\'${app.fallbackIcon}\\' style=\\'color: white; font-size: 12px;\\'></i>'">
                     </div>
@@ -2388,9 +2411,16 @@
         function toggleMaximize(windowId) {
             const window = windows.find(w => w.id === windowId);
             if (!window) return;
-            
+
             const windowElement = window.element;
             const isMaximized = windowElement.classList.contains('maximized');
+            const isFullscreen = windowElement.classList.contains('fullscreen');
+            
+            // If in fullscreen, exit fullscreen first
+            if (isFullscreen) {
+                toggleFullscreen(windowId);
+                return;
+            }
             
             if (isMaximized) {
                 // Restore window
@@ -2426,6 +2456,80 @@
                 const icon = document.getElementById(`maximizeIcon_${windowId}`);
                 if (icon) {
                     icon.className = 'fas fa-window-restore';
+                }
+            }
+            
+            bringToFront(windowId);
+        }
+
+        function toggleFullscreen(windowId) {
+            const window = windows.find(w => w.id === windowId);
+            if (!window) return;
+
+            const windowElement = window.element;
+            const isFullscreen = windowElement.classList.contains('fullscreen');
+            
+            if (isFullscreen) {
+                // Exit fullscreen
+                windowElement.classList.remove('fullscreen');
+                
+                // Restore to previous state (maximized or normal)
+                if (window.maximized) {
+                    windowElement.classList.add('maximized');
+                    windowElement.style.width = 'calc(100% - 40px)';
+                    windowElement.style.height = 'calc(100% - 100px)';
+                    windowElement.style.left = '20px';
+                    windowElement.style.top = '20px';
+                    
+                    // Update maximize button icon
+                    const icon = document.getElementById(`maximizeIcon_${windowId}`);
+                    if (icon) {
+                        icon.className = 'fas fa-window-restore';
+                    }
+                } else {
+                    // Restore to normal window size
+                    windowElement.style.width = window.originalWidth || '600px';
+                    windowElement.style.height = window.originalHeight || '400px';
+                    windowElement.style.left = window.originalLeft || '50px';
+                    windowElement.style.top = window.originalTop || '50px';
+                    windowElement.style.resize = 'both';
+                    
+                    // Update maximize button icon
+                    const icon = document.getElementById(`maximizeIcon_${windowId}`);
+                    if (icon) {
+                        icon.className = 'fas fa-window-maximize';
+                    }
+                }
+                
+                windowElement.style.borderRadius = '10px';
+                windowElement.style.border = '1px solid var(--win11-border)';
+                window.fullscreen = false;
+            } else {
+                // Save current state before going fullscreen
+                if (!window.maximized) {
+                    window.originalWidth = windowElement.style.width;
+                    window.originalHeight = windowElement.style.height;
+                    window.originalLeft = windowElement.style.left;
+                    window.originalTop = windowElement.style.top;
+                }
+                
+                // Enter fullscreen
+                windowElement.classList.remove('maximized');
+                windowElement.classList.add('fullscreen');
+                windowElement.style.width = '100%';
+                windowElement.style.height = 'calc(100% - var(--taskbar-height))';
+                windowElement.style.left = '0';
+                windowElement.style.top = '0';
+                windowElement.style.resize = 'none';
+                windowElement.style.borderRadius = '0';
+                windowElement.style.border = 'none';
+                window.fullscreen = true;
+                window.maximized = false;
+                
+                // Update maximize button icon
+                const icon = document.getElementById(`maximizeIcon_${windowId}`);
+                if (icon) {
+                    icon.className = 'fas fa-compress';
                 }
             }
             
@@ -2979,6 +3083,12 @@
                     e.preventDefault();
                     if (activeWindow) {
                         closeWindow(activeWindow);
+                    }
+                }
+                if (e.key === 'F11' || (e.ctrlKey && e.key === 'f')) {
+                    e.preventDefault();
+                    if (activeWindow) {
+                        toggleFullscreen(activeWindow);
                     }
                 }
             });
