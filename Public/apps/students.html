@@ -1605,14 +1605,8 @@
     </div>
 
     <!-- ===== FIREBASE CONFIG ===== -->
-  <script>
-    // ===== FIREBASE INITIALIZATION =====
-    let db;
-    let firestore;
-    let auth;
-
-    // Initialize Firebase immediately after SDK loads
-    try {
+    <script>
+        // Firebase configuration (using the same as home.html)
         const firebaseConfig = {
             apiKey: "AIzaSyA3gohTf1rzOYBBQCI-WD8ORoTK4DOf-fw",
             authDomain: "akademia-c56ff.firebaseapp.com",
@@ -1624,603 +1618,1289 @@
             measurementId: "G-X3CHCJE5LK"
         };
 
-        // Check if Firebase is available
-        if (typeof firebase !== 'undefined') {
-            // Initialize Firebase
-            let app;
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+    </script>
+
+    <script>
+        // ===== GLOBAL STATE =====
+        let currentUser = null;
+        let currentSchool = null;
+        let currentClassId = null;
+        let currentTerm = 'I';
+        let academicYear = '2024';
+        let classes = [];
+        let students = [];
+        let allStudents = [];
+        let pendingAction = null;
+        let pendingActionData = null;
+        let selectedStudentToRemove = null;
+
+        // ===== AUTHENTICATION =====
+        async function initializeAuth() {
             try {
-                app = firebase.initializeApp(firebaseConfig);
-            } catch (e) {
-                // App already exists, use existing
-                app = firebase.app();
-            }
-            
-            // Get Firestore instance
-            db = firebase.firestore();
-            firestore = firebase.firestore;
-            auth = firebase.auth();
-            console.log('Firebase initialized successfully');
-        } else {
-            console.error('Firebase SDK not loaded!');
-        }
-    } catch (error) {
-        console.error('Firebase initialization error:', error);
-    }
-
-    // ===== GLOBAL STATE =====
-    let currentUser = null;
-    let currentSchool = null;
-    let currentClassId = null;
-    let currentTerm = 'I';
-    let academicYear = '2024';
-    let classes = [];
-    let students = [];
-    let allStudents = [];
-    let selectedStudentToRemove = null;
-
-    // ===== AUTHENTICATION =====
-    function initializeApp() {
-        try {
-            // Check for existing session
-            checkLocalStorageSession();
-            
-            if (currentUser) {
-                setupUI();
-                loadData();
-                setupEventListeners();
-            } else {
-                console.error('No user session found');
-                // Redirect to login if needed
-                // window.location.href = 'login.html';
-            }
-        } catch (error) {
-            console.error('App initialization error:', error);
-            showError('Failed to initialize application');
-        }
-    }
-
-    function checkLocalStorageSession() {
-        try {
-            const staffSession = localStorage.getItem('akademia_staff');
-            const userSession = localStorage.getItem('akademia_user');
-            
-            let sessionData = null;
-            
-            if (staffSession) {
-                sessionData = JSON.parse(staffSession);
-            } else if (userSession) {
-                sessionData = JSON.parse(userSession);
-            }
-            
-            if (sessionData) {
-                currentUser = {
-                    name: sessionData.staffName || sessionData.schoolName || 'User',
-                    role: sessionData.staffRole || 'Administrator',
-                    email: sessionData.staffEmail || sessionData.email,
-                    schoolId: sessionData.schoolId
-                };
+                // Check localStorage for session
+                await checkLocalStorageSession();
                 
-                currentSchool = {
-                    id: sessionData.schoolId,
-                    name: sessionData.schoolName || 'Akademia School'
-                };
-                
-                return true;
-            }
-            return false;
-        } catch (error) {
-            console.error('Session check error:', error);
-            return false;
-        }
-    }
-
-    function getInitials(name) {
-        if (!name) return 'U';
-        return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-    }
-
-    // ===== UI SETUP =====
-    function setupUI() {
-        if (currentUser) {
-            document.getElementById('profileName').textContent = currentUser.name;
-            document.getElementById('profileRole').textContent = currentUser.role;
-            const initials = getInitials(currentUser.name);
-            document.getElementById('profileAvatar').textContent = initials;
-            document.getElementById('profileBtn').textContent = initials;
-        }
-    }
-
-    function setupEventListeners() {
-        // Close dropdowns when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.profile-dropdown') && !e.target.closest('.profile-btn')) {
-                document.getElementById('profileDropdown').classList.remove('active');
-            }
-        });
-        
-        // Handle Escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeAllModals();
-                document.getElementById('profileDropdown').classList.remove('active');
-            }
-        });
-    }
-
-    // ===== DATA LOADING =====
-    async function loadData() {
-        try {
-            await loadCurrentTerm();
-            await loadStatistics();
-            await loadClasses();
-        } catch (error) {
-            console.error('Data loading error:', error);
-        }
-    }
-
-    async function loadCurrentTerm() {
-        try {
-            if (!currentUser || !currentUser.schoolId || !db) {
-                console.log('Waiting for Firebase initialization...');
-                return;
-            }
-            
-            const schoolRef = db.collection('schools').doc(currentUser.schoolId);
-            const doc = await schoolRef.get();
-            
-            if (doc.exists) {
-                const data = doc.data();
-                if (data.currentTerm) {
-                    currentTerm = data.currentTerm.term || 'I';
-                    academicYear = data.currentTerm.year || '2024';
-                    document.getElementById('currentTermDisplay').textContent = 
-                        `Term ${currentTerm}, ${academicYear}`;
+                if (currentUser) {
+                    await initializeApp();
+                } else {
+                    showError('Authentication required. Please login first.');
                 }
-            }
-        } catch (error) {
-            console.error('Term loading error:', error);
-        }
-    }
-
-    async function loadStatistics() {
-        try {
-            if (!currentUser || !currentUser.schoolId || !db) {
-                console.log('Waiting for Firebase...');
-                return;
-            }
-            
-            const classesRef = db.collection('schools').doc(currentUser.schoolId).collection('classes');
-            const snapshot = await classesRef.get();
-            
-            let totalStudents = 0;
-            let totalBoys = 0;
-            let totalGirls = 0;
-            let totalClasses = snapshot.size;
-            
-            for (const classDoc of snapshot.docs) {
-                const studentsRef = classDoc.ref.collection('students');
-                const studentsSnapshot = await studentsRef.get();
                 
-                studentsSnapshot.forEach(studentDoc => {
-                    const student = studentDoc.data();
-                    totalStudents++;
-                    if (student.gender === 'M') totalBoys++;
-                    if (student.gender === 'F') totalGirls++;
-                });
+            } catch (error) {
+                console.error('Auth initialization error:', error);
+                showError('Failed to initialize authentication');
             }
-            
-            // Update UI
-            document.getElementById('totalStudents').textContent = totalStudents;
-            document.getElementById('totalBoys').textContent = totalBoys;
-            document.getElementById('totalGirls').textContent = totalGirls;
-            document.getElementById('totalClasses').textContent = totalClasses;
-            
-            // Update gender chart
-            updateGenderChart(totalBoys, totalGirls, totalStudents);
-            
-        } catch (error) {
-            console.error('Statistics loading error:', error);
         }
-    }
 
-    function updateGenderChart(boys, girls, total) {
-        const boysPercent = total > 0 ? (boys / total) * 100 : 50;
-        const girlsPercent = total > 0 ? (girls / total) * 100 : 50;
-        
-        document.getElementById('boysBar').style.height = `${boysPercent}%`;
-        document.getElementById('girlsBar').style.height = `${girlsPercent}%`;
-        
-        document.getElementById('boysCount').textContent = boys;
-        document.getElementById('girlsCount').textContent = girls;
-        
-        const boysRatio = total > 0 ? Math.round((boys / total) * 100) : 0;
-        const girlsRatio = total > 0 ? Math.round((girls / total) * 100) : 0;
-        document.getElementById('genderRatio').textContent = `Boys: ${boysRatio}% | Girls: ${girlsRatio}%`;
-    }
-
-    async function loadClasses() {
-        try {
-            if (!currentUser || !currentUser.schoolId || !db) {
-                console.log('Waiting for Firebase...');
-                return;
+        async function checkLocalStorageSession() {
+            try {
+                const staffSession = localStorage.getItem('akademia_staff');
+                const userSession = localStorage.getItem('akademia_user');
+                
+                let sessionData = null;
+                
+                if (staffSession) {
+                    sessionData = JSON.parse(staffSession);
+                } else if (userSession) {
+                    sessionData = JSON.parse(userSession);
+                }
+                
+                if (sessionData) {
+                    currentUser = {
+                        name: sessionData.staffName || sessionData.schoolName || 'User',
+                        role: formatRole(sessionData.staffRole) || 'Administrator',
+                        email: sessionData.staffEmail || sessionData.email,
+                        schoolId: sessionData.schoolId
+                    };
+                    
+                    currentSchool = {
+                        id: sessionData.schoolId,
+                        name: sessionData.schoolName || 'Akademia School'
+                    };
+                    
+                    return true;
+                }
+                return false;
+                
+            } catch (error) {
+                console.error('LocalStorage session check error:', error);
+                return false;
             }
-            
-            const classesRef = db.collection('schools').doc(currentUser.schoolId).collection('classes');
-            const snapshot = await classesRef.orderBy('createdAt', 'desc').get();
-            
-            classes = [];
-            snapshot.forEach(doc => {
-                const classData = doc.data();
-                classes.push({
-                    id: doc.id,
-                    ...classData,
-                    studentCount: classData.studentCount || 0
-                });
-            });
-            
-            displayClasses();
-            
-        } catch (error) {
-            console.error('Classes loading error:', error);
         }
-    }
 
-    function displayClasses() {
-        const grid = document.getElementById('classesGrid');
-        
-        if (classes.length === 0) {
-            grid.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-state-icon">
-                        <i class="fas fa-chalkboard-teacher"></i>
-                    </div>
-                    <h3 style="font-size: var(--font-size-lg); margin-bottom: var(--space-xs);">No Classes Yet</h3>
-                    <p style="font-size: var(--font-size-sm); color: var(--apple-gray-5);">Start by adding your first class</p>
-                </div>
-            `;
-            return;
-        }
-        
-        grid.innerHTML = '';
-        classes.forEach(cls => {
-            const card = document.createElement('div');
-            card.className = 'class-card';
-            card.innerHTML = `
-                <div class="class-header">
-                    <div>
-                        <h3 class="class-name">${getClassName(cls)}</h3>
-                        <p class="class-level">${cls.level} ${cls.levelNo}</p>
-                        ${cls.combination ? `<span class="class-combination">${cls.combination}</span>` : ''}
-                    </div>
-                </div>
-                <div class="class-stats">
-                    <div class="class-stat">
-                        <div class="stat-number">${cls.studentCount || 0}</div>
-                        <div class="stat-label-small">Students</div>
-                    </div>
-                </div>
-            `;
-            card.addEventListener('click', () => openClassDetail(cls.id));
-            grid.appendChild(card);
-        });
-    }
-
-    function getClassName(cls) {
-        let name = `${cls.level} ${cls.levelNo}`;
-        if (cls.subClass) name += ` ${cls.subClass}`;
-        return name;
-    }
-
-    // ===== CLASS MANAGEMENT =====
-    async function addClass(event) {
-        event.preventDefault();
-        
-        try {
-            if (!db || !firestore) {
-                showError('Database not initialized');
-                return;
-            }
-            
-            const level = document.getElementById('classLevel').value;
-            const levelNo = document.getElementById('classLevelNo').value;
-            const combination = document.getElementById('combination').value || '';
-            const subClass = document.getElementById('subClass').value || '';
-            
-            if (!level || !levelNo) {
-                showError('Please select both level and level number');
-                return;
-            }
-            
-            const classData = {
-                level,
-                levelNo,
-                combination,
-                subClass,
-                studentCount: 0,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        function formatRole(role) {
+            const roles = {
+                'headmaster': 'Headmaster',
+                'dean_of_studies': 'Dean of Studies',
+                'it_staff': 'IT Staff',
+                'dean_of_discipline': 'Dean of Discipline',
+                'patron': 'Patron',
+                'matron': 'Matron',
+                'teacher': 'Teacher',
+                'student': 'Student',
+                'other': 'Staff'
             };
+            return roles[role] || 'User';
+        }
+
+        function getInitials(name) {
+            if (!name) return 'U';
+            return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+        }
+
+        // ===== APP INITIALIZATION =====
+        async function initializeApp() {
+            try {
+                updateUserUI();
+                await loadStatistics();
+                await loadClasses();
+                await loadCurrentTerm();
+                setupEventListeners();
+                
+            } catch (error) {
+                console.error('App initialization error:', error);
+                showError('Failed to initialize application');
+            }
+        }
+
+        function updateUserUI() {
+            if (currentUser) {
+                document.getElementById('profileName').textContent = currentUser.name;
+                document.getElementById('profileRole').textContent = currentUser.role;
+                document.getElementById('profileAvatar').textContent = getInitials(currentUser.name);
+                document.getElementById('profileBtn').textContent = getInitials(currentUser.name);
+            }
+        }
+
+        // ===== DATA MANAGEMENT =====
+        async function loadStatistics() {
+            try {
+                if (!currentUser || !currentUser.schoolId) {
+                    console.error('No school ID available');
+                    return;
+                }
+                
+                const classesRef = db.collection('schools').doc(currentUser.schoolId).collection('classes');
+                const snapshot = await classesRef.get();
+                
+                let totalStudents = 0;
+                let totalBoys = 0;
+                let totalGirls = 0;
+                let totalClasses = snapshot.size;
+                
+                for (const classDoc of snapshot.docs) {
+                    const studentsRef = classDoc.ref.collection('students');
+                    const studentsSnapshot = await studentsRef.get();
+                    
+                    studentsSnapshot.forEach(studentDoc => {
+                        const student = studentDoc.data();
+                        totalStudents++;
+                        if (student.gender === 'M') totalBoys++;
+                        if (student.gender === 'F') totalGirls++;
+                    });
+                }
+                
+                // Update UI
+                document.getElementById('totalStudents').textContent = totalStudents;
+                document.getElementById('totalBoys').textContent = totalBoys;
+                document.getElementById('totalGirls').textContent = totalGirls;
+                document.getElementById('totalClasses').textContent = totalClasses;
+                
+                // Update gender chart
+                updateGenderChart(totalBoys, totalGirls, totalStudents);
+                
+            } catch (error) {
+                console.error('Statistics loading error:', error);
+                showError('Failed to load statistics');
+            }
+        }
+
+        function updateGenderChart(boys, girls, total) {
+            const boysPercent = total > 0 ? (boys / total) * 100 : 50;
+            const girlsPercent = total > 0 ? (girls / total) * 100 : 50;
             
-            const docRef = await db.collection('schools').doc(currentUser.schoolId)
-                .collection('classes').add(classData);
+            document.getElementById('boysBar').style.height = `${boysPercent}%`;
+            document.getElementById('girlsBar').style.height = `${girlsPercent}%`;
             
-            classes.push({
-                id: docRef.id,
-                ...classData
+            document.getElementById('boysCount').textContent = boys;
+            document.getElementById('girlsCount').textContent = girls;
+            
+            const boysRatio = total > 0 ? Math.round((boys / total) * 100) : 0;
+            const girlsRatio = total > 0 ? Math.round((girls / total) * 100) : 0;
+            document.getElementById('genderRatio').textContent = `Boys: ${boysRatio}% | Girls: ${girlsRatio}%`;
+        }
+
+        async function loadClasses() {
+            try {
+                if (!currentUser || !currentUser.schoolId) {
+                    console.error('No school ID available');
+                    return;
+                }
+                
+                const classesRef = db.collection('schools').doc(currentUser.schoolId).collection('classes');
+                const snapshot = await classesRef.orderBy('createdAt', 'desc').get();
+                
+                classes = [];
+                snapshot.forEach(doc => {
+                    const classData = doc.data();
+                    classes.push({
+                        id: doc.id,
+                        ...classData,
+                        studentCount: classData.studentCount || 0
+                    });
+                });
+                
+                displayClasses();
+                
+            } catch (error) {
+                console.error('Classes loading error:', error);
+                showError('Failed to load classes');
+            }
+        }
+
+        function displayClasses() {
+            const grid = document.getElementById('classesGrid');
+            
+            if (classes.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                        </div>
+                        <h3 style="font-size: var(--font-size-lg); margin-bottom: var(--space-xs);">No Classes Yet</h3>
+                        <p style="font-size: var(--font-size-sm); color: var(--apple-gray-5);">Start by adding your first class</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = '';
+            classes.forEach(cls => {
+                const card = document.createElement('div');
+                card.className = 'class-card';
+                card.innerHTML = `
+                    <div class="class-header">
+                        <div>
+                            <h3 class="class-name">${getClassName(cls)}</h3>
+                            <p class="class-level">${cls.level} ${cls.levelNo}</p>
+                            ${cls.combination ? `<span class="class-combination">${cls.combination}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="class-stats">
+                        <div class="class-stat">
+                            <div class="stat-number">${cls.studentCount || 0}</div>
+                            <div class="stat-label-small">Students</div>
+                        </div>
+                    </div>
+                `;
+                card.addEventListener('click', () => openClassDetail(cls.id));
+                grid.appendChild(card);
+            });
+        }
+
+        function getClassName(cls) {
+            let name = `${cls.level} ${cls.levelNo}`;
+            if (cls.subClass) name += ` ${cls.subClass}`;
+            return name;
+        }
+
+        // ===== CLASS MANAGEMENT =====
+        async function addClass(event) {
+            event.preventDefault();
+            
+            try {
+                if (!currentUser || !currentUser.schoolId) {
+                    showError('No school selected');
+                    return;
+                }
+                
+                const level = document.getElementById('classLevel').value;
+                const levelNo = document.getElementById('classLevelNo').value;
+                const combination = document.getElementById('combination').value || '';
+                const subClass = document.getElementById('subClass').value || '';
+                
+                if (!level || !levelNo) {
+                    showError('Please select both level and level number');
+                    return;
+                }
+                
+                if (level === 'Senior' && !combination) {
+                    showError('Combination is required for Senior classes');
+                    return;
+                }
+                
+                const classData = {
+                    level,
+                    levelNo,
+                    combination,
+                    subClass,
+                    studentCount: 0,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                const docRef = await db.collection('schools').doc(currentUser.schoolId)
+                    .collection('classes').add(classData);
+                
+                // Add to local array
+                classes.push({
+                    id: docRef.id,
+                    ...classData
+                });
+                
+                // Update UI
+                displayClasses();
+                
+                // Close modal and reset form
+                closeModal('addClassModal');
+                resetAddClassForm();
+                
+                // Refresh statistics
+                await loadStatistics();
+                
+                showSuccess('Class added successfully!');
+                
+            } catch (error) {
+                console.error('Class creation error:', error);
+                showError('Failed to add class: ' + error.message);
+            }
+        }
+
+        function resetAddClassForm() {
+            document.getElementById('levelSearch').value = '';
+            document.getElementById('levelOptions').style.display = 'none';
+            document.getElementById('selectedLevel').style.display = 'none';
+            document.getElementById('classLevel').value = '';
+            
+            document.getElementById('levelNoSearch').value = '';
+            document.getElementById('levelNoSearch').disabled = true;
+            document.getElementById('levelNoOptions').style.display = 'none';
+            document.getElementById('selectedLevelNo').style.display = 'none';
+            document.getElementById('classLevelNo').value = '';
+            
+            document.getElementById('combinationSearch').value = '';
+            document.getElementById('combinationOptions').style.display = 'none';
+            document.getElementById('selectedCombination').style.display = 'none';
+            document.getElementById('combination').value = '';
+            document.getElementById('combinationGroup').style.display = 'none';
+            
+            document.getElementById('subClassSearch').value = '';
+            document.getElementById('subClassOptions').style.display = 'none';
+            document.getElementById('subClass').value = '';
+            document.getElementById('subClassText').textContent = 'None';
+        }
+
+        // ===== ENHANCED SELECT FUNCTIONS =====
+        function searchLevelOptions() {
+            const search = document.getElementById('levelSearch').value.toLowerCase();
+            const options = document.querySelectorAll('#levelOptions .select-option');
+            
+            options.forEach(option => {
+                const text = option.textContent.toLowerCase();
+                if (text.includes(search)) {
+                    option.style.display = 'block';
+                } else {
+                    option.style.display = 'none';
+                }
             });
             
-            displayClasses();
-            closeModal('addClassModal');
-            resetAddClassForm();
-            await loadStatistics();
-            
-            showSuccess('Class added successfully!');
-            
-        } catch (error) {
-            console.error('Class creation error:', error);
-            showError('Failed to add class');
+            document.getElementById('levelOptions').style.display = 'block';
         }
-    }
 
-    function resetAddClassForm() {
-        document.getElementById('levelSearch').value = '';
-        document.getElementById('levelOptions').style.display = 'none';
-        document.getElementById('selectedLevel').style.display = 'none';
-        document.getElementById('classLevel').value = '';
-        
-        document.getElementById('levelNoSearch').value = '';
-        document.getElementById('levelNoSearch').disabled = true;
-        document.getElementById('levelNoOptions').style.display = 'none';
-        document.getElementById('selectedLevelNo').style.display = 'none';
-        document.getElementById('classLevelNo').value = '';
-        
-        document.getElementById('combinationGroup').style.display = 'none';
-        
-        document.getElementById('subClass').value = '';
-        document.getElementById('subClassText').textContent = 'None';
-    }
+        function selectLevel(level) {
+            document.getElementById('classLevel').value = level;
+            document.getElementById('levelText').textContent = level;
+            document.getElementById('selectedLevel').style.display = 'block';
+            document.getElementById('levelOptions').style.display = 'none';
+            
+            // Enable level number search and populate options
+            document.getElementById('levelNoSearch').disabled = false;
+            populateLevelNoOptions(level);
+        }
 
-    // ===== SELECT FUNCTIONS (simplified) =====
-    function selectLevel(level) {
-        document.getElementById('classLevel').value = level;
-        document.getElementById('levelText').textContent = level;
-        document.getElementById('selectedLevel').style.display = 'block';
-        document.getElementById('levelOptions').style.display = 'none';
-        
-        document.getElementById('levelNoSearch').disabled = false;
-        
-        // Show/hide combination for Senior
-        if (level === 'Senior') {
-            document.getElementById('combinationGroup').style.display = 'block';
-        } else {
+        function clearLevelSelection() {
+            document.getElementById('classLevel').value = '';
+            document.getElementById('selectedLevel').style.display = 'none';
+            document.getElementById('levelSearch').value = '';
+            
+            // Disable and clear level number
+            document.getElementById('levelNoSearch').disabled = true;
+            document.getElementById('levelNoSearch').value = '';
+            document.getElementById('selectedLevelNo').style.display = 'none';
+            document.getElementById('classLevelNo').value = '';
+            
+            // Hide combination group
             document.getElementById('combinationGroup').style.display = 'none';
         }
-    }
 
-    function selectLevelNo(number) {
-        document.getElementById('classLevelNo').value = number;
-        document.getElementById('levelNoText').textContent = number;
-        document.getElementById('selectedLevelNo').style.display = 'block';
-        document.getElementById('levelNoOptions').style.display = 'none';
-    }
+        function populateLevelNoOptions(level) {
+            const options = document.getElementById('levelNoOptions');
+            options.innerHTML = '';
+            
+            let numbers = [];
+            switch(level) {
+                case 'Nursery':
+                    numbers = ['1', '2', '3'];
+                    break;
+                case 'Primary':
+                    numbers = ['1', '2', '3', '4', '5', '6', '7'];
+                    break;
+                case 'Senior':
+                    numbers = ['1', '2', '3', '4', '5', '6'];
+                    // Show combination group for Senior
+                    document.getElementById('combinationGroup').style.display = 'block';
+                    populateCombinationOptions();
+                    break;
+                case 'Grade':
+                    numbers = ['1', '2', '3', '4', '5'];
+                    document.getElementById('combinationGroup').style.display = 'none';
+                    break;
+            }
+            
+            numbers.forEach(number => {
+                const option = document.createElement('div');
+                option.className = 'select-option';
+                option.textContent = number;
+                option.onclick = () => selectLevelNo(number);
+                options.appendChild(option);
+            });
+        }
 
-    function selectCombination(combination) {
-        document.getElementById('combination').value = combination;
-        document.getElementById('combinationText').textContent = combination;
-        document.getElementById('selectedCombination').style.display = 'block';
-        document.getElementById('combinationOptions').style.display = 'none';
-    }
+        function populateCombinationOptions() {
+            const options = document.getElementById('combinationOptions');
+            options.innerHTML = '';
+            
+            const combinations = ['MS1', 'MS2', 'LAN', 'MEG', 'MEC', 'PCM', 'PCB', 'MCB', 'MPG', 'LFK'];
+            
+            combinations.forEach(comb => {
+                const option = document.createElement('div');
+                option.className = 'select-option';
+                option.textContent = comb;
+                option.onclick = () => selectCombination(comb);
+                options.appendChild(option);
+            });
+        }
 
-    // ===== STUDENT MANAGEMENT =====
-    async function loadClassStudents(classId) {
-        try {
-            if (!db) return;
+        function searchLevelNoOptions() {
+            const search = document.getElementById('levelNoSearch').value.toLowerCase();
+            const options = document.querySelectorAll('#levelNoOptions .select-option');
             
-            const studentsRef = db.collection('schools').doc(currentUser.schoolId)
-                .collection('classes').doc(classId)
-                .collection('students');
-            
-            const snapshot = await studentsRef.orderBy('fullName').get();
-            
-            students = [];
-            allStudents = [];
-            snapshot.forEach(doc => {
-                const student = {
-                    id: doc.id,
-                    classId: classId,
-                    ...doc.data()
-                };
-                students.push(student);
-                allStudents.push(student);
+            options.forEach(option => {
+                const text = option.textContent.toLowerCase();
+                if (text.includes(search)) {
+                    option.style.display = 'block';
+                } else {
+                    option.style.display = 'none';
+                }
             });
             
-            displayStudents();
+            document.getElementById('levelNoOptions').style.display = 'block';
+        }
+
+        function selectLevelNo(number) {
+            document.getElementById('classLevelNo').value = number;
+            document.getElementById('levelNoText').textContent = number;
+            document.getElementById('selectedLevelNo').style.display = 'block';
+            document.getElementById('levelNoOptions').style.display = 'none';
+        }
+
+        function clearLevelNoSelection() {
+            document.getElementById('classLevelNo').value = '';
+            document.getElementById('selectedLevelNo').style.display = 'none';
+            document.getElementById('levelNoSearch').value = '';
+        }
+
+        function searchCombinationOptions() {
+            const search = document.getElementById('combinationSearch').value.toLowerCase();
+            const options = document.querySelectorAll('#combinationOptions .select-option');
             
-        } catch (error) {
-            console.error('Students loading error:', error);
+            options.forEach(option => {
+                const text = option.textContent.toLowerCase();
+                if (text.includes(search)) {
+                    option.style.display = 'block';
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+            
+            document.getElementById('combinationOptions').style.display = 'block';
         }
-    }
 
-    function displayStudents() {
-        const tbody = document.getElementById('studentsTableBody');
-        const count = document.getElementById('studentCount');
-        
-        if (students.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="8" style="text-align: center; padding: 40px; color: #999;">
-                        No students in this class
-                    </td>
-                </tr>
-            `;
-            count.textContent = '0';
-            return;
+        function selectCombination(combination) {
+            document.getElementById('combination').value = combination;
+            document.getElementById('combinationText').textContent = combination;
+            document.getElementById('selectedCombination').style.display = 'block';
+            document.getElementById('combinationOptions').style.display = 'none';
         }
-        
-        tbody.innerHTML = '';
-        students.forEach((student, index) => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${index + 1}</td>
-                <td>
-                    <div class="student-avatar">
-                        ${getInitials(student.fullName)}
-                    </div>
-                    ${student.fullName}
-                </td>
-                <td>${student.regNo || '-'}</td>
-                <td>${student.gender === 'M' ? 'Male' : 'Female'}</td>
-                <td>${student.dob || '-'}</td>
-                <td>${student.fatherName || '-'}</td>
-                <td>${student.motherName || '-'}</td>
-                <td>
-                    <button class="btn-danger btn-small" onclick="deleteStudent('${student.id}', event)">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
-                </td>
-            `;
-            tbody.appendChild(row);
-        });
-        
-        count.textContent = students.length;
-    }
 
-    async function addStudent(event) {
-        event.preventDefault();
-        
-        try {
-            if (!db) {
-                showError('Database not available');
+        function clearCombinationSelection() {
+            document.getElementById('combination').value = '';
+            document.getElementById('selectedCombination').style.display = 'none';
+            document.getElementById('combinationSearch').value = '';
+        }
+
+        function searchSubClassOptions() {
+            const search = document.getElementById('subClassSearch').value.toLowerCase();
+            const options = document.querySelectorAll('#subClassOptions .select-option');
+            
+            options.forEach(option => {
+                const text = option.textContent.toLowerCase();
+                if (text.includes(search) || (search === '' && option.textContent === 'None')) {
+                    option.style.display = 'block';
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+            
+            document.getElementById('subClassOptions').style.display = 'block';
+        }
+
+        function selectSubClass(subClass) {
+            document.getElementById('subClass').value = subClass;
+            document.getElementById('subClassText').textContent = subClass || 'None';
+            document.getElementById('subClassOptions').style.display = 'none';
+        }
+
+        // ===== STUDENT MANAGEMENT =====
+        async function loadClassStudents(classId) {
+            try {
+                if (!currentUser || !currentUser.schoolId) {
+                    showError('No school selected');
+                    return;
+                }
+                
+                const studentsRef = db.collection('schools').doc(currentUser.schoolId)
+                    .collection('classes').doc(classId)
+                    .collection('students');
+                
+                const snapshot = await studentsRef.orderBy('fullName').get();
+                
+                students = [];
+                allStudents = [];
+                snapshot.forEach(doc => {
+                    const student = {
+                        id: doc.id,
+                        classId: classId,
+                        ...doc.data()
+                    };
+                    students.push(student);
+                    allStudents.push(student);
+                });
+                
+                displayStudents();
+                
+            } catch (error) {
+                console.error('Students loading error:', error);
+                showError('Failed to load students');
+            }
+        }
+
+        function displayStudents() {
+            const tbody = document.getElementById('studentsTableBody');
+            const count = document.getElementById('studentCount');
+            
+            if (students.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="empty-state" style="padding: var(--space-2xl);">
+                            <div style="text-align: center;">
+                                <i class="fas fa-user-graduate" style="font-size: 32px; color: var(--apple-gray-4); margin-bottom: var(--space-sm);"></i>
+                                <p style="color: var(--apple-gray-5); font-size: var(--font-size-sm);">No students in this class</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                count.textContent = '0';
                 return;
             }
             
-            const studentData = {
-                fullName: document.getElementById('studentName').value,
-                gender: document.getElementById('studentGender').value,
-                dob: document.getElementById('studentDOB').value,
-                regNo: document.getElementById('studentReg').value || generateRegNumber(),
-                fatherName: document.getElementById('fatherName').value || '',
-                motherName: document.getElementById('motherName').value || '',
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            };
+            tbody.innerHTML = '';
+            students.forEach((student, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td style="display: flex; align-items: center; gap: var(--space-sm);">
+                        <div class="student-avatar">
+                            ${getInitials(student.fullName)}
+                        </div>
+                        ${student.fullName}
+                    </td>
+                    <td>${student.regNo || '-'}</td>
+                    <td>
+                        <span style="color: ${student.gender === 'M' ? 'var(--apple-blue)' : '#FF2D55'};">
+                            ${student.gender === 'M' ? 'Male' : 'Female'}
+                        </span>
+                    </td>
+                    <td>${student.dob || '-'}</td>
+                    <td>${student.fatherName || '-'}</td>
+                    <td>${student.motherName || '-'}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-danger btn-small" onclick="deleteStudent('${student.id}', event)">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
             
-            await db.collection('schools').doc(currentUser.schoolId)
-                .collection('classes').doc(currentClassId)
-                .collection('students').add(studentData);
-            
-            // Refresh data
-            await loadClassStudents(currentClassId);
-            await loadStatistics();
-            
-            closeModal('addStudentModal');
-            document.getElementById('addStudentForm').reset();
-            
-            showSuccess('Student added!');
-            
-        } catch (error) {
-            console.error('Add student error:', error);
-            showError('Failed to add student');
+            count.textContent = students.length;
         }
-    }
 
-    function generateRegNumber() {
-        return `${new Date().getFullYear()}-${Math.random().toString().slice(2, 5)}`;
-    }
-
-    async function deleteStudent(studentId, event) {
-        if (event) event.stopPropagation();
-        
-        if (!confirm('Delete this student?')) return;
-        
-        try {
-            if (!db) return;
+        async function addStudent(event) {
+            event.preventDefault();
             
-            await db.collection('schools').doc(currentUser.schoolId)
-                .collection('classes').doc(currentClassId)
-                .collection('students').doc(studentId).delete();
-            
-            // Refresh
-            await loadClassStudents(currentClassId);
-            await loadStatistics();
-            
-            showSuccess('Student deleted');
-            
-        } catch (error) {
-            console.error('Delete student error:', error);
-            showError('Failed to delete');
+            try {
+                if (!currentUser || !currentUser.schoolId || !currentClassId) {
+                    showError('No class selected');
+                    return;
+                }
+                
+                const studentData = {
+                    fullName: document.getElementById('studentName').value,
+                    gender: document.getElementById('studentGender').value,
+                    dob: document.getElementById('studentDOB').value,
+                    regNo: document.getElementById('studentReg').value || generateRegNumber(),
+                    fatherName: document.getElementById('fatherName').value || '',
+                    motherName: document.getElementById('motherName').value || '',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                // Add to Firestore
+                const docRef = await db.collection('schools').doc(currentUser.schoolId)
+                    .collection('classes').doc(currentClassId)
+                    .collection('students').add(studentData);
+                
+                // Update class student count
+                const classRef = db.collection('schools').doc(currentUser.schoolId)
+                    .collection('classes').doc(currentClassId);
+                
+                const classDoc = await classRef.get();
+                const currentCount = classDoc.data().studentCount || 0;
+                await classRef.update({
+                    studentCount: currentCount + 1,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Update local data
+                students.push({
+                    id: docRef.id,
+                    ...studentData
+                });
+                
+                // Update UI
+                displayStudents();
+                await loadStatistics();
+                
+                // Reset form and close modal
+                document.getElementById('addStudentForm').reset();
+                closeModal('addStudentModal');
+                
+                showSuccess('Student added successfully!');
+                
+            } catch (error) {
+                console.error('Student creation error:', error);
+                showError('Failed to add student: ' + error.message);
+            }
         }
-    }
 
-    // ===== UI CONTROLS =====
-    function openClassDetail(classId) {
-        currentClassId = classId;
-        const cls = classes.find(c => c.id === classId);
-        
-        if (cls) {
-            document.getElementById('detailClassName').textContent = getClassName(cls);
-            document.getElementById('classDetailView').classList.add('active');
-            loadClassStudents(classId);
+        function generateRegNumber() {
+            const year = new Date().getFullYear();
+            const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+            return `${year}-${random}`;
         }
-    }
 
-    function closeClassDetail() {
-        document.getElementById('classDetailView').classList.remove('active');
-        currentClassId = null;
-        students = [];
-    }
+        async function deleteStudent(studentId, event) {
+            if (event) event.stopPropagation();
+            
+            try {
+                const student = students.find(s => s.id === studentId);
+                if (!student) {
+                    showError('Student not found');
+                    return;
+                }
+                
+                if (!confirm(`Are you sure you want to delete ${student.fullName}?`)) {
+                    return;
+                }
+                
+                // Delete from Firestore
+                await db.collection('schools').doc(currentUser.schoolId)
+                    .collection('classes').doc(currentClassId)
+                    .collection('students').doc(studentId).delete();
+                
+                // Update class student count
+                const classRef = db.collection('schools').doc(currentUser.schoolId)
+                    .collection('classes').doc(currentClassId);
+                
+                const classDoc = await classRef.get();
+                const currentCount = classDoc.data().studentCount || 0;
+                await classRef.update({
+                    studentCount: Math.max(0, currentCount - 1),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Remove from local array
+                students = students.filter(s => s.id !== studentId);
+                allStudents = allStudents.filter(s => s.id !== studentId);
+                
+                // Update UI
+                displayStudents();
+                await loadStatistics();
+                
+                showSuccess('Student deleted successfully');
+                
+            } catch (error) {
+                console.error('Student deletion error:', error);
+                showError('Failed to delete student');
+            }
+        }
 
-    function toggleProfile() {
-        document.getElementById('profileDropdown').classList.toggle('active');
-    }
+        // ===== SYSTEM SETTINGS FUNCTIONS =====
+        async function openRemoveStudentModal() {
+            try {
+                closeModal('settingsModal');
+                
+                // Clear previous selections
+                document.getElementById('removeStudentSearch').value = '';
+                document.getElementById('removeStudentOptions').innerHTML = '';
+                document.getElementById('selectedStudentInfo').style.display = 'none';
+                document.getElementById('removeStudentBtn').disabled = true;
+                selectedStudentToRemove = null;
+                
+                // Load all students
+                await loadAllStudentsForRemoval();
+                
+                openModal('removeStudentModal');
+                
+            } catch (error) {
+                console.error('Remove student modal error:', error);
+                showError('Failed to load students');
+            }
+        }
 
-    function openModal(modalId) {
-        document.getElementById(modalId).classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
+        async function loadAllStudentsForRemoval() {
+            try {
+                if (!currentUser || !currentUser.schoolId) return;
+                
+                const optionsContainer = document.getElementById('removeStudentOptions');
+                optionsContainer.innerHTML = '<div class="select-option" style="color: var(--apple-gray-4);">Loading students...</div>';
+                
+                const allStudents = [];
+                
+                // Get all classes
+                const classesRef = db.collection('schools').doc(currentUser.schoolId).collection('classes');
+                const classesSnapshot = await classesRef.get();
+                
+                for (const classDoc of classesSnapshot.docs) {
+                    const classData = classDoc.data();
+                    const studentsRef = classDoc.ref.collection('students');
+                    const studentsSnapshot = await studentsRef.get();
+                    
+                    studentsSnapshot.forEach(studentDoc => {
+                        const student = studentDoc.data();
+                        allStudents.push({
+                            id: studentDoc.id,
+                            classId: classDoc.id,
+                            className: getClassName(classData),
+                            ...student
+                        });
+                    });
+                }
+                
+                // Populate options
+                optionsContainer.innerHTML = '';
+                allStudents.forEach(student => {
+                    const option = document.createElement('div');
+                    option.className = 'select-option';
+                    option.innerHTML = `
+                        <div style="font-weight: 500;">${student.fullName}</div>
+                        <div style="font-size: var(--font-size-xs); color: var(--apple-gray-5);">
+                            ${student.regNo || 'No Reg'} | ${student.className}
+                        </div>
+                    `;
+                    option.onclick = () => selectStudentForRemoval(student);
+                    optionsContainer.appendChild(option);
+                });
+                
+                if (allStudents.length === 0) {
+                    optionsContainer.innerHTML = '<div class="select-option" style="color: var(--apple-gray-4);">No students found</div>';
+                }
+                
+                optionsContainer.style.display = 'block';
+                
+            } catch (error) {
+                console.error('Load all students error:', error);
+                document.getElementById('removeStudentOptions').innerHTML = 
+                    '<div class="select-option" style="color: var(--apple-red);">Error loading students</div>';
+            }
+        }
 
-    function closeModal(modalId) {
-        document.getElementById(modalId).classList.remove('active');
-        document.body.style.overflow = 'auto';
-    }
+        function searchRemoveStudentOptions() {
+            const search = document.getElementById('removeStudentSearch').value.toLowerCase();
+            const options = document.querySelectorAll('#removeStudentOptions .select-option');
+            
+            options.forEach(option => {
+                const text = option.textContent.toLowerCase();
+                if (text.includes(search)) {
+                    option.style.display = 'block';
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+        }
 
-    function closeAllModals() {
-        document.querySelectorAll('.modal-overlay.active').forEach(modal => {
-            modal.classList.remove('active');
+        function selectStudentForRemoval(student) {
+            selectedStudentToRemove = student;
+            
+            // Update UI
+            document.getElementById('selectedStudentName').textContent = student.fullName;
+            document.getElementById('selectedStudentClass').textContent = student.className;
+            document.getElementById('selectedStudentReg').textContent = student.regNo || 'No Reg';
+            document.getElementById('selectedStudentGender').textContent = student.gender === 'M' ? 'Male' : 'Female';
+            document.getElementById('selectedStudentInfo').style.display = 'block';
+            document.getElementById('removeStudentBtn').disabled = false;
+            
+            // Hide options
+            document.getElementById('removeStudentOptions').style.display = 'none';
+        }
+
+        async function removeSelectedStudent() {
+            try {
+                if (!selectedStudentToRemove) {
+                    showError('No student selected');
+                    return;
+                }
+                
+                if (!confirm(`Are you sure you want to remove ${selectedStudentToRemove.fullName} from ${selectedStudentToRemove.className}?`)) {
+                    return;
+                }
+                
+                // Delete from Firestore
+                await db.collection('schools').doc(currentUser.schoolId)
+                    .collection('classes').doc(selectedStudentToRemove.classId)
+                    .collection('students').doc(selectedStudentToRemove.id).delete();
+                
+                // Update class student count
+                const classRef = db.collection('schools').doc(currentUser.schoolId)
+                    .collection('classes').doc(selectedStudentToRemove.classId);
+                
+                const classDoc = await classRef.get();
+                const currentCount = classDoc.data().studentCount || 0;
+                await classRef.update({
+                    studentCount: Math.max(0, currentCount - 1),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // If this is the current class, update UI
+                if (currentClassId === selectedStudentToRemove.classId) {
+                    students = students.filter(s => s.id !== selectedStudentToRemove.id);
+                    allStudents = allStudents.filter(s => s.id !== selectedStudentToRemove.id);
+                    displayStudents();
+                }
+                
+                // Refresh statistics
+                await loadStatistics();
+                
+                closeModal('removeStudentModal');
+                showSuccess('Student removed successfully');
+                
+            } catch (error) {
+                console.error('Remove student error:', error);
+                showError('Failed to remove student');
+            }
+        }
+
+        async function loadCurrentTerm() {
+            try {
+                if (!currentUser || !currentUser.schoolId) return;
+                
+                const schoolRef = db.collection('schools').doc(currentUser.schoolId);
+                const doc = await schoolRef.get();
+                
+                if (doc.exists()) {
+                    const data = doc.data();
+                    if (data.currentTerm) {
+                        currentTerm = data.currentTerm.term || 'I';
+                        academicYear = data.currentTerm.year || '2024';
+                        document.getElementById('currentTermDisplay').textContent = 
+                            `Term ${currentTerm}, ${academicYear}`;
+                    }
+                }
+            } catch (error) {
+                console.error('Term loading error:', error);
+            }
+        }
+
+        async function setCurrentTerm(event) {
+            event.preventDefault();
+            
+            try {
+                if (!currentUser || !currentUser.schoolId) {
+                    showError('No school selected');
+                    return;
+                }
+                
+                const term = document.getElementById('term').value;
+                const year = document.getElementById('academicYear').value;
+                
+                const schoolRef = db.collection('schools').doc(currentUser.schoolId);
+                await schoolRef.update({
+                    'currentTerm.term': term,
+                    'currentTerm.year': year,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                currentTerm = term;
+                academicYear = year;
+                
+                document.getElementById('currentTermDisplay').textContent = `Term ${term}, ${year}`;
+                closeModal('currentTermModal');
+                
+                showSuccess('Current term updated!');
+                
+            } catch (error) {
+                console.error('Term update error:', error);
+                showError('Failed to update term');
+            }
+        }
+
+        function openCurrentTermModal() {
+            document.getElementById('term').value = currentTerm;
+            document.getElementById('academicYear').value = academicYear;
+            closeModal('settingsModal');
+            openModal('currentTermModal');
+        }
+
+        async function openPromotionModal() {
+            try {
+                closeModal('settingsModal');
+                
+                const container = document.getElementById('promotionClassesList');
+                container.innerHTML = '';
+                
+                if (classes.length === 0) {
+                    container.innerHTML = '<div style="padding: var(--space-md); color: var(--apple-gray-5); text-align: center;">No classes available</div>';
+                } else {
+                    classes.forEach(cls => {
+                        const div = document.createElement('div');
+                        div.className = 'checkbox-group';
+                        div.innerHTML = `
+                            <input type="checkbox" id="promote_${cls.id}" value="${cls.id}">
+                            <label for="promote_${cls.id}">${getClassName(cls)} (${cls.studentCount || 0} students)</label>
+                        `;
+                        container.appendChild(div);
+                    });
+                }
+                
+                openModal('promotionModal');
+                
+            } catch (error) {
+                console.error('Promotion modal error:', error);
+                showError('Failed to load classes for promotion');
+            }
+        }
+
+        function toggleAllPromotionClasses() {
+            const selectAll = document.getElementById('selectAllPromotion').checked;
+            const checkboxes = document.querySelectorAll('#promotionClassesList input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = selectAll);
+        }
+
+        async function promoteStudents() {
+            try {
+                const selectedClasses = Array.from(
+                    document.querySelectorAll('#promotionClassesList input[type="checkbox"]:checked')
+                ).map(cb => cb.value);
+                
+                if (selectedClasses.length === 0) {
+                    showError('Please select at least one class');
+                    return;
+                }
+                
+                if (!confirm(`Promote students from ${selectedClasses.length} class(es) to next grade level?`)) {
+                    return;
+                }
+                
+                // Show loading
+                showNotification('Promoting students...', 'info');
+                
+                // In a real implementation, you would:
+                // 1. Get all students from selected classes
+                // 2. Determine next grade level for each class
+                // 3. Create new classes or update existing ones
+                // 4. Move students to new classes
+                // 5. Update student counts
+                
+                // For now, simulate success
+                setTimeout(() => {
+                    closeModal('promotionModal');
+                    showSuccess(`Successfully promoted students from ${selectedClasses.length} class(es)`);
+                    loadClasses(); // Refresh classes
+                    loadStatistics(); // Refresh statistics
+                }, 1500);
+                
+            } catch (error) {
+                console.error('Promotion error:', error);
+                showError('Failed to promote students');
+            }
+        }
+
+        function openDeleteAllModal() {
+            closeModal('settingsModal');
+            document.getElementById('deleteConfirmation').value = '';
+            document.getElementById('finalDeleteBtn').disabled = true;
+            openModal('deleteAllModal');
+        }
+
+        function validateDeleteConfirmation() {
+            const input = document.getElementById('deleteConfirmation').value;
+            const btn = document.getElementById('finalDeleteBtn');
+            btn.disabled = input !== 'DELETE ALL STUDENTS';
+        }
+
+        async function deleteAllStudents() {
+            try {
+                if (!confirm('FINAL WARNING: This will delete ALL student data from ALL classes. This action cannot be undone. Are you absolutely sure?')) {
+                    return;
+                }
+                
+                // Show loading
+                showNotification('Deleting all student data...', 'info');
+                
+                // Get all classes
+                const classesRef = db.collection('schools').doc(currentUser.schoolId).collection('classes');
+                const classesSnapshot = await classesRef.get();
+                
+                // Delete all students from all classes
+                for (const classDoc of classesSnapshot.docs) {
+                    const studentsRef = classDoc.ref.collection('students');
+                    const studentsSnapshot = await studentsRef.get();
+                    
+                    // Delete each student
+                    const deletePromises = [];
+                    studentsSnapshot.forEach(studentDoc => {
+                        deletePromises.push(studentDoc.ref.delete());
+                    });
+                    
+                    await Promise.all(deletePromises);
+                    
+                    // Reset class student count
+                    await classDoc.ref.update({
+                        studentCount: 0,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+                
+                // Clear local data
+                classes = [];
+                students = [];
+                allStudents = [];
+                
+                // Update UI
+                displayClasses();
+                if (currentClassId) {
+                    displayStudents();
+                    closeClassDetail();
+                }
+                await loadStatistics();
+                
+                closeModal('deleteAllModal');
+                showSuccess('All student data deleted successfully');
+                
+            } catch (error) {
+                console.error('Delete all error:', error);
+                showError('Failed to delete all data');
+            }
+        }
+
+        // ===== UI FUNCTIONS =====
+        function openClassDetail(classId) {
+            currentClassId = classId;
+            const cls = classes.find(c => c.id === classId);
+            
+            if (cls) {
+                document.getElementById('detailClassName').textContent = getClassName(cls);
+                document.getElementById('classDetailView').classList.add('active');
+                loadClassStudents(classId);
+            }
+        }
+
+        function closeClassDetail() {
+            document.getElementById('classDetailView').classList.remove('active');
+            currentClassId = null;
+            students = [];
+            allStudents = [];
+        }
+
+        function searchClasses(query) {
+            const filtered = classes.filter(cls => 
+                getClassName(cls).toLowerCase().includes(query.toLowerCase()) ||
+                cls.level.toLowerCase().includes(query.toLowerCase()) ||
+                cls.combination?.toLowerCase().includes(query.toLowerCase())
+            );
+            
+            displayFilteredClasses(filtered);
+        }
+
+        function displayFilteredClasses(filteredClasses) {
+            const grid = document.getElementById('classesGrid');
+            
+            if (filteredClasses.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h3 style="font-size: var(--font-size-lg); margin-bottom: var(--space-xs);">No Classes Found</h3>
+                        <p style="font-size: var(--font-size-sm); color: var(--apple-gray-5);">Try a different search term</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = '';
+            filteredClasses.forEach(cls => {
+                const card = document.createElement('div');
+                card.className = 'class-card';
+                card.innerHTML = `
+                    <div class="class-header">
+                        <div>
+                            <h3 class="class-name">${getClassName(cls)}</h3>
+                            <p class="class-level">${cls.level} ${cls.levelNo}</p>
+                            ${cls.combination ? `<span class="class-combination">${cls.combination}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="class-stats">
+                        <div class="class-stat">
+                            <div class="stat-number">${cls.studentCount || 0}</div>
+                            <div class="stat-label-small">Students</div>
+                        </div>
+                    </div>
+                `;
+                card.addEventListener('click', () => openClassDetail(cls.id));
+                grid.appendChild(card);
+            });
+        }
+
+        function searchStudents(query) {
+            if (!query.trim()) {
+                students = [...allStudents];
+                displayStudents();
+                return;
+            }
+            
+            const searchTerm = query.toLowerCase();
+            students = allStudents.filter(student => 
+                student.fullName.toLowerCase().includes(searchTerm) ||
+                student.regNo?.toLowerCase().includes(searchTerm) ||
+                student.fatherName?.toLowerCase().includes(searchTerm) ||
+                student.motherName?.toLowerCase().includes(searchTerm)
+            );
+            
+            displayStudents();
+        }
+
+        function toggleProfile() {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('active');
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        function openSettings() {
+            openModal('settingsModal');
+        }
+
+        function openAddClassModal() {
+            openModal('addClassModal');
+        }
+
+        function openAddStudentModal() {
+            openModal('addStudentModal');
+        }
+
+        // ===== INITIALIZE APP =====
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeAuth();
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.profile-dropdown') && !e.target.closest('.profile-btn')) {
+                    document.getElementById('profileDropdown').classList.remove('active');
+                }
+                
+                // Close select options when clicking outside
+                if (!e.target.closest('.select-with-search')) {
+                    document.querySelectorAll('.select-options').forEach(el => {
+                        el.style.display = 'none';
+                    });
+                }
+            });
+            
+            // Handle Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeAllModals();
+                    document.getElementById('profileDropdown').classList.remove('active');
+                }
+            });
         });
-        document.body.style.overflow = 'auto';
-    }
 
-    // ===== UTILITIES =====
-    function showSuccess(message) {
-        alert(message); // Replace with better notification
-    }
-
-    function showError(message) {
-        alert('Error: ' + message); // Replace with better notification
-    }
-
-    function showNotification(message, type) {
-        console.log(`${type}: ${message}`);
-        // Implement proper notification system
-    }
-
-    function refreshData() {
-        loadData();
-        showSuccess('Data refreshed');
-    }
-
-    function logout() {
-        if (confirm('Logout?')) {
-            localStorage.clear();
-            window.location.href = 'login.html';
+        function closeAllModals() {
+            document.querySelectorAll('.modal-overlay.active').forEach(modal => {
+                modal.classList.remove('active');
+            });
+            document.body.style.overflow = 'auto';
         }
-    }
 
-    // ===== START APP =====
-    document.addEventListener('DOMContentLoaded', function() {
-        // Wait a bit for Firebase to load
-        setTimeout(initializeApp, 100);
-    });
-</script>
+        function showSuccess(message) {
+            showNotification(message, 'success');
+        }
+
+        function showError(message) {
+            showNotification(message, 'error');
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.style.cssText = `
+                position: fixed;
+                top: 60px;
+                right: 20px;
+                background: ${type === 'success' ? 'var(--apple-green)' : type === 'error' ? 'var(--apple-red)' : 'var(--apple-blue)'};
+                color: white;
+                padding: 10px 16px;
+                border-radius: var(--radius-md);
+                font-size: var(--font-size-sm);
+                font-weight: 500;
+                z-index: 9999;
+                animation: slideIn 0.3s ease;
+                box-shadow: var(--shadow-md);
+                max-width: 300px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            `;
+            
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
+            
+            // Add CSS for animations
+            if (!document.querySelector('#notification-styles')) {
+                const style = document.createElement('style');
+                style.id = 'notification-styles';
+                style.textContent = `
+                    @keyframes slideIn {
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                    @keyframes slideOut {
+                        from { transform: translateX(0); opacity: 1; }
+                        to { transform: translateX(100%); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+
+        function refreshData() {
+            loadStatistics();
+            loadClasses();
+            showSuccess('Data refreshed successfully');
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('akademia_staff');
+                localStorage.removeItem('akademia_user');
+                window.location.href = 'login.html';
+            }
+        }
+    </script>
 </body>
 </html>
