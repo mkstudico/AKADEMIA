@@ -2407,61 +2407,84 @@
                 }
             }
         }
+function toggleMaximize(windowId) {
+    const window = windows.find(w => w.id === windowId);
+    if (!window) return;
 
-        function toggleMaximize(windowId) {
-            const window = windows.find(w => w.id === windowId);
-            if (!window) return;
-
-            const windowElement = window.element;
-            const isMaximized = windowElement.classList.contains('maximized');
-            const isFullscreen = windowElement.classList.contains('fullscreen');
+    const windowElement = window.element;
+    const isMaximized = windowElement.classList.contains('maximized');
+    const isFullscreen = windowElement.classList.contains('fullscreen');
+    
+    // If already in fullscreen, exit
+    if (isFullscreen) {
+        // Exit fullscreen
+        windowElement.classList.remove('fullscreen');
+        
+        // Restore to previous state (maximized or normal)
+        if (window.maximized) {
+            windowElement.classList.add('maximized');
+            windowElement.style.width = 'calc(100% - 40px)';
+            windowElement.style.height = 'calc(100% - 100px)';
+            windowElement.style.left = '20px';
+            windowElement.style.top = '20px';
             
-            // If in fullscreen, exit fullscreen first
-            if (isFullscreen) {
-                toggleFullscreen(windowId);
-                return;
+            // Update maximize button icon
+            const icon = document.getElementById(`maximizeIcon_${windowId}`);
+            if (icon) {
+                icon.className = 'fas fa-window-restore';
             }
+        } else {
+            // Restore to normal window size
+            windowElement.style.width = window.originalWidth || '600px';
+            windowElement.style.height = window.originalHeight || '400px';
+            windowElement.style.left = window.originalLeft || '50px';
+            windowElement.style.top = window.originalTop || '50px';
+            windowElement.style.resize = 'both';
             
-            if (isMaximized) {
-                // Restore window
-                windowElement.classList.remove('maximized');
-                windowElement.style.width = window.originalWidth || '600px';
-                windowElement.style.height = window.originalHeight || '400px';
-                windowElement.style.left = window.originalLeft || '50px';
-                windowElement.style.top = window.originalTop || '50px';
-                windowElement.style.resize = 'both';
-                window.maximized = false;
-                
-                // Update maximize button icon
-                const icon = document.getElementById(`maximizeIcon_${windowId}`);
-                if (icon) {
-                    icon.className = 'fas fa-window-maximize';
-                }
-            } else {
-                // Maximize window
-                window.originalWidth = windowElement.style.width;
-                window.originalHeight = windowElement.style.height;
-                window.originalLeft = windowElement.style.left;
-                window.originalTop = windowElement.style.top;
-                
-                windowElement.classList.add('maximized');
-                windowElement.style.width = 'calc(100% - 40px)';
-                windowElement.style.height = 'calc(100% - 100px)';
-                windowElement.style.left = '20px';
-                windowElement.style.top = '20px';
-                windowElement.style.resize = 'none';
-                window.maximized = true;
-                
-                // Update maximize button icon
-                const icon = document.getElementById(`maximizeIcon_${windowId}`);
-                if (icon) {
-                    icon.className = 'fas fa-window-restore';
-                }
+            // Update maximize button icon
+            const icon = document.getElementById(`maximizeIcon_${windowId}`);
+            if (icon) {
+                icon.className = 'fas fa-window-maximize';
             }
-            
-            bringToFront(windowId);
         }
-
+        
+        windowElement.style.borderRadius = '10px';
+        windowElement.style.border = '1px solid var(--win11-border)';
+        window.fullscreen = false;
+    } else {
+        // Enter fullscreen mode
+        // Save current state before going fullscreen
+        if (!window.maximized) {
+            window.originalWidth = windowElement.style.width;
+            window.originalHeight = windowElement.style.height;
+            window.originalLeft = windowElement.style.left;
+            window.originalTop = windowElement.style.top;
+        }
+        
+        // Remove maximized class if present
+        windowElement.classList.remove('maximized');
+        
+        // Enter fullscreen
+        windowElement.classList.add('fullscreen');
+        windowElement.style.width = '100%';
+        windowElement.style.height = 'calc(100% - var(--taskbar-height))';
+        windowElement.style.left = '0';
+        windowElement.style.top = '0';
+        windowElement.style.resize = 'none';
+        windowElement.style.borderRadius = '0';
+        windowElement.style.border = 'none';
+        window.fullscreen = true;
+        window.maximized = false;
+        
+        // Update maximize button icon to show it's in fullscreen
+        const icon = document.getElementById(`maximizeIcon_${windowId}`);
+        if (icon) {
+            icon.className = 'fas fa-compress';
+        }
+    }
+    
+    bringToFront(windowId);
+}
         function toggleFullscreen(windowId) {
             const window = windows.find(w => w.id === windowId);
             if (!window) return;
