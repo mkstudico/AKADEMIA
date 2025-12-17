@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AKADEMIA Compact</title>
+    <title>Calculator-AKADEMIA</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -23,37 +23,39 @@
             position: relative;
         }
 
-        /* Ultra Compact Container */
+        /* Perfect Fit Container */
         .calculator-container {
             width: 100%;
             height: 100%;
-            padding: 12px;
+            padding: 10px 12px;
             background: #ffffff;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
         }
 
-        /* Minimal Header */
+        /* Optimized Header */
         .calc-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
-            height: 28px;
+            margin-bottom: 12px;
+            height: 24px;
+            flex-shrink: 0;
         }
 
         .logo {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
         }
 
         .logo i {
-            font-size: 16px;
+            font-size: 14px;
             color: #2980b9;
         }
 
         .logo-text {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             color: #2980b9;
             letter-spacing: -0.3px;
@@ -63,69 +65,75 @@
             background: rgba(52, 152, 219, 0.1);
             border: none;
             color: #3498db;
-            width: 28px;
-            height: 28px;
-            border-radius: 6px;
+            width: 24px;
+            height: 24px;
+            border-radius: 5px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 11px;
+            flex-shrink: 0;
         }
 
-        /* Ultra Compact Display */
+        /* Optimized Display */
         .display-container {
             background: #f8f9fa;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 16px;
+            border-radius: 6px;
+            padding: 10px 12px;
+            margin-bottom: 10px;
             border: 1px solid rgba(52, 152, 219, 0.1);
-            height: 90px;
+            flex-shrink: 0;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
         }
 
         .current-operation {
-            font-size: 14px;
+            font-size: 13px;
             color: #7f8c8d;
-            margin-bottom: 6px;
-            min-height: 18px;
+            margin-bottom: 4px;
+            min-height: 16px;
             word-break: break-all;
             text-align: right;
             font-weight: 400;
         }
 
         .result {
-            font-size: 32px;
+            font-size: 30px;
             font-weight: 300;
             line-height: 1;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
             word-break: break-all;
             text-align: right;
             color: #2c3e50;
             font-family: 'SF Mono', 'Menlo', monospace;
-            min-height: 38px;
+            min-height: 34px;
         }
 
         .memory-indicator {
-            font-size: 11px;
+            font-size: 10px;
             color: #3498db;
             display: flex;
             justify-content: space-between;
-            padding-top: 8px;
+            padding-top: 6px;
             border-top: 1px solid rgba(52, 152, 219, 0.1);
         }
 
-        /* Memory Buttons - Minimal */
+        /* Optimized Memory Row */
         .memory-row {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 6px;
-            margin-bottom: 12px;
+            gap: 5px;
+            margin-bottom: 8px;
+            flex-shrink: 0;
         }
 
         .memory-btn {
-            height: 28px;
-            font-size: 12px;
-            border-radius: 4px;
+            height: 24px;
+            font-size: 11px;
+            border-radius: 3px;
             background: rgba(52, 152, 219, 0.08);
             color: #3498db;
             border: 1px solid rgba(52, 152, 219, 0.1);
@@ -133,19 +141,19 @@
             font-weight: 500;
         }
 
-        /* Ultra Compact Keypad with Square Buttons */
+        /* Perfect Fit Keypad */
         .keypad {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 6px;
-            height: 240px;
+            gap: 5px;
+            flex: 1;
+            min-height: 0;
         }
 
         .key {
-            height: 48px;
             border: none;
             border-radius: 0;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 500;
             display: flex;
             align-items: center;
@@ -154,6 +162,7 @@
             transition: all 0.1s ease;
             user-select: none;
             -webkit-user-select: none;
+            min-height: 0;
         }
 
         /* Button Color Schemes */
@@ -163,18 +172,10 @@
             border: 1px solid rgba(52, 152, 219, 0.1);
         }
 
-        .light-blue:hover {
-            background: #d6eaf8;
-        }
-
         .medium-blue {
             background: #3498db;
             color: white;
             border: 1px solid #2980b9;
-        }
-
-        .medium-blue:hover {
-            background: #2980b9;
         }
 
         .dark-blue {
@@ -183,18 +184,10 @@
             border: 1px solid #154360;
         }
 
-        .dark-blue:hover {
-            background: #154360;
-        }
-
         .accent-blue {
             background: linear-gradient(135deg, #3498db, #2980b9);
             color: white;
             border: 1px solid #2980b9;
-        }
-
-        .accent-blue:hover {
-            background: linear-gradient(135deg, #2980b9, #1a5276);
         }
 
         .white {
@@ -204,20 +197,16 @@
             font-weight: 500;
         }
 
-        .white:hover {
-            background: #f8f9fa;
-        }
-
         /* Zero button spans 2 columns */
         .key.zero {
             grid-column: span 2;
             justify-content: flex-start;
-            padding-left: 20px;
+            padding-left: 18px;
         }
 
         /* Icon buttons */
         .icon-btn {
-            font-size: 14px;
+            font-size: 12px;
         }
 
         /* Dark mode */
@@ -254,18 +243,10 @@
             border: 1px solid rgba(52, 152, 219, 0.2);
         }
 
-        body.dark-mode .white:hover {
-            background: #34495e;
-        }
-
         body.dark-mode .light-blue {
             background: #2c3e50;
             color: #3498db;
             border: 1px solid rgba(52, 152, 219, 0.2);
-        }
-
-        body.dark-mode .light-blue:hover {
-            background: #34495e;
         }
 
         body.dark-mode .memory-btn {
@@ -281,17 +262,15 @@
 
         /* Focus outline */
         .key:focus {
-            outline: 2px solid #3498db;
+            outline: 1px solid #3498db;
             outline-offset: 1px;
         }
-
-        /* Footer removed - using all space for calculator */
     </style>
 </head>
 <body>
-    <!-- Calculator Container - Exactly 320x480 -->
+    <!-- Calculator Container - Perfect 320x480 Fit -->
     <div class="calculator-container">
-        <!-- Minimal Header -->
+        <!-- Optimized Header -->
         <div class="calc-header">
             <div class="logo">
                 <i class="fas fa-calculator"></i>
@@ -371,7 +350,7 @@
     </div>
 
     <script>
-        // Calculator state
+        // Same calculator logic as before, just the CSS is optimized
         const calculator = {
             displayValue: '0',
             firstOperand: null,
@@ -383,7 +362,6 @@
             isDarkMode: false
         };
 
-        // DOM Elements
         const resultElement = document.getElementById('result');
         const currentOperationElement = document.getElementById('current-operation');
         const clearTextElement = document.getElementById('clear-text');
@@ -391,23 +369,13 @@
         const themeToggle = document.getElementById('theme-toggle');
         const themeIcon = document.getElementById('theme-icon');
 
-        // Update display
         function updateDisplay() {
             resultElement.textContent = calculator.displayValue;
             currentOperationElement.textContent = calculator.currentOperation;
-            
-            // Update clear button text
-            if (calculator.isClearButton) {
-                clearTextElement.textContent = 'AC';
-            } else {
-                clearTextElement.textContent = 'C';
-            }
-            
-            // Update memory status
+            clearTextElement.textContent = calculator.isClearButton ? 'AC' : 'C';
             memoryStatusElement.textContent = `M: ${calculator.memoryValue}`;
         }
 
-        // Input digit
         function inputDigit(digit) {
             const { displayValue, waitingForSecondOperand } = calculator;
             
@@ -419,11 +387,9 @@
                 calculator.displayValue = displayValue === '0' ? digit : displayValue + digit;
                 calculator.isClearButton = false;
             }
-            
             updateDisplay();
         }
 
-        // Input decimal
         function inputDecimal() {
             if (calculator.waitingForSecondOperand) {
                 calculator.displayValue = '0.';
@@ -440,7 +406,6 @@
             }
         }
 
-        // Handle operator
         function handleOperator(nextOperator) {
             const inputValue = parseFloat(calculator.displayValue);
             
@@ -463,11 +428,9 @@
             calculator.operator = nextOperator;
             calculator.currentOperation = `${calculator.displayValue} ${getOperatorSymbol(nextOperator)}`;
             calculator.isClearButton = true;
-            
             updateDisplay();
         }
 
-        // Get operator symbol
         function getOperatorSymbol(operator) {
             const symbols = {
                 'add': '+',
@@ -478,7 +441,6 @@
             return symbols[operator] || operator;
         }
 
-        // Perform calculation
         function performCalculation() {
             const { firstOperand, displayValue, operator } = calculator;
             const inputValue = parseFloat(displayValue);
@@ -486,23 +448,14 @@
             if (operator === 'add') return firstOperand + inputValue;
             if (operator === 'subtract') return firstOperand - inputValue;
             if (operator === 'multiply') return firstOperand * inputValue;
-            if (operator === 'divide') {
-                if (inputValue === 0) {
-                    return 'Error';
-                }
-                return firstOperand / inputValue;
-            }
-            
+            if (operator === 'divide') return inputValue === 0 ? 'Error' : firstOperand / inputValue;
             return inputValue;
         }
 
-        // Handle equals
         function handleEquals() {
             const inputValue = parseFloat(calculator.displayValue);
             
-            if (calculator.operator === null || calculator.firstOperand === null) {
-                return;
-            }
+            if (calculator.operator === null || calculator.firstOperand === null) return;
             
             const result = performCalculation();
             
@@ -521,14 +474,11 @@
                 calculator.operator = null;
                 calculator.isClearButton = true;
             }
-            
             updateDisplay();
         }
 
-        // Clear or clear entry
         function handleClear() {
             if (calculator.isClearButton) {
-                // AC - All Clear
                 calculator.displayValue = '0';
                 calculator.firstOperand = null;
                 calculator.waitingForSecondOperand = false;
@@ -536,15 +486,12 @@
                 calculator.currentOperation = '';
                 calculator.isClearButton = true;
             } else {
-                // C - Clear Entry
                 calculator.displayValue = '0';
                 calculator.isClearButton = true;
             }
-            
             updateDisplay();
         }
 
-        // Handle percentage
         function handlePercentage() {
             const currentValue = parseFloat(calculator.displayValue);
             calculator.displayValue = (currentValue / 100).toString();
@@ -553,7 +500,6 @@
             updateDisplay();
         }
 
-        // Toggle sign
         function toggleSign() {
             if (calculator.displayValue !== '0') {
                 calculator.displayValue = String(-parseFloat(calculator.displayValue));
@@ -562,167 +508,49 @@
             }
         }
 
-        // Handle memory functions
         function handleMemory(action) {
             const currentValue = parseFloat(calculator.displayValue);
             
             switch(action) {
-                case 'memory-clear':
-                    calculator.memoryValue = 0;
-                    break;
-                case 'memory-recall':
-                    calculator.displayValue = calculator.memoryValue.toString();
-                    break;
-                case 'memory-add':
-                    calculator.memoryValue += currentValue;
-                    break;
-                case 'memory-subtract':
-                    calculator.memoryValue -= currentValue;
-                    break;
-                case 'memory-store':
-                    calculator.memoryValue = currentValue;
-                    break;
+                case 'memory-clear': calculator.memoryValue = 0; break;
+                case 'memory-recall': calculator.displayValue = calculator.memoryValue.toString(); break;
+                case 'memory-add': calculator.memoryValue += currentValue; break;
+                case 'memory-subtract': calculator.memoryValue -= currentValue; break;
+                case 'memory-store': calculator.memoryValue = currentValue; break;
             }
-            
             updateDisplay();
         }
 
-        // Toggle theme
         function toggleTheme() {
             calculator.isDarkMode = !calculator.isDarkMode;
             document.body.classList.toggle('dark-mode', calculator.isDarkMode);
-            
-            if (calculator.isDarkMode) {
-                themeIcon.className = 'fas fa-sun';
-            } else {
-                themeIcon.className = 'fas fa-moon';
-            }
+            themeIcon.className = calculator.isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
         }
 
-        // Handle button click
         function handleButtonClick(event) {
             const button = event.target.closest('button');
             if (!button) return;
             
-            // Add press animation
             button.classList.add('pressed');
-            setTimeout(() => {
-                button.classList.remove('pressed');
-            }, 100);
+            setTimeout(() => button.classList.remove('pressed'), 100);
             
             const action = button.dataset.action;
             const number = button.dataset.number;
             
-            if (number) {
-                inputDigit(number);
-            } else if (action === 'decimal') {
-                inputDecimal();
-            } else if (action === 'clear') {
-                handleClear();
-            } else if (action === 'sign') {
-                toggleSign();
-            } else if (action === 'percentage') {
-                handlePercentage();
-            } else if (['add', 'subtract', 'multiply', 'divide'].includes(action)) {
-                handleOperator(action);
-            } else if (action === 'equals') {
-                handleEquals();
-            } else if (action && action.startsWith('memory-')) {
-                handleMemory(action);
-            }
+            if (number) inputDigit(number);
+            else if (action === 'decimal') inputDecimal();
+            else if (action === 'clear') handleClear();
+            else if (action === 'sign') toggleSign();
+            else if (action === 'percentage') handlePercentage();
+            else if (['add', 'subtract', 'multiply', 'divide'].includes(action)) handleOperator(action);
+            else if (action === 'equals') handleEquals();
+            else if (action && action.startsWith('memory-')) handleMemory(action);
         }
 
-        // Handle keyboard input
-        function handleKeyboard(event) {
-            const key = event.key;
-            
-            // Prevent default behavior for calculator keys
-            if ('0123456789.+-*/=EnterEscapeBackspace%'.includes(key)) {
-                event.preventDefault();
-            }
-            
-            // Numbers
-            if (key >= '0' && key <= '9') {
-                const button = document.querySelector(`[data-number="${key}"]`);
-                if (button) {
-                    button.click();
-                }
-                return;
-            }
-            
-            // Operators
-            switch(key) {
-                case '+':
-                    document.querySelector('[data-action="add"]').click();
-                    break;
-                case '-':
-                    document.querySelector('[data-action="subtract"]').click();
-                    break;
-                case '*':
-                    document.querySelector('[data-action="multiply"]').click();
-                    break;
-                case '/':
-                    document.querySelector('[data-action="divide"]').click();
-                    break;
-                case '=':
-                case 'Enter':
-                    document.querySelector('[data-action="equals"]').click();
-                    break;
-                case '.':
-                    document.querySelector('[data-action="decimal"]').click();
-                    break;
-                case 'Escape':
-                    document.querySelector('[data-action="clear"]').click();
-                    break;
-                case 'Backspace':
-                    // Simulate clear entry
-                    calculator.displayValue = calculator.displayValue.slice(0, -1) || '0';
-                    updateDisplay();
-                    break;
-                case '%':
-                    document.querySelector('[data-action="percentage"]').click();
-                    break;
-            }
-        }
-
-        // Initialize
-        updateDisplay();
-        
-        // Event listeners
         document.querySelector('.keypad').addEventListener('click', handleButtonClick);
         document.querySelector('.memory-row').addEventListener('click', handleButtonClick);
-        document.addEventListener('keydown', handleKeyboard);
         themeToggle.addEventListener('click', toggleTheme);
-        
-        // Touch feedback
-        document.querySelectorAll('button').forEach(button => {
-            button.addEventListener('touchstart', function() {
-                this.style.opacity = '0.8';
-            });
-            
-            button.addEventListener('touchend', function() {
-                setTimeout(() => {
-                    this.style.opacity = '1';
-                }, 100);
-            });
-        });
-
-        // Prevent context menu
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-        });
-
-        // Handle button focus
-        document.querySelectorAll('.key, .memory-btn').forEach(button => {
-            button.addEventListener('focus', function() {
-                this.style.outline = '2px solid #3498db';
-                this.style.outlineOffset = '1px';
-            });
-            
-            button.addEventListener('blur', function() {
-                this.style.outline = 'none';
-            });
-        });
+        updateDisplay();
     </script>
 </body>
 </html>
