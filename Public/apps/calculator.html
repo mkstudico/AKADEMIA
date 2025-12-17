@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AKADEMIA Compact Calc</title>
+    <title>AKADEMIA Compact</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -14,116 +14,87 @@
         }
 
         body {
-            font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f5f7fa;
             color: #2c3e50;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
+            width: 320px;
+            height: 480px;
             overflow: hidden;
+            position: relative;
         }
 
-        /* Compact Status Bar */
-        .status-bar {
-            padding: 12px 16px 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.95);
-            height: 44px;
-            font-size: 14px;
-            border-bottom: 1px solid rgba(52, 152, 219, 0.1);
-        }
-
-        .time {
-            font-weight: 600;
-            color: #3498db;
-        }
-
-        .status-icons {
-            display: flex;
-            gap: 6px;
-            color: #3498db;
-        }
-
-        /* Main Calculator Container */
+        /* Ultra Compact Container */
         .calculator-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            max-width: 360px;
-            margin: 0 auto;
             width: 100%;
-            padding: 16px;
+            height: 100%;
+            padding: 12px;
+            background: #ffffff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        /* Compact Header */
+        /* Minimal Header */
         .calc-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            padding: 0 4px;
+            margin-bottom: 16px;
+            height: 28px;
         }
 
         .logo {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .logo i {
-            font-size: 20px;
+            font-size: 16px;
             color: #2980b9;
         }
 
         .logo-text {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 600;
             color: #2980b9;
-            letter-spacing: -0.5px;
+            letter-spacing: -0.3px;
         }
 
         .theme-toggle {
             background: rgba(52, 152, 219, 0.1);
             border: none;
             color: #3498db;
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.2s ease;
+            font-size: 12px;
         }
 
-        .theme-toggle:hover {
-            background: rgba(52, 152, 219, 0.2);
-        }
-
-        /* Compact Display */
+        /* Ultra Compact Display */
         .display-container {
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 18px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 16px rgba(52, 152, 219, 0.08);
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
             border: 1px solid rgba(52, 152, 219, 0.1);
+            height: 90px;
         }
 
         .current-operation {
-            font-size: 16px;
+            font-size: 14px;
             color: #7f8c8d;
-            margin-bottom: 8px;
-            min-height: 20px;
+            margin-bottom: 6px;
+            min-height: 18px;
             word-break: break-all;
             text-align: right;
             font-weight: 400;
         }
 
         .result {
-            font-size: 40px;
+            font-size: 32px;
             font-weight: 300;
             line-height: 1;
             margin-bottom: 4px;
@@ -131,73 +102,61 @@
             text-align: right;
             color: #2c3e50;
             font-family: 'SF Mono', 'Menlo', monospace;
+            min-height: 38px;
         }
 
         .memory-indicator {
-            font-size: 12px;
+            font-size: 11px;
             color: #3498db;
             display: flex;
             justify-content: space-between;
-            padding-top: 12px;
+            padding-top: 8px;
             border-top: 1px solid rgba(52, 152, 219, 0.1);
         }
 
-        /* Memory Row - Compact */
+        /* Memory Buttons - Minimal */
         .memory-row {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
+            gap: 6px;
             margin-bottom: 12px;
         }
 
         .memory-btn {
-            height: 36px;
-            font-size: 13px;
-            border-radius: 6px;
+            height: 28px;
+            font-size: 12px;
+            border-radius: 4px;
             background: rgba(52, 152, 219, 0.08);
             color: #3498db;
             border: 1px solid rgba(52, 152, 219, 0.1);
             cursor: pointer;
-            transition: all 0.2s;
             font-weight: 500;
         }
 
-        .memory-btn:hover {
-            background: rgba(52, 152, 219, 0.15);
-        }
-
-        /* Compact Keypad with Square Buttons */
+        /* Ultra Compact Keypad with Square Buttons */
         .keypad {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            background: transparent;
-            padding: 0;
+            gap: 6px;
+            height: 240px;
         }
 
         .key {
-            height: 56px;
+            height: 48px;
             border: none;
-            border-radius: 0; /* Square corners */
-            font-size: 20px;
+            border-radius: 0;
+            font-size: 18px;
             font-weight: 500;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.15s ease;
+            transition: all 0.1s ease;
             user-select: none;
             -webkit-user-select: none;
-            position: relative;
-            overflow: hidden;
         }
 
-        /* Non-rounded square buttons */
-        .key.square {
-            border-radius: 0 !important;
-        }
-
-        /* Button Color Schemes - Square Design */
+        /* Button Color Schemes */
         .light-blue {
             background: #e8f4fc;
             color: #2980b9;
@@ -206,8 +165,6 @@
 
         .light-blue:hover {
             background: #d6eaf8;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.15);
         }
 
         .medium-blue {
@@ -218,8 +175,6 @@
 
         .medium-blue:hover {
             background: #2980b9;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.25);
         }
 
         .dark-blue {
@@ -230,8 +185,6 @@
 
         .dark-blue:hover {
             background: #154360;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(26, 82, 118, 0.25);
         }
 
         .accent-blue {
@@ -242,8 +195,6 @@
 
         .accent-blue:hover {
             background: linear-gradient(135deg, #2980b9, #1a5276);
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.25);
         }
 
         .white {
@@ -255,51 +206,33 @@
 
         .white:hover {
             background: #f8f9fa;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.1);
         }
 
-        /* Zero button spans 2 columns - Square */
+        /* Zero button spans 2 columns */
         .key.zero {
             grid-column: span 2;
             justify-content: flex-start;
-            padding-left: 22px;
+            padding-left: 20px;
         }
 
         /* Icon buttons */
         .icon-btn {
-            font-size: 16px;
-        }
-
-        /* Footer */
-        .footer {
-            padding: 12px;
-            text-align: center;
-            font-size: 11px;
-            color: #7f8c8d;
-            margin-top: 16px;
+            font-size: 14px;
         }
 
         /* Dark mode */
         body.dark-mode {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: #1a1a2e;
             color: #ecf0f1;
         }
 
-        body.dark-mode .status-bar {
-            background: rgba(26, 26, 46, 0.95);
-            border-bottom: 1px solid rgba(52, 152, 219, 0.2);
-        }
-
-        body.dark-mode .time,
-        body.dark-mode .status-icons {
-            color: #3498db;
+        body.dark-mode .calculator-container {
+            background: #1a1a2e;
         }
 
         body.dark-mode .display-container {
-            background: #1a1a2e;
+            background: #2c3e50;
             border: 1px solid rgba(52, 152, 219, 0.2);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
         }
 
         body.dark-mode .current-operation {
@@ -341,89 +274,24 @@
             color: #3498db;
         }
 
-        /* Responsive adjustments */
-        @media (min-height: 700px) {
-            .key {
-                height: 60px;
-            }
-            
-            .result {
-                font-size: 44px;
-            }
-        }
-
-        @media (max-width: 380px) {
-            .key {
-                height: 52px;
-                font-size: 18px;
-            }
-            
-            .result {
-                font-size: 36px;
-            }
-            
-            .calculator-container {
-                padding: 12px;
-            }
-            
-            .display-container {
-                padding: 14px;
-            }
-        }
-
         /* Key press animation */
-        @keyframes keyPress {
-            0% { transform: scale(1); }
-            50% { transform: scale(0.97); }
-            100% { transform: scale(1); }
-        }
-
         .key.pressed {
-            animation: keyPress 0.12s ease;
+            transform: scale(0.95);
         }
 
-        /* Active state */
-        .key:active {
-            transform: scale(0.97);
-        }
-
-        /* Focus outline for accessibility */
+        /* Focus outline */
         .key:focus {
             outline: 2px solid #3498db;
-            outline-offset: 2px;
+            outline-offset: 1px;
         }
 
-        /* Grid layout optimization */
-        @media (max-width: 320px) {
-            .keypad {
-                gap: 6px;
-            }
-            
-            .memory-row {
-                gap: 6px;
-            }
-            
-            .key {
-                height: 48px;
-                font-size: 17px;
-            }
-        }
+        /* Footer removed - using all space for calculator */
     </style>
 </head>
 <body>
-    <!-- Compact Status Bar -->
-    <div class="status-bar">
-        <div class="time" id="current-time">9:41</div>
-        <div class="status-icons">
-            <i class="fas fa-signal"></i>
-            <i class="fas fa-wifi"></i>
-            <i class="fas fa-battery-three-quarters"></i>
-        </div>
-    </div>
-
-    <!-- Calculator Container -->
+    <!-- Calculator Container - Exactly 320x480 -->
     <div class="calculator-container">
-        <!-- Header -->
+        <!-- Minimal Header -->
         <div class="calc-header">
             <div class="logo">
                 <i class="fas fa-calculator"></i>
@@ -453,57 +321,52 @@
             <button class="memory-btn" data-action="memory-store">MS</button>
         </div>
 
-        <!-- Keypad with Square Buttons -->
+        <!-- Keypad -->
         <div class="keypad">
             <!-- Row 1 -->
-            <button class="key square light-blue" data-action="clear" id="clear-btn">
+            <button class="key light-blue" data-action="clear" id="clear-btn">
                 <span id="clear-text">AC</span>
             </button>
-            <button class="key square light-blue" data-action="sign">
+            <button class="key light-blue" data-action="sign">
                 <i class="fas fa-plus-minus icon-btn"></i>
             </button>
-            <button class="key square light-blue" data-action="percentage">
+            <button class="key light-blue" data-action="percentage">
                 <i class="fas fa-percent icon-btn"></i>
             </button>
-            <button class="key square accent-blue" data-action="divide">
+            <button class="key accent-blue" data-action="divide">
                 <i class="fas fa-divide icon-btn"></i>
             </button>
 
             <!-- Row 2 -->
-            <button class="key square white" data-number="7">7</button>
-            <button class="key square white" data-number="8">8</button>
-            <button class="key square white" data-number="9">9</button>
-            <button class="key square accent-blue" data-action="multiply">
+            <button class="key white" data-number="7">7</button>
+            <button class="key white" data-number="8">8</button>
+            <button class="key white" data-number="9">9</button>
+            <button class="key accent-blue" data-action="multiply">
                 <i class="fas fa-times icon-btn"></i>
             </button>
 
             <!-- Row 3 -->
-            <button class="key square white" data-number="4">4</button>
-            <button class="key square white" data-number="5">5</button>
-            <button class="key square white" data-number="6">6</button>
-            <button class="key square accent-blue" data-action="subtract">
+            <button class="key white" data-number="4">4</button>
+            <button class="key white" data-number="5">5</button>
+            <button class="key white" data-number="6">6</button>
+            <button class="key accent-blue" data-action="subtract">
                 <i class="fas fa-minus icon-btn"></i>
             </button>
 
             <!-- Row 4 -->
-            <button class="key square white" data-number="1">1</button>
-            <button class="key square white" data-number="2">2</button>
-            <button class="key square white" data-number="3">3</button>
-            <button class="key square accent-blue" data-action="add">
+            <button class="key white" data-number="1">1</button>
+            <button class="key white" data-number="2">2</button>
+            <button class="key white" data-number="3">3</button>
+            <button class="key accent-blue" data-action="add">
                 <i class="fas fa-plus icon-btn"></i>
             </button>
 
             <!-- Row 5 -->
-            <button class="key square white zero" data-number="0">0</button>
-            <button class="key square white" data-action="decimal">.</button>
-            <button class="key square dark-blue" data-action="equals">
+            <button class="key white zero" data-number="0">0</button>
+            <button class="key white" data-action="decimal">.</button>
+            <button class="key dark-blue" data-action="equals">
                 <i class="fas fa-equals icon-btn"></i>
             </button>
-        </div>
-
-        <!-- Footer -->
-        <div class="footer">
-            Compact Calculator • Square Design
         </div>
     </div>
 
@@ -524,20 +387,9 @@
         const resultElement = document.getElementById('result');
         const currentOperationElement = document.getElementById('current-operation');
         const clearTextElement = document.getElementById('clear-text');
-        const currentTimeElement = document.getElementById('current-time');
         const memoryStatusElement = document.getElementById('memory-status');
         const themeToggle = document.getElementById('theme-toggle');
         const themeIcon = document.getElementById('theme-icon');
-
-        // Update time
-        function updateTime() {
-            const now = new Date();
-            let hours = now.getHours();
-            let minutes = now.getMinutes();
-            hours = hours % 12 || 12;
-            minutes = minutes < 10 ? '0' + minutes : minutes;
-            currentTimeElement.textContent = `${hours}:${minutes}`;
-        }
 
         // Update display
         function updateDisplay() {
@@ -756,7 +608,7 @@
             button.classList.add('pressed');
             setTimeout(() => {
                 button.classList.remove('pressed');
-            }, 120);
+            }, 100);
             
             const action = button.dataset.action;
             const number = button.dataset.number;
@@ -834,11 +686,7 @@
         }
 
         // Initialize
-        updateTime();
         updateDisplay();
-        
-        // Update time every minute
-        setInterval(updateTime, 60000);
         
         // Event listeners
         document.querySelector('.keypad').addEventListener('click', handleButtonClick);
@@ -846,7 +694,7 @@
         document.addEventListener('keydown', handleKeyboard);
         themeToggle.addEventListener('click', toggleTheme);
         
-        // Touch feedback for all buttons
+        // Touch feedback
         document.querySelectorAll('button').forEach(button => {
             button.addEventListener('touchstart', function() {
                 this.style.opacity = '0.8';
@@ -855,20 +703,20 @@
             button.addEventListener('touchend', function() {
                 setTimeout(() => {
                     this.style.opacity = '1';
-                }, 120);
+                }, 100);
             });
         });
 
-        // Prevent context menu on long press
+        // Prevent context menu
         document.addEventListener('contextmenu', function(e) {
             e.preventDefault();
         });
 
-        // Handle button focus for keyboard navigation
+        // Handle button focus
         document.querySelectorAll('.key, .memory-btn').forEach(button => {
             button.addEventListener('focus', function() {
                 this.style.outline = '2px solid #3498db';
-                this.style.outlineOffset = '2px';
+                this.style.outlineOffset = '1px';
             });
             
             button.addEventListener('blur', function() {
